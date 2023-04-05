@@ -1,11 +1,21 @@
 <script>
 	export let size = "3rem";
+  import { fly } from "svelte/transition";
+  let selected = 'Morgan'
+  // let class ='active'
+  $: le_class = selected === 'Morgan' ? '' : 'active'
+
 </script>
 
 <div class="container">
-	<h1 class="title">Morgan</h1>
+	<h1 class="title {le_class}">{selected}</h1>
 	<div class="links">
-		<a href="https://500px.com/p/morganw" target="_blank" class="link">
+		<a href="https://500px.com/p/morganw" target="_blank" class="link"
+    on:mouseover={() => {selected = 'Photos'}}
+    on:focus={() => {selected = 'Photos'}}
+    on:mouseout={() => {selected = 'Morgan'}}
+    on:blur={() => {selected = 'Morgan'}}
+    >
 			<svg
 				width={size}
 				height={size}
@@ -38,8 +48,14 @@
 					/>
 				</g>
 			</svg>
+      
 		</a>
-		<a href="https://twitter.com/mrgnw" target="_blank" class="link stroked">
+		<a href="https://twitter.com/mrgnw" target="_blank" class="link stroked"
+    on:focus={() => {selected = 'twitter'}}
+    on:mouseover={() => {selected = 'twitter'}}
+    on:mouseout={() => {selected = 'Morgan'}}
+    on:blur={() => {selected = 'Morgan'}}
+    >
 			<svg
 				width={size}
 				height={size}
@@ -52,7 +68,12 @@
 				/></svg
 			>
 		</a>
-		<a href="https://instagram.com/mrgnw2" target="_blank" class="link filled">
+		<a href="https://instagram.com/mrgnw2" target="_blank" class="link filled"
+    on:mouseover={() => {selected = 'instagram'}}
+    on:focus={() => {selected = 'instagram'}}
+    on:mouseout={() => {selected = 'Morgan'}}
+    on:blur={() => {selected = 'Morgan'}}
+    >
 			<svg
 				width={size}
 				height={size}
@@ -64,7 +85,12 @@
 				/>
 			</svg>
 		</a>
-		<a href="https://t.me/mrgnw" target="_blank" class="link filled">
+		<a href="https://t.me/mrgnw" target="_blank" class="link filled"
+        on:focus={() => {selected = 'message'}}
+        on:mouseover={() => {selected = 'message'}}
+        on:mouseout={() => {selected = 'Morgan'}}
+        on:blur={() => {selected = 'Morgan'}}
+    >
 			<svg
 				width={size}
 				height={size}
@@ -85,7 +111,12 @@
 				</defs>
 			</svg>
 		</a>
-		<a href="https://linkedin.com/in/mrgnw" target="_blank" class="link">
+		<a href="https://linkedin.com/in/mrgnw" target="_blank" class="link"
+        on:focus={() => {selected = 'LinkedIn'}}
+        on:mouseover={() => {selected = 'LinkedIn'}}
+        on:blur={() => {selected = 'Morgan'}}
+        on:mouseout={() => {selected = 'Morgan'}}
+    >
 			<svg
 				width={size}
 				height={size}
@@ -107,7 +138,7 @@
 <style>
 	:root {
 		--primary: black;
-		--default: rgba(0,0,0,.8);
+		--default: rgba(0, 0, 0, 0.8);
 		--highlight: rgb(30, 131, 255);
 		--bg: #ffffff;
 		background-color: var(--bg);
@@ -119,6 +150,7 @@
 		margin-bottom: 0.5rem;
 		font-family: sans-serif;
 		color: var(--primary);
+    width: 5em;
 	}
 
 	.container {
@@ -159,4 +191,14 @@
 	a {
 		text-decoration: none;
 	}
+  .icon-text {
+    opacity: 0;
+    transition: opacity 300ms;
+    pointer-events: none;
+}
+.active {
+  color: var(--highlight);
+}
+
+
 </style>
