@@ -6,6 +6,12 @@
   $: le_class = selected === 'Morgan' ? '' : 'active'
 
 </script>
+<!-- title -->
+<svelte:head>
+  <title>Morgan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Contact Morgan or view his other work on 500px, Twitter, Instagram, or LinkedIn">
+</svelte:head>
 
 <div class="container">
 	<h1 class="title {le_class}">{selected}</h1>
