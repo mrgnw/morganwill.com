@@ -10,7 +10,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta
 		name="description"
-		content="Contact Morgan or view his other work on 500px, Twitter, Instagram, or LinkedIn"
+		content="Contact Morgan or view his other work on 500px, Twitter, Instagram"
 	/>
 </svelte:head>
 
@@ -167,7 +167,7 @@
 				/></svg
 			>
 		</a>
-		<a
+		<!-- <a
 			href="https://linkedin.com/in/mrgnw"
 			target="_blank"
 			class="link"
@@ -199,7 +199,7 @@
 					class="filled"
 				/>
 			</svg>
-		</a>
+		</a> -->
 		<!-- github -->
 		<a
 			href="https://github.com/mrgnw"
