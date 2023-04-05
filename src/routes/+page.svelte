@@ -2,11 +2,9 @@
 	export let size = "3rem";
   import { fly } from "svelte/transition";
   let selected = 'Morgan'
-  // let class ='active'
-  $: le_class = selected === 'Morgan' ? '' : 'active'
+  $: active = selected === 'Morgan' ? '' : 'active'
 
 </script>
-<!-- title -->
 <svelte:head>
   <title>Morgan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,7 +12,7 @@
 </svelte:head>
 
 <div class="container">
-	<h1 class="title {le_class}">{selected}</h1>
+	<h1 class="title {active}">{selected}</h1>
 	<div class="links">
 		<a href="https://500px.com/p/morganw" target="_blank" class="link"
     aria-label="500px photo portfolio" 
@@ -153,6 +151,7 @@
 		--highlight: rgb(30, 131, 255);
 		--bg: #ffffff;
 		background-color: var(--bg);
+    overflow: hidden;
 	}
 
 	.title {
@@ -194,7 +193,6 @@
 			--primary: white;
 			--highlight: white;
 			--default: rgb(30, 255, 139);
-
 			--bg: #000000;
 		}
 	}
