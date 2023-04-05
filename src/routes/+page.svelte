@@ -17,6 +17,7 @@
 	<h1 class="title {le_class}">{selected}</h1>
 	<div class="links">
 		<a href="https://500px.com/p/morganw" target="_blank" class="link"
+    aria-label="500px photo portfolio" 
     on:mouseover={() => {selected = 'Photos'}}
     on:focus={() => {selected = 'Photos'}}
     on:mouseout={() => {selected = 'Morgan'}}
@@ -57,6 +58,7 @@
       
 		</a>
 		<a href="https://twitter.com/mrgnw" target="_blank" class="link stroked"
+    aria-label="Twitter" 
     on:focus={() => {selected = 'twitter'}}
     on:mouseover={() => {selected = 'twitter'}}
     on:mouseout={() => {selected = 'Morgan'}}
@@ -75,6 +77,7 @@
 			>
 		</a>
 		<a href="https://instagram.com/mrgnw2" target="_blank" class="link filled"
+    aria-label="Instagram" 
     on:mouseover={() => {selected = 'instagram'}}
     on:focus={() => {selected = 'instagram'}}
     on:mouseout={() => {selected = 'Morgan'}}
@@ -92,6 +95,7 @@
 			</svg>
 		</a>
 		<a href="https://t.me/mrgnw" target="_blank" class="link filled"
+        aria-label="Message on Telegram" 
         on:focus={() => {selected = 'message'}}
         on:mouseover={() => {selected = 'message'}}
         on:mouseout={() => {selected = 'Morgan'}}
@@ -118,6 +122,7 @@
 			</svg>
 		</a>
 		<a href="https://linkedin.com/in/mrgnw" target="_blank" class="link"
+        aria-label="LinkedIn" 
         on:focus={() => {selected = 'LinkedIn'}}
         on:mouseover={() => {selected = 'LinkedIn'}}
         on:blur={() => {selected = 'Morgan'}}
