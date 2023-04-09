@@ -22,18 +22,10 @@
 			target="_blank"
 			class="link filled"
 			aria-label="Message on Telegram"
-			on:focus={() => {
-				selected = "message";
-			}}
-			on:mouseover={() => {
-				selected = "message";
-			}}
-			on:mouseout={() => {
-				selected = "Morgan";
-			}}
-			on:blur={() => {
-				selected = "Morgan";
-			}}
+			on:focus={() => {selected = "message";}}
+			on:mouseover={() => { selected = "message";}}
+			on:mouseout={() => { selected = "Morgan"; }}
+			on:blur={() => { selected = "Morgan"; }}
 		>
 			<svg
 				width={size}
@@ -60,18 +52,10 @@
 			target="_blank"
 			class="link"
 			aria-label="500px photo portfolio"
-			on:mouseover={() => {
-				selected = "Photos";
-			}}
-			on:focus={() => {
-				selected = "Photos";
-			}}
-			on:mouseout={() => {
-				selected = "Morgan";
-			}}
-			on:blur={() => {
-				selected = "Morgan";
-			}}
+			on:mouseover={() => {selected = "Photos";}}
+			on:focus={() => { selected = "Photos"; }}
+			on:mouseout={() => { selected = "Morgan"; }}
+			on:blur={() => { selected = "Morgan"; }}
 		>
 			<svg
 				width={size}
@@ -276,18 +260,10 @@
 		justify-content: center;
 		margin: 1.3rem 2.3rem;
 	}
-	.stroked {
-		stroke: var(--default);
-	}
-	.stroked:hover {
-		stroke: var(--highlight);
-	}
-	.filled {
-		fill: var(--default);
-	}
-	.filled:hover {
-		fill: var(--highlight);
-	}
+	.filled { fill: var(--default); }
+	.stroked { stroke: var(--default); }
+	.filled:hover { fill: var(--highlight); }
+	.stroked:hover { stroke: var(--highlight); }
 
 	@media (prefers-color-scheme: dark) {
 		:root {
@@ -298,9 +274,6 @@
 		}
 	}
 
-	a {
-		text-decoration: none;
-	}
 	.icon-text {
 		opacity: 0;
 		transition: opacity 300ms;
@@ -309,4 +282,9 @@
 	.active {
 		color: var(--highlight);
 	}
+  @media (max-width: 767px) {
+  .container {
+    flex-direction: column;
+  }
+}
 </style>
