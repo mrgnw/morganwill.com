@@ -98,18 +98,10 @@
 			target="_blank"
 			class="link filled"
 			aria-label="Instagram"
-			on:mouseover={() => {
-				selected = "instagram";
-			}}
-			on:focus={() => {
-				selected = "instagram";
-			}}
-			on:mouseout={() => {
-				selected = "Morgan";
-			}}
-			on:blur={() => {
-				selected = "Morgan";
-			}}
+			on:mouseover={() => {selected = "instagram"; }}
+			on:focus={() => { selected = "instagram"; }}
+			on:mouseout={() => { selected = "Morgan"; }}
+			on:blur={() => { selected = "Morgan"; }}
 		>
 			<svg
 				width={size}
@@ -128,18 +120,10 @@
 			target="_blank"
 			class="link stroked"
 			aria-label="Twitter"
-			on:focus={() => {
-				selected = "twitter";
-			}}
-			on:mouseover={() => {
-				selected = "twitter";
-			}}
-			on:mouseout={() => {
-				selected = "Morgan";
-			}}
-			on:blur={() => {
-				selected = "Morgan";
-			}}
+			on:focus={() => { selected = "twitter"; }}
+			on:mouseover={() => { selected = "twitter"; }}
+			on:mouseout={() => { selected = "Morgan"; }}
+			on:blur={() => { selected = "Morgan"; }}
 		>
 			<svg
 				width={size}
@@ -192,18 +176,10 @@
 			target="_blank"
 			class="link"
 			aria-label="Github"
-			on:mouseover={() => {
-				selected = "github";
-			}}
-			on:focus={() => {
-				selected = "github";
-			}}
-			on:mouseout={() => {
-				selected = "Morgan";
-			}}
-			on:blur={() => {
-				selected = "Morgan";
-			}}
+			on:mouseover={() => { selected = "github"; }}
+			on:focus={() => { selected = "github"; }}
+			on:mouseout={() => { selected = "Morgan"; }}
+			on:blur={() => { selected = "Morgan"; }}
 		>
 			<svg
 				width={size}
@@ -262,7 +238,7 @@
 		justify-content: center;
 		margin: 1.3rem 2.3rem;
 	}
-	.filled { fill: var(--default); }
+	.filled { fill: var(--default) !important; }
 	.stroked { stroke: var(--default); }
 	.filled:hover { fill: var(--highlight); }
 	.stroked:hover { stroke: var(--highlight); }
