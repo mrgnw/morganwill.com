@@ -239,8 +239,8 @@
 		margin: 1.3rem 2.3rem;
 	}
 	.filled { fill: var(--default) !important; }
-	.stroked { stroke: var(--default); }
-	.filled:hover { fill: var(--highlight); }
+	.stroked { stroke: var(--default);}
+	.filled:hover { fill: var(--highlight) !important ; }
 	.stroked:hover { stroke: var(--highlight); }
 
 	@media (prefers-color-scheme: dark) {
