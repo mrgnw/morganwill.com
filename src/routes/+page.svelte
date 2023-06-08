@@ -53,7 +53,7 @@
 			</svg>
 		</a>
 		<a
-			href="https://500px.com/p/morganw"
+			href="https://500px.com/p/morganw?view=licensing"
 			target="_blank"
 			class="link"
 			aria-label="500px photo portfolio"
