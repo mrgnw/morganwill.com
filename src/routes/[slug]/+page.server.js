@@ -18,6 +18,7 @@ let redirects = {
 	'outsite': 'https://app.outsite.co/c/ZfUYmDab8',
 	'telegram': 'https://t.me/mrgnw',
 	'twitter': 'https://twitter.com/mrgnw',
+	'photos': 'https://500px.com/mrgnw?view=licensing',
 };
 
 Object.keys(aliases).forEach(
@@ -37,4 +38,3 @@ export const load = ({ params }) => {
 	}
 
 }
-
