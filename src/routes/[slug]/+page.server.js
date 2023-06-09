@@ -6,7 +6,8 @@ let aliases = {
 	'insta' : 'instagram', 
 	'li' : 'linkedin', 
 	'tw' : 'twitter', 
-	'dm' : 'telegram', 
+	'dm' : 'telegram',
+	'': 'imessage',
 };
 
 let redirects = {
