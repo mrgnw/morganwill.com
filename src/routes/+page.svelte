@@ -97,7 +97,7 @@
 		</a>
 
 		<a
-			href="https://instagram.com/mrgnw2"
+			href="https://instagram.com/morg.info"
 			target="_blank"
 			class="link filled"
 			aria-label="Instagram"
@@ -206,13 +206,11 @@
 		align-items: center;
 		height: 80vh;
 		transition: all 0.5s ease;
-
 	}
 	.link {
 		display: flex;
 		justify-content: center;
 		margin: 1.3rem 2.3rem;
-		transition: all 0.5s ease;
     width: auto;
 	}
 	.filled { fill: var(--default) !important; }
@@ -231,7 +229,6 @@
 
 	.icon-text {
 		opacity: 0;
-		transition: opacity 300ms;
 		pointer-events: none;
 	}
 	.active {

@@ -13,7 +13,7 @@ let aliases = {
 let redirects = {
 	'github': 'https://www.github.com/mrgnw',
 	'imessage': 'sms:imessage@textme.cc',
-	'instagram': 'https://www.instagram.com/mrgnw2/',
+	'instagram': 'https://www.instagram.com/morg.info/',
 	'linkedin': 'https://www.linkedin.com/in/mrgnw/',
 	'outsite': 'https://app.outsite.co/c/ZfUYmDab8',
 	'telegram': 'https://t.me/mrgnw',
