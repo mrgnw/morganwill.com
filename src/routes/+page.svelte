@@ -1,4 +1,6 @@
 <script>
+	export const prerender = true;
+
 	export let size = "3rem";
 	import { fly } from "svelte/transition";
   import { onMount } from "svelte";
