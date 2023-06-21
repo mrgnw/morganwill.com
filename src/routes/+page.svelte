@@ -97,7 +97,7 @@
 		</a>
 
 		<a
-			href="https://instagram.com/morg.info"
+			href="https://instagram.com/zenfo.co"
 			target="_blank"
 			class="link filled"
 			aria-label="Instagram"
