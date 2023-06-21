@@ -2,7 +2,7 @@
 	export const prerender = true;
 
 	export let size = "3rem";
-	// import { fly } from "svelte/transition";
+	import { fly } from "svelte/transition";
   import { onMount } from "svelte";
 
 	let selected = "Morgan";
@@ -53,7 +53,7 @@
 			</svg>
 		</a>
 		<a
-			href="/photos"
+			href="https://500px.com/p/morganw?view=licensing"
 			target="_blank"
 			class="link"
 			aria-label="500px photo portfolio"
@@ -97,7 +97,7 @@
 		</a>
 
 		<a
-			href="/instagram"
+			href="https://instagram.com/zenfo.co"
 			target="_blank"
 			class="link filled"
 			aria-label="Instagram"
