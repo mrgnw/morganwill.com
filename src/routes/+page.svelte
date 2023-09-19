@@ -133,9 +133,8 @@
 			width={size}
 			height={size}
 			alt="LinkedIn"
-			>
-			</img
-			>
+			/>
+			
 		</a>
 
 		<a
