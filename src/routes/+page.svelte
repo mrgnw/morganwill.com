@@ -134,7 +134,7 @@
 			height={size}
 			alt="LinkedIn"
 			>
-			</svg
+			</img
 			>
 		</a>
 
