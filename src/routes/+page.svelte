@@ -129,9 +129,8 @@
 			on:blur={() => { selected = "Morgan"; }}
 		>
 			<img 
-			src="static/iconmonstr-linkedin-3.svg"
-			width={size}
-			height={size}
+			src="iconmonstr-linkedin-3.svg"
+			style="width: {size}; height: {size}"
 			alt="LinkedIn"
 			/>
 			
