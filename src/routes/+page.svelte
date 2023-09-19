@@ -128,10 +128,12 @@
 			on:mouseout={() => { selected = "Morgan"; }}
 			on:blur={() => { selected = "Morgan"; }}
 		>
-			<svg 
+			<img 
 			src="/static/iconmonstr-linkedin-3.svg"
 			width={size}
-			height={size}>
+			height={size}
+			alt="LinkedIn"
+			>
 			</svg
 			>
 		</a>
