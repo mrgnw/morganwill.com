@@ -131,7 +131,7 @@
 			<svg 
 			src="/static/iconmonstr-linkedin-3.svg"
 			width={size}
-			height={size}
+			height={size}>
 			</svg
 			>
 		</a>
