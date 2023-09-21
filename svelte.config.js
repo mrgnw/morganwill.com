@@ -5,7 +5,15 @@ import adapter from "svelte-adapter-bun";
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   kit: {
-    adapter: adapter(),
+    adapter: adapter(
+			{
+				pages: 'build',
+				assets: 'build',
+				fallback: undefined,
+				precompress: false,
+				strict: true
+			}
+		),
   },
 
   preprocess: [
