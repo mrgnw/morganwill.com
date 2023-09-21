@@ -1,6 +1,8 @@
 
 import { error, redirect } from '@sveltejs/kit';
 
+export const prerender = true;
+
 let aliases = {
 	'git' : 'github', 
 	'insta' : 'instagram', 
@@ -24,6 +26,13 @@ let redirects = {
 Object.keys(aliases).forEach(
 	alias => redirects[alias] = redirects[aliases[alias]]
 );
+
+// tell svelte what [slug]s are available so it can pre-render
+export function entries(){
+	return Object.keys(redirects).map(
+		slug => ({ slug })
+	);
+}
 
 export const load = ({ params }) => {
 	const { slug } = params;
