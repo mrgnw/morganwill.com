@@ -123,7 +123,7 @@
 			target="_blank"
 			class="link filled"
 			aria-label="LinkedIn"
-			on:focus={() => { selected = "twitter"; }}
+			on:focus={() => { selected = "linkedin"; }}
 			on:mouseover={() => { selected = "linkedin"; }}
 			on:mouseout={() => { selected = "Morgan"; }}
 			on:blur={() => { selected = "Morgan"; }}
