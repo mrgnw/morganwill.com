@@ -4,11 +4,11 @@ import { error, redirect } from '@sveltejs/kit';
 export const prerender = true;
 
 let aliases = {
-	'git' : 'github', 
-	'insta' : 'instagram', 
-	'li' : 'linkedin', 
-	'tw' : 'twitter', 
-	'dm' : 'telegram',
+	'dm': 'telegram',
+	'li': 'linkedin',
+	'git': 'github',
+	'insta': 'instagram',
+	'tw': 'twitter',
 	'': 'imessage',
 };
 
