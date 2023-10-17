@@ -1,2 +1,4 @@
-# Created with [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte)
+# Simple links page
+
+## Created with [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte)
 
