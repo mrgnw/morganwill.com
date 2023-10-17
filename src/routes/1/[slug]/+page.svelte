@@ -1,6 +1,5 @@
 <script>
 		export let data;
-		console.log(data.columns)
 		const main_col = data.columns[1]
 </script>
 
