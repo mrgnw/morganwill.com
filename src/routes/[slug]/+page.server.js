@@ -7,6 +7,8 @@ export const prerender = true;
  */
 const redirects = {
 	'': 'sms:morgan@textme.cc',
+	'apple': 'sms:morgan@textme.cc',
+	'imessage': 'sms:morgan@textme.cc',
 };
 
 // tell Svelte to reserve & pre-render each key in `redirects` as a [slug]
