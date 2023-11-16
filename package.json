@@ -24,6 +24,7 @@
   "type": "module",
   "dependencies": {
     "@sveltejs/adapter-cloudflare": "^2.3.0",
-    "@sveltejs/kit": "^1.27.6"
+    "@sveltejs/kit": "^1.27.6",
+    "iconify-icon": "^1.0.8"
   }
 }
