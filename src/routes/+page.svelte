@@ -93,7 +93,7 @@
 	.title {
 		font-size: 4rem;
 		font-weight: 200;
-		margin-bottom: 0.5rem;
+		margin-bottom: 1rem;
 		font-family: sans-serif;
 		color: var(--primary);
 		width: 5em;
@@ -104,7 +104,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		height: 80vh;
+		height: 90vh;
 		transition: all 0.5s ease;
 	}
 	/* formerly .link */
