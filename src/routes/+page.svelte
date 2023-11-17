@@ -3,6 +3,39 @@
 	let selected = "Morgan";
 	$: active = selected === "Morgan" ? "" : "active";
 
+	let links = [
+		{
+			title: 'message',
+			url: 'https://t.me/mrgnw',
+			blurb: 'Message on Telegram',
+			icon: 'fa:telegram',
+		},
+		{
+			title: 'photos',
+			url: 'https://500px.com/p/morganw?view=licensing',
+			blurb: '500px photo portfolio',
+			icon: 'tabler:photo',
+		},
+		{
+			title: 'instagram',
+			url: 'https://instagram.com/zenfo.co',
+			blurb: 'Instagram profile',
+			icon: 'akar-icons:instagram-fill',
+		},
+		{
+			title: 'LinkedIn',
+			url: 'https://linkedin.com/in/mrgnw',
+			blurb: 'LinkedIn profile',
+			icon: 'akar-icons:linkedin-fill',
+		},
+		{
+			title: 'github',
+			url: 'https://github.com/mrgnw',
+			blurb: 'GitHub profile',
+			icon: 'akar-icons:github-fill',
+		}
+	];
+
 </script>
 
 <svelte:head>
@@ -14,66 +47,26 @@
 	/>
 </svelte:head>
 
+{#snippet link_item({ url, icon, blurb, title })}
+		<a
+			href={url}
+			target="_blank"
+			aria-label={blurb}
+			on:mouseover={() => { selected = title; }}
+			on:focus={() => { selected = title; }}
+			on:mouseout={() => { selected = 'Morgan'; }}
+			on:blur={() => { selected = 'Morgan'; }}
+		>
+			<iconify-icon icon={icon} height="5em"></iconify-icon>
+		</a>
+	{/snippet}
+
 <div class="container">
 	<h1 class="title {active}">{selected}</h1>
 	<div class="links">
-		<a
-			href="https://t.me/mrgnw"
-			target="_blank"
-			aria-label="Message on Telegram"
-			on:focus={() => {selected = "message";}}
-			on:mouseover={() => { selected = "message";}}
-			on:mouseout={() => { selected = "Morgan"; }}
-			on:blur={() => { selected = "Morgan"; }}
-		>
-			<iconify-icon icon="fa:telegram" height="5em"></iconify-icon>
-		</a>
-		<a
-			href="https://500px.com/p/morganw?view=licensing"
-			target="_blank"
-			aria-label="500px photo portfolio"
-			on:mouseover={() => {selected = "Photos";}}
-			on:focus={() => { selected = "Photos"; }}
-			on:mouseout={() => { selected = "Morgan"; }}
-			on:blur={() => { selected = "Morgan"; }}
-		>
-			<iconify-icon icon="tabler:photo" height="5em"></iconify-icon>
-		</a>
-		<a
-			href="https://instagram.com/zenfo.co"
-			target="_blank"
-			aria-label="Instagram"
-			on:mouseover={() => {selected = "instagram"; }}
-			on:focus={() => { selected = "instagram"; }}
-			on:mouseout={() => { selected = "Morgan"; }}
-			on:blur={() => { selected = "Morgan"; }}
-		>
-			<iconify-icon icon="fe:instagram" height="5em"></iconify-icon>
-		</a>
-
-		<a
-			href="https://www.linkedin.com/in/mrgnw/"
-			target="_blank"
-			aria-label="LinkedIn"
-			on:focus={() => { selected = "linkedin"; }}
-			on:mouseover={() => { selected = "linkedin"; }}
-			on:mouseout={() => { selected = "Morgan"; }}
-			on:blur={() => { selected = "Morgan"; }}
-		>
-			<iconify-icon icon="ant-design:linkedin-outlined" height="5em"></iconify-icon>
-		</a>
-
-		<a
-			href="https://github.com/mrgnw"
-			target="_blank"
-			aria-label="Github"
-			on:mouseover={() => { selected = "github"; }}
-			on:focus={() => { selected = "github"; }}
-			on:mouseout={() => { selected = "Morgan"; }}
-			on:blur={() => { selected = "Morgan"; }}
-		>
-			<iconify-icon icon="mingcute:github-line" height="5em"></iconify-icon>
-		</a>
+		{#each links as link}
+			{@render link_item(link)}
+		{/each}
 	</div>
 </div>
 
@@ -98,7 +91,7 @@
 	.active { color: var(--highlight); }
 	a > iconify-icon { color: var(--default); }
 	iconify-icon:hover { color: var(--highlight) }
-	
+
 	.title {
 		font-size: 4rem;
 		font-weight: 200;
@@ -120,10 +113,10 @@
 		display: flex;
 		justify-content: center;
 		margin: 1.3rem 2.3rem;
-    width: auto;
+		width: auto;
 	}
 
-  @media (max-width: 767px) {
+	@media (max-width: 767px) {
 		.container { flex-direction: column; }
 		a {
 			width: 100%;
