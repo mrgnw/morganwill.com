@@ -125,7 +125,7 @@
 	}
 
 	a > iconify-icon {
-		color: rgba(0,0,0,0.8);
+		color: var(--default);
 	}
 	iconify-icon:hover {
 		color: var(--highlight)
