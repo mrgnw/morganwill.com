@@ -86,10 +86,19 @@
 		background-color: var(--bg);
 		overflow: hidden;
 	}
-  .hidden {
-    opacity: 0;
-  }
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--primary: white;
+			--highlight: white;
+			--default: rgb(30, 255, 139);
+			--bg: #000000;
+		}
+	}
 
+	.active { color: var(--highlight); }
+	a > iconify-icon { color: var(--default); }
+	iconify-icon:hover { color: var(--highlight) }
+	
 	.title {
 		font-size: 4rem;
 		font-weight: 200;
@@ -107,7 +116,6 @@
 		height: 90vh;
 		transition: all 0.5s ease;
 	}
-	/* formerly .link */
 	a {
 		display: flex;
 		justify-content: center;
@@ -115,32 +123,12 @@
     width: auto;
 	}
 
-	@media (prefers-color-scheme: dark) {
-		:root {
-			--primary: white;
-			--highlight: white;
-			--default: rgb(30, 255, 139);
-			--bg: #000000;
-		}
-	}
-
-	a > iconify-icon {
-		color: var(--default);
-	}
-	iconify-icon:hover {
-		color: var(--highlight)
-	}
-	.active {
-		color: var(--highlight);
-	}
   @media (max-width: 767px) {
-  .container {
-    flex-direction: column;
-  }
-	a {
-		width: 100%;
-		margin: 1.3rem 0;
-		transition: all .8s ease;
-  }
+		.container { flex-direction: column; }
+		a {
+			width: 100%;
+			margin: 1.3rem 0;
+			transition: all .8s ease;
+		}
 }
 </style>
