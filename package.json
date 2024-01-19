@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.0",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
     "postcss-load-config": "^4.0.2",
@@ -20,12 +21,13 @@
     "svelte-preprocess": "next",
     "typescript": "^5.3.2",
     "vite": "^5.0.2",
-    "@sveltejs/vite-plugin-svelte": "^3.0.0"
+    "workbox-window": "^7.0.0"
   },
   "type": "module",
   "dependencies": {
     "@sveltejs/adapter-cloudflare": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
+    "@sveltepress/theme-default": "^1.22.3",
     "@sveltepress/vite": "^0.31.3",
     "iconify-icon": "^1.0.8"
   }
