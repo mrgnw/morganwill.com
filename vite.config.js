@@ -1,8 +1,8 @@
-import { sveltekit } from '@sveltejs/kit/vite';
+import { sveltepress } from '@sveltepress/vite' 
 
 /** @type {import('vite').UserConfig} */
 const config = {
-	plugins: [sveltekit()]
+	plugins: [sveltepress()]
 };
 
 export default config;

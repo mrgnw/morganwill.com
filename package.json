@@ -26,6 +26,7 @@
   "dependencies": {
     "@sveltejs/adapter-cloudflare": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
+    "@sveltepress/vite": "^0.31.3",
     "iconify-icon": "^1.0.8"
   }
 }
