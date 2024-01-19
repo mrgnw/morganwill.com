@@ -1,8 +1,31 @@
-import { sveltepress } from '@sveltepress/vite' 
+import { defineConfig } from 'vite'
 
-/** @type {import('vite').UserConfig} */
-const config = {
-	plugins: [sveltepress()]
-};
+import { sveltepress } from '@sveltepress/vite'
+import { defaultTheme } from '@sveltepress/theme-default'
 
-export default config;
+
+export default defineConfig({
+	plugins: [
+		sveltepress({
+			theme: defaultTheme({
+				navbar: [
+					{
+						title: 'Morgan',
+						to: '/'
+					},
+					{
+						title: 'With dropdown',
+						items: [
+							{
+								title: 'Github',
+								to: 'https://github.com/mrgnw',
+								external: true
+							}
+						]
+					}
+				]
+			})
+		})
+	]
+})
+

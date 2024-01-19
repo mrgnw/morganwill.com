@@ -1,4 +1,10 @@
 <script>
+	export const frontmatter = {
+    title: 'Olo',
+    description: 'Some description',
+		tagline: "It's catchy",
+  }
+
 	export let size = "3rem";
 	let selected = "Morgan";
 	$: active = selected === "Morgan" ? "" : "active";
