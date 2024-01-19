@@ -1,8 +1,11 @@
 import preprocess from "svelte-preprocess";
 import adapter from "@sveltejs/adapter-static";
+import { markdoc } from 'svelte-markdoc-preprocess';
+
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
+	extensions: ['.markdoc', '.svelte'],
 	kit: {
 		alias: {
 			$components: './src/components',
@@ -26,6 +29,7 @@ const config = {
 		preprocess({
 			postcss: true,
 		}),
+		markdoc(),
 	],
 };
 
