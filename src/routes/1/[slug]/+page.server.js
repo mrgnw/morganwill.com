@@ -18,7 +18,7 @@ export async function load({ params }) {
 		});
 	}
 
-	const url = `https://mfw.xcc.es/${topic}.tsv`;
+	const url = `https://txt.xcc.es/${topic}.tsv`;
 
 	const response = await fetch(url);
 	const text = await response.text();
