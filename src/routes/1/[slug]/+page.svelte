@@ -1,14 +1,14 @@
 <script>
 		export let data;
-		const main_col = data.columns[1]
+		const columns = data.columns
 </script>
 
 <div>
 		{#each data.data as post}
 		<div>
-			<span class="date">{post.date}</span>
+			<span class="date">{post[columns[0]]}</span>
 			<span class="main">
-				{post[main_col]}
+				{post[columns[1]]}
 				
 			</span>
 		</div>

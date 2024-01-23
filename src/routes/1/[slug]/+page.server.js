@@ -3,7 +3,8 @@ import { tsvParse } from 'd3-dsv';
 import { url } from 'inspector';
 
 var oneliners = [
-	'experiments'
+	'experiments',
+	'picks'
 ]
 
 // fetch each oneliner
