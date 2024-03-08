@@ -52,7 +52,7 @@
 	 */
 	function show_links(titles) {
   return titles.reduce((acc, title) => {
-    const link = links.find(link => link.title === title);
+    const link = all_links.find(link => link.title === title);
     if (link) acc.push(link);
     return acc;
   }, []);
