@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	
 	onMount(() => {
+		links = show_links(['photos', 'instagram', 'LinkedIn', 'message'])
+		
 		if (window.location.hostname === "morganwill.com") {
 			links = show_links(['LinkedIn', 'github', 'photos', 'message'])
     }
