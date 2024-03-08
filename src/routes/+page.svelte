@@ -1,4 +1,11 @@
 <script>
+	import { onMount } from 'svelte';
+	
+	let hostname = '';
+	onMount(() => {
+		hostname = window.location.hostname;
+	});
+	
 	export let size = "3rem";
 	let selected = "Morgan";
 	$: active = selected === "Morgan" ? "" : "active";
@@ -22,6 +29,8 @@
 			blurb: 'Instagram profile',
 			icon: 'akar-icons:instagram-fill',
 		},
+	];
+	let bizLinks = [
 		{
 			title: 'LinkedIn',
 			url: 'https://linkedin.com/in/mrgnw',
@@ -34,7 +43,13 @@
 			blurb: 'GitHub profile',
 			icon: 'akar-icons:github-fill',
 		}
-	];
+	]
+
+	if (hostname === "morganwill.com") {
+		links = [...bizLinks, ...links];
+	} else {
+		links = [...links, ...bizLinks];
+	}
 
 </script>
 
