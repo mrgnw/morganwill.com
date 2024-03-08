@@ -5,7 +5,7 @@
 		links = show_links(['photos', 'instagram', 'LinkedIn', 'message'])
 		
 		if (window.location.hostname === "morganwill.com") {
-			links = show_links(['LinkedIn', 'github', 'photos', 'message'])
+			links = show_links(['LinkedIn', 'github', 'message'])
     }
 	});
 	
