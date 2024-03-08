@@ -2,10 +2,12 @@
 	import { onMount } from 'svelte';
 	
 	onMount(() => {
-		links = show_links(['photos', 'instagram', 'LinkedIn', 'message'])
-		
+		links = get_links(['photos', 'instagram', 'LinkedIn', 'message'])
 		if (window.location.hostname === "morganwill.com") {
-			links = show_links(['LinkedIn', 'github', 'message'])
+			links = get_links(['LinkedIn', 'github', 'message'])
+    }
+		if (window.location.hostname === "zenfo.co") {
+			links = get_links(['photos', 'instagram', 'message'])
     }
 	});
 	
@@ -50,7 +52,7 @@
 	/**
 	 * @param {string[]} titles
 	 */
-	function show_links(titles) {
+	function get_links(titles) {
   return titles.reduce((acc, title) => {
     const link = all_links.find(link => link.title === title);
     if (link) acc.push(link);
