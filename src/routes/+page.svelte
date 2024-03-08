@@ -1,23 +1,17 @@
 <script>
 	import { onMount } from 'svelte';
 	
-	let hostname = '';
 	onMount(() => {
-		hostname = window.location.hostname;
-		console.log(hostname);
+		if (window.location.hostname === "morganwill.com") {
+			links = show_links(['LinkedIn', 'github', 'photos', 'message'])
+    }
 	});
 	
 	export let size = "3rem";
 	let selected = "Morgan";
 	$: active = selected === "Morgan" ? "" : "active";
 
-	let links = [
-		{
-			title: 'message',
-			url: 'https://t.me/mrgnw',
-			blurb: 'Message on Telegram',
-			icon: 'fa:telegram',
-		},
+	let all_links = [
 		{
 			title: 'photos',
 			url: 'https://500px.com/p/morganw?view=licensing',
@@ -30,8 +24,6 @@
 			blurb: 'Instagram profile',
 			icon: 'akar-icons:instagram-fill',
 		},
-	];
-	let bizLinks = [
 		{
 			title: 'LinkedIn',
 			url: 'https://linkedin.com/in/mrgnw',
@@ -43,14 +35,26 @@
 			url: 'https://github.com/mrgnw',
 			blurb: 'GitHub profile',
 			icon: 'akar-icons:github-fill',
-		}
+		},
+		{
+			title: 'message',
+			url: 'https://t.me/mrgnw',
+			blurb: 'Message on Telegram',
+			icon: 'fa:telegram',
+		},
 	]
-
-	if (hostname === "morganwill.com") {
-		links = [...bizLinks, ...links];
-	} else {
-		links = [...links, ...bizLinks];
-	}
+	let links = all_links;
+	
+	/**
+	 * @param {string[]} titles
+	 */
+	function show_links(titles) {
+  return titles.reduce((acc, title) => {
+    const link = links.find(link => link.title === title);
+    if (link) acc.push(link);
+    return acc;
+  }, []);
+}
 
 </script>
 
