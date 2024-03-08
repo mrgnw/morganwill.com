@@ -4,6 +4,7 @@
 	let hostname = '';
 	onMount(() => {
 		hostname = window.location.hostname;
+		console.log(hostname);
 	});
 	
 	export let size = "3rem";
