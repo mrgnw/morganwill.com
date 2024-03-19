@@ -1,20 +1,5 @@
 <script>
 	import { onMount } from 'svelte';
-	
-	onMount(() => {
-		links = get_links(['photos', 'instagram', 'LinkedIn', 'message'])
-		if (window.location.hostname === "morganwill.com") {
-			links = get_links(['LinkedIn', 'github', 'message'])
-    }
-		if (window.location.hostname === "zenfo.co") {
-			links = get_links(['photos', 'instagram', 'message'])
-    }
-	});
-	
-	export let size = "3rem";
-	let selected = "Morgan";
-	$: active = selected === "Morgan" ? "" : "active";
-
 	let all_links = [
 		{
 			title: 'photos',
@@ -47,7 +32,24 @@
 			icon: 'fa:telegram',
 		},
 	]
+
 	let links = all_links;
+	
+	onMount(() => {
+		// links = get_links(['photos', 'instagram', 'LinkedIn', 'message'])
+		if (window.location.hostname === "morganwill.com") {
+			links = get_links(['LinkedIn', 'github', 'message'])
+    }
+		else if (window.location.hostname === "zenfo.co") {
+			links = get_links(['photos', 'instagram', 'message'])
+    }
+	});
+	
+	let selected = "Morgan";
+	$: active = selected === "Morgan" ? "" : "active";
+
+	
+	
 	
 	/**
 	 * @param {string[]} titles
