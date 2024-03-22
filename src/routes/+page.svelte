@@ -113,6 +113,11 @@
 			--bg: #000000;
 		}
 	}
+:global(body) {
+    background-color: var(--bg);
+    overflow: hidden;
+}
+
 
 	.active { color: var(--highlight); }
 	a > iconify-icon { color: var(--default); }
