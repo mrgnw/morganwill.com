@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { fade, fly } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	import Projects from '$components/Projects.svelte';
 	let hostname = $state('')
@@ -82,6 +82,7 @@
 			on:focus={() => { selected = title; }}
 			on:mouseout={() => { selected = 'Morgan'; }}
 			on:blur={() => { selected = 'Morgan'; }}
+			transition:fade={{ duration: 800, delay: 150 * index }}
 			>
 			<iconify-icon icon={icon} height="5em"></iconify-icon>
 		</a>
