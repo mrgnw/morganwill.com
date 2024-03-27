@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import Projects from '$components/Projects.svelte';
+	$: hostname = '';
 
 	let all_links = [
 		{
@@ -36,68 +38,67 @@
 	]
 
 	let links = all_links;
-	
+
 	onMount(() => {
+		hostname = window.location.hostname;
+		console.log(hostname)
 		// links = get_links(['photos', 'instagram', 'LinkedIn', 'message'])
-		if (window.location.hostname === "morganwill.com") {
+		if (hostname === "morganwill.com") {
 			links = get_links(['LinkedIn', 'github', 'message'])
-    }
-		else if (window.location.hostname === "zenfo.co") {
+		}
+		else if (hostname === "zenfo.co") {
 			links = get_links(['photos', 'instagram', 'message'])
-    }
+		}
 	});
-	
+
 	let selected = "Morgan";
 	$: active = selected === "Morgan" ? "" : "active";
 
-	
-	
-	
+
+
+
 	/**
 	 * @param {string[]} titles
 	 */
 	function get_links(titles) {
-  return titles.reduce((acc, title) => {
-    const link = all_links.find(link => link.title === title);
-    if (link) acc.push(link);
-    return acc;
-  }, []);
-}
+		return titles.reduce((acc, title) => {
+			const link = all_links.find(link => link.title === title);
+			if (link) acc.push(link);
+			return acc;
+		}, []);
+	}
 
 </script>
 
 <svelte:head>
 	<title>Morgan</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<meta
-		name="description"
-		content="Contact Morgan or view his other work on 500px, Instagram, LinkedIn, or Github"
-	/>
+	<meta name="description" content="Contact Morgan or view his other work on 500px, Instagram, LinkedIn, or Github" />
 </svelte:head>
 
 <div class="container">
 	<h1 class="title {active}">{selected}</h1>
 	<div class="links">
 		{#each links as { url, icon, blurb, title }}
-		<a
-		href={url}
-		target="_blank"
-		aria-label={blurb}
-		on:mouseover={() => { selected = title; }}
-		on:focus={() => { selected = title; }}
-		on:mouseout={() => { selected = 'Morgan'; }}
-		on:blur={() => { selected = 'Morgan'; }}
-	>
-		<iconify-icon icon={icon} height="5em"></iconify-icon>
-	</a>
+		<a href={url} target="_blank" aria-label={blurb} on:mouseover={()=> { selected = title; }}
+			on:focus={() => { selected = title; }}
+			on:mouseout={() => { selected = 'Morgan'; }}
+			on:blur={() => { selected = 'Morgan'; }}
+			>
+			<iconify-icon icon={icon} height="5em"></iconify-icon>
+		</a>
 		{/each}
 	</div>
-	
+
 </div>
+
+{#if hostname == 'morganwill.com'}
+<div transition:fade={{ duration: 500 }}>
 <Projects />
+</div>
+{/if}
 
 <style>
-	
 	:root {
 		--primary: black;
 		--default: rgba(0, 0, 0, 0.8);
@@ -106,6 +107,7 @@
 		background-color: var(--bg);
 		overflow: hidden;
 	}
+
 	@media (prefers-color-scheme: dark) {
 		:root {
 			--primary: white;
@@ -114,15 +116,24 @@
 			--bg: #000000;
 		}
 	}
-:global(body) {
-    background-color: var(--bg);
-    overflow: hidden;
-}
+
+	:global(body) {
+		background-color: var(--bg);
+		overflow: hidden;
+	}
 
 
-	.active { color: var(--highlight); }
-	a > iconify-icon { color: var(--default); }
-	iconify-icon:hover { color: var(--highlight) }
+	.active {
+		color: var(--highlight);
+	}
+
+	a>iconify-icon {
+		color: var(--default);
+	}
+
+	iconify-icon:hover {
+		color: var(--highlight)
+	}
 
 	.title {
 		font-size: 4rem;
@@ -141,6 +152,7 @@
 		height: 90vh;
 		transition: all 0.5s ease;
 	}
+
 	a {
 		display: flex;
 		justify-content: center;
@@ -149,7 +161,10 @@
 	}
 
 	@media (max-width: 767px) {
-		.container { flex-direction: column; }
+		.container {
+			flex-direction: column;
+		}
+
 		a {
 			width: 100%;
 			margin: 1.3rem 0;
