@@ -1,5 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
+	import Projects from '$components/Projects.svelte';
+
 	let all_links = [
 		{
 			title: 'photos',
@@ -73,30 +75,29 @@
 	/>
 </svelte:head>
 
-{#snippet link_item({ url, icon, blurb, title })}
-		<a
-			href={url}
-			target="_blank"
-			aria-label={blurb}
-			on:mouseover={() => { selected = title; }}
-			on:focus={() => { selected = title; }}
-			on:mouseout={() => { selected = 'Morgan'; }}
-			on:blur={() => { selected = 'Morgan'; }}
-		>
-			<iconify-icon icon={icon} height="5em"></iconify-icon>
-		</a>
-	{/snippet}
-
 <div class="container">
 	<h1 class="title {active}">{selected}</h1>
 	<div class="links">
-		{#each links as link}
-			{@render link_item(link)}
+		{#each links as { url, icon, blurb, title }}
+		<a
+		href={url}
+		target="_blank"
+		aria-label={blurb}
+		on:mouseover={() => { selected = title; }}
+		on:focus={() => { selected = title; }}
+		on:mouseout={() => { selected = 'Morgan'; }}
+		on:blur={() => { selected = 'Morgan'; }}
+	>
+		<iconify-icon icon={icon} height="5em"></iconify-icon>
+	</a>
 		{/each}
 	</div>
+	
 </div>
+<Projects />
 
 <style>
+	
 	:root {
 		--primary: black;
 		--default: rgba(0, 0, 0, 0.8);
@@ -154,5 +155,5 @@
 			margin: 1.3rem 0;
 			transition: all .8s ease;
 		}
-}
+	}
 </style>
