@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import Projects from '$components/Projects.svelte';
-	$: hostname = '';
-
-	let all_links = [
+	let hostname = $state('')
+	let all_links = $state([])
+	all_links = [
 		{
 			title: 'photos',
 			url: 'https://500px.com/p/morganw?view=licensing',
@@ -51,11 +51,8 @@
 		}
 	});
 
-	let selected = "Morgan";
-	$: active = selected === "Morgan" ? "" : "active";
-
-
-
+	let selected = $state("Morgan");
+	let active = $derived(selected === "Morgan" ? "" : "active");
 
 	/**
 	 * @param {string[]} titles
