@@ -1,10 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
+
 	import Projects from '$components/Projects.svelte';
 	let hostname = $state('')
-	let all_links = $state([])
-	all_links = [
+	let links = $state([])
+
+	let all_links = [
 		{
 			title: 'photos',
 			url: 'https://500px.com/p/morganw?view=licensing',
@@ -37,17 +39,16 @@
 		},
 	]
 
-	let links = all_links;
-
 	onMount(() => {
 		hostname = window.location.hostname;
-		console.log(hostname)
-		// links = get_links(['photos', 'instagram', 'LinkedIn', 'message'])
 		if (hostname === "morganwill.com") {
 			links = get_links(['LinkedIn', 'github', 'message'])
 		}
 		else if (hostname === "zenfo.co") {
 			links = get_links(['photos', 'instagram', 'message'])
+		}
+		else {
+			links = all_links;
 		}
 	});
 
@@ -76,7 +77,7 @@
 <div class="container">
 	<h1 class="title {active}">{selected}</h1>
 	<div class="links">
-		{#each links as { url, icon, blurb, title }}
+		{#each links as { url, icon, blurb, title }, index}
 		<a href={url} target="_blank" aria-label={blurb} on:mouseover={()=> { selected = title; }}
 			on:focus={() => { selected = title; }}
 			on:mouseout={() => { selected = 'Morgan'; }}
@@ -91,7 +92,7 @@
 
 {#if hostname == 'morganwill.com'}
 <div transition:fade={{ duration: 500 }}>
-<Projects />
+	<Projects />
 </div>
 {/if}
 
