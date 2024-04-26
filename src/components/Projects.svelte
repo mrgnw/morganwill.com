@@ -16,6 +16,7 @@
 <style>
 	.projects {
 		text-align: center;
+		color: var(--primary);
 	}
 
 	a {
