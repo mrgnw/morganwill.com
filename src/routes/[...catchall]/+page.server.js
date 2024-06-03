@@ -11,8 +11,8 @@ const redirects = {
 	'imessage': 'sms:morgan@textme.cc',
 };
 
-// tell Svelte to reserve & pre-render each key in `redirects` as a [slug]
-export function entries(){
+
+export function entries() {
 	return Object.keys(redirects).map(
 		slug => ({ slug })
 	);
@@ -26,8 +26,8 @@ export const load = ({ params }) => {
 	if (url) { redirect(301, url); }
 	else {
 		error(404, {
-        			message: 'Not found',
-        		});
+			message: 'Not found',
+		});
 	}
 
 }
