@@ -14,12 +14,13 @@ const redirects = {
 
 export function entries() {
 	return Object.keys(redirects).map(
-		slug => ({ slug })
+		catchall => ({ catchall: [catchall] })
 	);
 }
 
 export const load = ({ params }) => {
-	const { slug } = params;
+	const { catchall } = params;
+	const slug = catchall[0]; // assuming catchall is an array with at least one element
 	console.log(slug);
 	const url = redirects[slug.toLowerCase()];
 
@@ -29,5 +30,4 @@ export const load = ({ params }) => {
 			message: 'Not found',
 		});
 	}
-
 }
