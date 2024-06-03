@@ -14,19 +14,20 @@ const redirects = {
 
 export function entries() {
 	return Object.keys(redirects).map(
-		catchall => ({ catchall: [catchall] })
+		catchall => ({ catchall })
 	);
 }
 
 export const load = ({ params }) => {
 	const { catchall } = params;
-	const slug = catchall[0]; // assuming catchall is an array with at least one element
+	const slug = catchall; // catchall is a string now, not an array
 	console.log(slug);
 	const url = redirects[slug.toLowerCase()];
 
-	if (url) { redirect(301, url); }
-	else {
-		error(404, {
+	if (url) {
+		return redirect(301, url);
+	} else {
+		return error(404, {
 			message: 'Not found',
 		});
 	}
