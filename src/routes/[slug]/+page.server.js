@@ -20,6 +20,7 @@ export function entries(){
 
 export const load = ({ params }) => {
 	const { slug } = params;
+	console.log(slug);
 	const url = redirects[slug.toLowerCase()];
 
 	if (url) { redirect(301, url); }
