@@ -1,8 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	import Projects from '$components/Projects.svelte';
-
 	let hostname = $state('')
 	let links = $state([])
 
@@ -65,6 +65,7 @@
 			return acc;
 		}, []);
 	}
+
 </script>
 
 <svelte:head>
@@ -77,24 +78,21 @@
 	<h1 class="title {active}">{selected}</h1>
 	<div class="links">
 		{#each links as { url, icon, blurb, title }, index}
-		<a href={url} target="_blank" aria-label={blurb}
-			on:mouseover={()=> { selected = title; }}
+		<a href={url} target="_blank" aria-label={blurb} on:mouseover={()=> { selected = title; }}
 			on:focus={() => { selected = title; }}
 			on:mouseout={() => { selected = 'Morgan'; }}
 			on:blur={() => { selected = 'Morgan'; }}
+			transition:fade={{ duration: 800, delay: 150 * index }}
 			>
-			<!-- Replace <iconify-icon> with inline SVG or pre-rendered SVG -->
-			<!-- Example using inline SVG: -->
-			<svg height="5em" aria-hidden="true">
-				<!-- SVG content based on the {icon} value -->
-			</svg>
+			<iconify-icon icon={icon} height="5em"></iconify-icon>
 		</a>
 		{/each}
 	</div>
+
 </div>
 
 {#if hostname == 'morganwill.com'}
-<div>
+<div transition:fade={{ duration: 500 }}>
 	<Projects />
 </div>
 {/if}
@@ -123,16 +121,17 @@
 		overflow: hidden;
 	}
 
+
 	.active {
 		color: var(--highlight);
 	}
 
-	a > svg {
+	a>iconify-icon {
 		color: var(--default);
 	}
-	
-	svg:hover {
-		color: var(--highlight);
+
+	iconify-icon:hover {
+		color: var(--highlight)
 	}
 
 	.title {
