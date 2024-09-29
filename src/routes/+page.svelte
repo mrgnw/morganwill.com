@@ -11,36 +11,31 @@
 			title: 'photos',
 			url: 'https://500px.com/p/morganw?view=licensing',
 			blurb: '500px photo portfolio',
-			icon: 'tabler:photo',
-			svg_file: 'photos.svg',
+			svg_file: 'panorama',
 		},
 		{
 			title: 'instagram',
 			url: 'https://instagram.com/zenfo.co',
 			blurb: 'Instagram profile',
-			icon: 'akar-icons:instagram-fill',
-			svg_file: 'instagram.svg',
+			svg_file: 'instagram',
 		},
 		{
 			title: 'LinkedIn',
 			url: 'https://linkedin.com/in/mrgnw',
 			blurb: 'LinkedIn profile',
-			icon: 'akar-icons:linkedin-fill',
-			svg_file: 'linkedin.svg',
+			svg_file: 'linkedin',
 		},
 		{
 			title: 'github',
 			url: 'https://github.com/mrgnw',
 			blurb: 'GitHub profile',
-			icon: 'akar-icons:github-fill',
-			svg_file: 'github.svg',
+			svg_file: 'github',
 		},
 		{
 			title: 'message',
 			url: 'https://t.me/mrgnw',
 			blurb: 'Message on Telegram',
-			icon: 'fa:telegram',
-			svg_file: 'telegram.svg',
+			svg_file: 'telegram',
 		},
 	]
 
@@ -89,11 +84,7 @@
 			onblur={() => { selected = 'Morgan'; }}
 			transition:fade={{ duration: 800, delay: 150 * index }}
 			>
-			{#if svg_file}
-			<img src={`/svg/${svg_file}`} alt={blurb} height="5em">
-			{:else}
-			<iconify-icon icon={icon} height="5em"></iconify-icon>
-			{/if}
+			<img src={`/svg/${svg_file}.svg`} alt={blurb}>
 		</a>
 		{/each}
 	</div>
