@@ -12,30 +12,35 @@
 			url: 'https://500px.com/p/morganw?view=licensing',
 			blurb: '500px photo portfolio',
 			icon: 'tabler:photo',
+			svg_file: 'photos.svg',
 		},
 		{
 			title: 'instagram',
 			url: 'https://instagram.com/zenfo.co',
 			blurb: 'Instagram profile',
 			icon: 'akar-icons:instagram-fill',
+			svg_file: 'instagram.svg',
 		},
 		{
 			title: 'LinkedIn',
 			url: 'https://linkedin.com/in/mrgnw',
 			blurb: 'LinkedIn profile',
 			icon: 'akar-icons:linkedin-fill',
+			svg_file: 'linkedin.svg',
 		},
 		{
 			title: 'github',
 			url: 'https://github.com/mrgnw',
 			blurb: 'GitHub profile',
 			icon: 'akar-icons:github-fill',
+			svg_file: 'github.svg',
 		},
 		{
 			title: 'message',
 			url: 'https://t.me/mrgnw',
 			blurb: 'Message on Telegram',
 			icon: 'fa:telegram',
+			svg_file: 'telegram.svg',
 		},
 	]
 
@@ -77,14 +82,18 @@
 <div class="container">
 	<h1 class="title {active}">{selected}</h1>
 	<div class="links">
-		{#each links as { url, icon, blurb, title }, index}
-		<a href={url} target="_blank" aria-label={blurb} on:mouseover={()=> { selected = title; }}
-			on:focus={() => { selected = title; }}
-			on:mouseout={() => { selected = 'Morgan'; }}
-			on:blur={() => { selected = 'Morgan'; }}
+		{#each links as { url, icon, blurb, title, svg_file }, index}
+		<a href={url} target="_blank" aria-label={blurb} onmouseover={()=> { selected = title; }}
+			onfocus={() => { selected = title; }}
+			onmouseout={() => { selected = 'Morgan'; }}
+			onblur={() => { selected = 'Morgan'; }}
 			transition:fade={{ duration: 800, delay: 150 * index }}
 			>
+			{#if svg_file}
+			<img src={`/svg/${svg_file}`} alt={blurb} height="5em">
+			{:else}
 			<iconify-icon icon={icon} height="5em"></iconify-icon>
+			{/if}
 		</a>
 		{/each}
 	</div>
