@@ -82,11 +82,11 @@
 <div class="container">
 	<h1 class="title {active}">{selected}</h1>
 	<div class="links">
-		{#each links as { url, icon, blurb, title }, index}
-		<a href={url} target="_blank" aria-label={blurb} on:mouseover={()=> { selected = title; }}
-			on:focus={() => { selected = title; }}
-			on:mouseout={() => { selected = 'Morgan'; }}
-			on:blur={() => { selected = 'Morgan'; }}
+		{#each links as { url, icon, blurb, title, svg_file }, index}
+		<a href={url} target="_blank" aria-label={blurb} onmouseover={()=> { selected = title; }}
+			onfocus={() => { selected = title; }}
+			onmouseout={() => { selected = 'Morgan'; }}
+			onblur={() => { selected = 'Morgan'; }}
 			transition:fade={{ duration: 800, delay: 150 * index }}
 			>
 			{#if svg_file}
