@@ -3,6 +3,14 @@
 	import { fade } from 'svelte/transition';
 
 	import Projects from '$components/Projects.svelte';
+
+	import PhPanorama from 'virtual:icons/ph/panorama'
+	import IconoirInstagram from '~icons/iconoir/instagram'
+	import JamLinkedinCircle from '~icons/jam/linkedin-circle'
+	import IconoirGithubCircle from '~icons/iconoir/github-circle'
+	import IconoirTelegramCircle from '~icons/iconoir/telegram-circle'
+	
+
 	let hostname = $state('')
 	let links = $state([])
 
@@ -11,31 +19,32 @@
 			title: 'photos',
 			url: 'https://500px.com/p/morganw?view=licensing',
 			blurb: '500px photo portfolio',
-			svg_file: 'panorama',
+			icon: PhPanorama,
 		},
 		{
 			title: 'instagram',
 			url: 'https://instagram.com/zenfo.co',
 			blurb: 'Instagram profile',
-			svg_file: 'instagram',
+			icon: IconoirInstagram,
 		},
 		{
 			title: 'LinkedIn',
 			url: 'https://linkedin.com/in/mrgnw',
 			blurb: 'LinkedIn profile',
-			svg_file: 'linkedin',
+			icon: JamLinkedinCircle,
+			iconRaw: '~icons/jam/linkedin-circle?raw&width=1em&height=1em'
 		},
 		{
 			title: 'github',
 			url: 'https://github.com/mrgnw',
 			blurb: 'GitHub profile',
-			svg_file: 'github',
+			icon: IconoirGithubCircle,
 		},
 		{
 			title: 'message',
 			url: 'https://t.me/mrgnw',
 			blurb: 'Message on Telegram',
-			svg_file: 'telegram',
+			icon: IconoirTelegramCircle,
 		},
 	]
 
@@ -53,8 +62,7 @@
 	});
 
 	let selected = $state("Morgan");
-	let active = $derived(selected === "Morgan" ? "" : "active");
-
+	// let active = $derived(selected === "Morgan" ? "" : "active");
 	/**
 	 * @param {string[]} titles
 	 */
@@ -75,16 +83,21 @@
 </svelte:head>
 
 <div class="container">
-	<h1 class="title {active}">{selected}</h1>
+	
+	<h1 class="title">{selected}</h1>
 	<div class="links">
-		{#each links as { url, icon, blurb, title, svg_file }, index}
-		<a href={url} target="_blank" aria-label={blurb} onmouseover={()=> { selected = title; }}
+		{#each links as { url, icon, blurb, title }, index}
+		<a href={url} target="_blank" aria-label={blurb}
+			class:active={title === selected}
+			onmouseover={()=> { selected = title; }}
 			onfocus={() => { selected = title; }}
 			onmouseout={() => { selected = 'Morgan'; }}
 			onblur={() => { selected = 'Morgan'; }}
 			transition:fade={{ duration: 800, delay: 150 * index }}
 			>
-			<img src={`/svg/${svg_file}.svg`} alt={blurb}>
+			<svelte:component this={icon}
+				color={title === selected ? "var(--highlight)" : "var(--default)"}
+				height="4.5em" width="4.5em"/>
 		</a>
 		{/each}
 	</div>
