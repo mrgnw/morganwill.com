@@ -10,7 +10,7 @@
 
 <div class="flex h-screen items-center justify-center">
 	<Countdowns countdowns={[
-		{ date: targetDate, label: 'T-90' },
-		{ date: finalDate, label: 'T-0' }
+		{ date: targetDate },
+		{ date: finalDate }
 	]} />
 </div>

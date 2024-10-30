@@ -3,6 +3,12 @@
 	
 	let timeStates = $state(countdowns.map(() => ({ days: 0, hours: 0, minutes: 0, seconds: 0 })));
 
+	let uniqueValues = $derived({
+		hours: new Set(timeStates.map(s => s.hours)).size === 1 ? timeStates[0].hours : null,
+		minutes: new Set(timeStates.map(s => s.minutes)).size === 1 ? timeStates[0].minutes : null,
+		seconds: new Set(timeStates.map(s => s.seconds)).size === 1 ? timeStates[0].seconds : null
+	});
+
 	function updateCountdown() {
 		const now = new Date().getTime();
 		timeStates = countdowns.map(({ date }) => {
@@ -44,32 +50,50 @@
 </style>
 
 <div class="bg-white p-8 rounded-2xl shadow-md border border-gray-200 max-w-2xl">
-	<div class="grid grid-cols-[auto_repeat(4,1fr)] gap-x-4 gap-y-4">
+	<div class="grid grid-cols-[auto_repeat(4,1fr)] gap-x-8 gap-y-4">
 		<!-- Headers -->
-		<div class=""></div>
+		<div class=""></div> <!-- Empty cell for label column -->
 		{#each headers as header, i}
-			<div class="text-center text-gray-600/80 font-medium self-end">
+			<div class="text-center text-gray-600/80 font-medium">
 				{header}
 			</div>
 		{/each}
 
-		<!-- Countdown rows -->
-		{#each countdowns as countdown, rowIndex}
-			<div class="font-medium text-gray-700 self-center">
-				{countdown.label}
+		<!-- Days column -->
+		<div class="grid grid-rows-2 gap-4">
+			{#each countdowns as countdown, i}
+				<div class="font-medium text-gray-700">
+					{countdown.label}
+				</div>
+			{/each}
+		</div>
+		<div class="grid grid-rows-2 gap-4">
+			{#each countdowns as countdown, i}
+				<div class="text-center text-7xl {timeStates[i].days === 0 ? 'font-thin' : 'font-bold'} text-primary{timeStates[i].days === 0 ? '/40' : ''}">
+					{timeStates[i].days === 0 ? '·' : timeStates[i].days}
+				</div>
+			{/each}
+		</div>
+
+		<!-- Hours -->
+		<div class="grid items-center h-full">
+			<div class="text-center text-6xl {uniqueValues.hours === 0 ? 'font-thin' : 'font-semibold'} text-primary{uniqueValues.hours === 0 ? '/40' : '/80'}">
+				{uniqueValues.hours === 0 ? '·' : padNumber(uniqueValues.hours)}
 			</div>
-			<div class="text-center text-7xl {timeStates[rowIndex].days === 0 ? 'font-thin' : 'font-bold'} text-primary{timeStates[rowIndex].days === 0 ? '/40' : ''} self-center">
-				{timeStates[rowIndex].days === 0 ? '⋅' : timeStates[rowIndex].days}
+		</div>
+
+		<!-- Minutes -->
+		<div class="grid items-center h-full">
+			<div class="text-center text-5xl {uniqueValues.minutes === 0 ? 'font-thin' : 'font-medium'} text-primary{uniqueValues.minutes === 0 ? '/40' : '/60'}">
+				{uniqueValues.minutes === 0 ? '·' : padNumber(uniqueValues.minutes)}
 			</div>
-			<div class="text-center text-6xl {timeStates[rowIndex].hours === 0 ? 'font-thin' : 'font-semibold'} text-primary{timeStates[rowIndex].hours === 0 ? '/40' : '/80'} self-center">
-				{timeStates[rowIndex].hours === 0 ? '⋅' : padNumber(timeStates[rowIndex].hours)}
+		</div>
+
+		<!-- Seconds -->
+		<div class="grid items-center h-full">
+			<div class="text-center text-4xl font-thin text-primary/40">
+				{uniqueValues.seconds === 0 ? '·' : padNumber(uniqueValues.seconds)}
 			</div>
-			<div class="text-center text-5xl {timeStates[rowIndex].minutes === 0 ? 'font-thin' : 'font-medium'} text-primary{timeStates[rowIndex].minutes === 0 ? '/40' : '/60'} self-center">
-				{timeStates[rowIndex].minutes === 0 ? '⋅' : padNumber(timeStates[rowIndex].minutes)}
-			</div>
-			<div class="text-center text-4xl font-thin text-primary/40 self-center">
-				{timeStates[rowIndex].seconds === 0 ? '⋅' : padNumber(timeStates[rowIndex].seconds)}
-			</div>
-		{/each}
+		</div>
 	</div>
 </div>
