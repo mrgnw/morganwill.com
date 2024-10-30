@@ -38,9 +38,6 @@
 	function padNumber(num) {
 		return num.toString().padStart(2, '0');
 	}
-
-	const headers = ['Days', 'Hours', 'Minutes', 'Seconds'];
-	const opacities = ['', '80', '60', '40'];
 </script>
 
 <style>
@@ -51,14 +48,6 @@
 
 <div class="bg-white p-8 rounded-2xl shadow-md border border-gray-200 max-w-2xl">
 	<div class="grid grid-cols-[auto_repeat(4,1fr)] gap-x-8 gap-y-4">
-		<!-- Headers -->
-		<div class=""></div> <!-- Empty cell for label column -->
-		{#each headers as header, i}
-			<div class="text-center text-gray-600/80 font-medium">
-				{header}
-			</div>
-		{/each}
-
 		<!-- Days column -->
 		<div class="grid grid-rows-2 gap-4">
 			{#each countdowns as countdown, i}
@@ -70,7 +59,7 @@
 		<div class="grid grid-rows-2 gap-4">
 			{#each countdowns as countdown, i}
 				<div class="text-center text-7xl {timeStates[i].days === 0 ? 'font-thin' : 'font-bold'} text-primary{timeStates[i].days === 0 ? '/40' : ''}">
-					{timeStates[i].days === 0 ? '·' : timeStates[i].days}
+					{timeStates[i].days === 0 ? '⋅' : timeStates[i].days}
 				</div>
 			{/each}
 		</div>
@@ -78,21 +67,21 @@
 		<!-- Hours -->
 		<div class="grid items-center h-full">
 			<div class="text-center text-6xl {uniqueValues.hours === 0 ? 'font-thin' : 'font-semibold'} text-primary{uniqueValues.hours === 0 ? '/40' : '/80'}">
-				{uniqueValues.hours === 0 ? '·' : padNumber(uniqueValues.hours)}
+				{uniqueValues.hours === 0 ? '⋅' : padNumber(uniqueValues.hours)}
 			</div>
 		</div>
 
 		<!-- Minutes -->
 		<div class="grid items-center h-full">
 			<div class="text-center text-5xl {uniqueValues.minutes === 0 ? 'font-thin' : 'font-medium'} text-primary{uniqueValues.minutes === 0 ? '/40' : '/60'}">
-				{uniqueValues.minutes === 0 ? '·' : padNumber(uniqueValues.minutes)}
+				{uniqueValues.minutes === 0 ? '⋅' : padNumber(uniqueValues.minutes)}
 			</div>
 		</div>
 
 		<!-- Seconds -->
 		<div class="grid items-center h-full">
 			<div class="text-center text-4xl font-thin text-primary/40">
-				{uniqueValues.seconds === 0 ? '·' : padNumber(uniqueValues.seconds)}
+				{uniqueValues.seconds === 0 ? '⋅' : padNumber(uniqueValues.seconds)}
 			</div>
 		</div>
 	</div>
