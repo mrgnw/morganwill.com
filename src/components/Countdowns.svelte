@@ -59,16 +59,16 @@
 				{countdown.label}
 			</div>
 			<div class="text-center text-7xl {timeStates[rowIndex].days === 0 ? 'font-thin' : 'font-bold'} text-primary{timeStates[rowIndex].days === 0 ? '/40' : ''} self-center">
-				{timeStates[rowIndex].days}
+				{timeStates[rowIndex].days === 0 ? '⋅' : timeStates[rowIndex].days}
 			</div>
 			<div class="text-center text-6xl {timeStates[rowIndex].hours === 0 ? 'font-thin' : 'font-semibold'} text-primary{timeStates[rowIndex].hours === 0 ? '/40' : '/80'} self-center">
-				{padNumber(timeStates[rowIndex].hours)}
+				{timeStates[rowIndex].hours === 0 ? '⋅' : padNumber(timeStates[rowIndex].hours)}
 			</div>
 			<div class="text-center text-5xl {timeStates[rowIndex].minutes === 0 ? 'font-thin' : 'font-medium'} text-primary{timeStates[rowIndex].minutes === 0 ? '/40' : '/60'} self-center">
-				{padNumber(timeStates[rowIndex].minutes)}
+				{timeStates[rowIndex].minutes === 0 ? '⋅' : padNumber(timeStates[rowIndex].minutes)}
 			</div>
 			<div class="text-center text-4xl font-thin text-primary/40 self-center">
-				{padNumber(timeStates[rowIndex].seconds)}
+				{timeStates[rowIndex].seconds === 0 ? '⋅' : padNumber(timeStates[rowIndex].seconds)}
 			</div>
 		{/each}
 	</div>
