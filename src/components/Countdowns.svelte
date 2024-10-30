@@ -48,26 +48,26 @@
 		<!-- Headers -->
 		<div class=""></div>
 		{#each headers as header, i}
-			<div class="text-center text-gray-600/80 font-medium">
+			<div class="text-center text-gray-600/80 font-medium self-end">
 				{header}
 			</div>
 		{/each}
 
 		<!-- Countdown rows -->
 		{#each countdowns as countdown, rowIndex}
-			<div class="font-medium text-gray-700">
+			<div class="font-medium text-gray-700 self-center">
 				{countdown.label}
 			</div>
-			<div class="text-center text-7xl font-bold text-primary">
+			<div class="text-center text-7xl font-bold text-primary self-center">
 				{timeStates[rowIndex].days}
 			</div>
-			<div class="text-center text-6xl font-semibold text-primary/80">
+			<div class="text-center text-6xl font-semibold text-primary/80 self-center">
 				{padNumber(timeStates[rowIndex].hours)}
 			</div>
-			<div class="text-center text-5xl font-medium text-primary/60">
+			<div class="text-center text-5xl font-medium text-primary/60 self-center">
 				{padNumber(timeStates[rowIndex].minutes)}
 			</div>
-			<div class="text-center text-4xl font-normal text-primary/40">
+			<div class="text-center text-4xl font-normal text-primary/40 self-center">
 				{padNumber(timeStates[rowIndex].seconds)}
 			</div>
 		{/each}
