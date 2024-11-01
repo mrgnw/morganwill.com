@@ -158,54 +158,54 @@
 	.title {
 		font-size: 4rem;
 		font-weight: 200;
-		margin-bottom: 1rem;
 		font-family: sans-serif;
 		color: var(--primary);
-		width: 5em;
+		margin: 0;
 	}
 
 	.container {
 		text-align: center;
 		display: flex;
+		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		min-height: 90vh;
-		transition: all 0.5s ease;
+		min-height: 100vh;
+		padding: 2rem;
+	}
+
+	.links {
+		display: flex;
+		gap: 2rem;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem;
 	}
 
 	a {
 		display: flex;
 		justify-content: center;
-		margin: 1.3rem 2.3rem;
 		width: auto;
 	}
 
 	@media (max-width: 767px) {
 		.container {
-			flex-direction: column;
-			align-items: center;
-			height: 100vh;
-			min-height: unset;
-		}
-
-		.title {
-			margin: 1rem 0;
-			flex-shrink: 0;
+			justify-content: flex-start;
+			padding-top: 2rem;
 		}
 
 		.links {
-			flex: 1;
-			overflow-y: auto;
+			display: grid;
+			grid-template-columns: 1fr;
 			width: 100%;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
+			gap: 1rem;
+			padding: 1rem;
 		}
 
-		a {
-			width: auto;
-			margin: 1rem 0;
-			transition: all .8s ease;
+		/* Only switch to two columns if content is too tall for viewport */
+		@media (max-height: 800px) {
+			.links {
+				grid-template-columns: repeat(2, 1fr);
+			}
 		}
 	}
 </style>
