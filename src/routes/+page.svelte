@@ -9,7 +9,8 @@
 	import JamLinkedinCircle from '~icons/jam/linkedin-circle'
 	import IconoirGithubCircle from '~icons/iconoir/github-circle'
 	import IconoirTelegramCircle from '~icons/iconoir/telegram-circle'
-	
+	import RiBlueskyLine from '~icons/ri/bluesky-line'
+
 
 	let hostname = $state('')
 	let links = $state([])
@@ -39,6 +40,12 @@
 			url: 'https://github.com/mrgnw',
 			blurb: 'GitHub profile',
 			icon: IconoirGithubCircle,
+		},
+		{
+			title: 'bluesky',
+			url: 'https://bsky.app/profile/xcc.es',
+			blurb: 'Bluesky profile',
+			icon: RiBlueskyLine,
 		},
 		{
 			title: 'message',
