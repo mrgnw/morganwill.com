@@ -136,11 +136,12 @@
 		}
 	}
 
-	:global(body) {
+	:global(html, body) {
+		height: 100vh;
+		margin: 0;
+		padding: 0;
 		background-color: var(--bg);
-		overflow: hidden;
 	}
-
 
 	.active {
 		color: var(--highlight);
@@ -168,7 +169,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		height: 90vh;
+		min-height: 90vh;
 		transition: all 0.5s ease;
 	}
 
@@ -182,11 +183,28 @@
 	@media (max-width: 767px) {
 		.container {
 			flex-direction: column;
+			align-items: center;
+			height: 100vh;
+			min-height: unset;
+		}
+
+		.title {
+			margin: 1rem 0;
+			flex-shrink: 0;
+		}
+
+		.links {
+			flex: 1;
+			overflow-y: auto;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 		}
 
 		a {
-			width: 100%;
-			margin: 1.3rem 0;
+			width: auto;
+			margin: 1rem 0;
 			transition: all .8s ease;
 		}
 	}
