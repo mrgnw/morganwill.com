@@ -196,15 +196,23 @@
 		.links {
 			display: grid;
 			grid-template-columns: 1fr;
-			width: 100%;
+			width: min(100%, 300px);
 			gap: 1rem;
 			padding: 1rem;
+			margin: 0 auto;
 		}
 
 		/* Only switch to two columns if content is too tall for viewport */
 		@media (max-height: 800px) {
 			.links {
 				grid-template-columns: repeat(2, 1fr);
+				width: min(100%, 200px);
+				justify-items: center;
+				align-items: center;
+			}
+
+			a {
+				width: auto;
 			}
 		}
 	}
