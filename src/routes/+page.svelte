@@ -188,11 +188,6 @@
 	}
 
 	@media (max-width: 767px) {
-		.container {
-			justify-content: flex-start;
-			padding-top: 2rem;
-		}
-
 		.links {
 			display: grid;
 			grid-template-columns: 1fr;
