@@ -58,10 +58,10 @@
 	onMount(() => {
 		hostname = window.location.hostname;
 		if (hostname === "morganwill.com") {
-			links = get_links(['LinkedIn', 'github', 'message'])
+			links = get_links(['LinkedIn', 'github', 'bluesky', 'message'])
 		}
 		else if (hostname === "zenfo.co") {
-			links = get_links(['photos', 'instagram', 'message'])
+			links = get_links(['photos', 'instagram', 'bluesky', 'message'])
 		}
 		else {
 			links = all_links;
