@@ -102,9 +102,14 @@
 			onblur={() => { selected = 'Morgan'; }}
 			transition:fade={{ duration: 800, delay: 150 * index }}
 			>
-			<svelte:component this={icon}
-				color={title === selected ? "var(--highlight)" : "var(--default)"}
-				height="4.5em" width="4.5em"/>
+			{#if icon}
+					{@const Icon = icon}
+					<Icon 
+						style="color: {title === selected ? 'var(--highlight)' : 'var(--default)'}"
+						width="4.5em"
+						height="4.5em"
+					/>
+			{/if}
 		</a>
 		{/each}
 	</div>
@@ -145,14 +150,6 @@
 
 	.active {
 		color: var(--highlight);
-	}
-
-	a>iconify-icon {
-		color: var(--default);
-	}
-
-	iconify-icon:hover {
-		color: var(--highlight)
 	}
 
 	.title {
