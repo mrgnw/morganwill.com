@@ -32,7 +32,6 @@
     "clsx": "^2.1.0",
     "lucide-svelte": "^0.353.0",
     "qrcode": "^1.5.4",
-    "sveltekit-sitemap": "^1.0.21",
     "tailwind-merge": "^2.2.1",
     "tailwind-variants": "^0.2.0",
     "unplugin-icons": "^0.19.3"
