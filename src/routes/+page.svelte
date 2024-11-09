@@ -71,6 +71,8 @@
 	let selected = $state("Morgan");
 	let qrMode = $state(false);
 
+	let selectedUrl = $derived(links.find(l => l.title === selected)?.url);
+
 	/**
 	 * @param {string[]} titles
 	 */
@@ -91,42 +93,39 @@
 </svelte:head>
 
 <div class="container">
-	
-	<h1 class="title" 
-		ondblclick={() => qrMode = !qrMode}
-	>
+
+	<h1 class="title" ondblclick={()=> qrMode = !qrMode}
+		>
 		{#if qrMode && selected !== 'Morgan'}
-			<Qr url={links.find(l => l.title === selected)?.url} size={128} />
+		<a href={selectedUrl} target="_blank" style="text-decoration: none;">
+			<Qr url={selectedUrl} size={128} key={selected} />
+		</a>
 		{:else}
-			{selected}
+		{selected}
 		{/if}
 	</h1>
 	<div class="links">
 		{#each links as { url, icon, blurb, title }, index}
-		<a href={qrMode ? undefined : url} 
-			target="_blank" 
-			aria-label={blurb}
-			class:active={title === selected}
-			class:flash-on={qrMode}
-			class:flash-off={!qrMode}
-			onmouseover={()=> { selected = title; }}
+		<a href={qrMode ? undefined : url} target="_blank" aria-label={blurb} class:active={title===selected}
+			class:flash-on={qrMode} class:flash-off={!qrMode} onmouseover={()=> { selected = title; }}
 			onfocus={() => { selected = title; }}
-			onmouseout={() => { selected = 'Morgan'; }}
-			onblur={() => { selected = 'Morgan'; }}
+			onmouseout={() => { if (!qrMode) selected = 'Morgan'; }}
+			onblur={() => { if (!qrMode) selected = 'Morgan'; }}
 			transition:fade={{ duration: 800, delay: 150 * index }}
-		>
+			>
 			{#if icon}
-				{@const Icon = icon}
-				<Icon 
-					style="color: {title === selected ? 'var(--highlight)' : 'var(--default)'}"
-					width="4.5em"
-					height="4.5em"
-				/>
+			{@const Icon = icon}
+			<Icon style="color: {title === selected ? 'var(--highlight)' : 'var(--default)'}" width="4.5em" height="4.5em" />
 			{/if}
 		</a>
 		{/each}
 	</div>
 
+	{#if qrMode && selectedUrl}
+	<div class="url-display" transition:fade={{ duration: 300 }}>
+		<p class="text-sm text-muted-foreground">{selectedUrl}</p>
+	</div>
+	{/if}
 </div>
 
 {#if hostname == 'morganwill.com'}
@@ -244,20 +243,36 @@
 		background: var(--bg);
 		padding: 1rem;
 		border-radius: 8px;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		z-index: 10;
 	}
 
 	@keyframes flash-on {
-		0% { color: var(--default); }
-		50% { color: var(--highlight); }
-		100% { color: var(--default); }
+		0% {
+			color: var(--default);
+		}
+
+		50% {
+			color: var(--highlight);
+		}
+
+		100% {
+			color: var(--default);
+		}
 	}
 
 	@keyframes flash-off {
-		0% { color: var(--default); }
-		50% { color: rgba(128, 128, 128, 0.8); }
-		100% { color: var(--default); }
+		0% {
+			color: var(--default);
+		}
+
+		50% {
+			color: rgba(128, 128, 128, 0.8);
+		}
+
+		100% {
+			color: var(--default);
+		}
 	}
 
 	.flash-on :global(svg) {
@@ -266,5 +281,18 @@
 
 	.flash-off :global(svg) {
 		animation: flash-off 0.5s ease-in-out;
+	}
+
+	.url-display {
+		position: fixed;
+		bottom: 1rem;
+		left: 50%;
+		transform: translateX(-50%);
+		background-color: var(--bg);
+		padding: 0.5rem 1rem;
+		border-radius: 0.5rem;
+		border: 1px solid var(--default);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		z-index: 50;
 	}
 </style>
