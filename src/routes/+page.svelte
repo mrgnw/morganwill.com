@@ -94,7 +94,6 @@
 	
 	<h1 class="title" 
 		ondblclick={() => qrMode = !qrMode}
-		style="min-height: {qrMode ? '128px' : 'auto'}"
 	>
 		{#if qrMode && selected !== 'Morgan'}
 			<Qr url={links.find(l => l.title === selected)?.url} size={128} />
@@ -173,7 +172,8 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		user-select: none; /* Prevents text selection on double click */
+		user-select: none;
+		height: 128px;
 	}
 
 	.container {
@@ -211,7 +211,6 @@
 			margin: 0 auto;
 		}
 
-		/* Only switch to two columns if content is too tall for viewport */
 		@media (max-height: 800px) {
 			.links {
 				grid-template-columns: repeat(2, 1fr);
