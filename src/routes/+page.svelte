@@ -10,7 +10,7 @@
 	import IconoirGithubCircle from '~icons/iconoir/github-circle'
 	import IconoirTelegramCircle from '~icons/iconoir/telegram-circle'
 	import RiBlueskyLine from '~icons/ri/bluesky-line'
-
+	import Qr from '$components/Qr.svelte';
 
 	let hostname = $state('')
 	let links = $state([])
@@ -69,7 +69,8 @@
 	});
 
 	let selected = $state("Morgan");
-	// let active = $derived(selected === "Morgan" ? "" : "active");
+	let qrMode = $state(false);
+
 	/**
 	 * @param {string[]} titles
 	 */
@@ -91,24 +92,35 @@
 
 <div class="container">
 	
-	<h1 class="title">{selected}</h1>
+	<h1 class="title" 
+		ondblclick={() => qrMode = !qrMode}
+		style="min-height: {qrMode ? '128px' : 'auto'}"
+	>
+		{#if qrMode && selected !== 'Morgan'}
+			<Qr url={links.find(l => l.title === selected)?.url} size={128} />
+		{:else}
+			{selected}
+		{/if}
+	</h1>
 	<div class="links">
 		{#each links as { url, icon, blurb, title }, index}
-		<a href={url} target="_blank" aria-label={blurb}
+		<a href={qrMode ? undefined : url} 
+			target="_blank" 
+			aria-label={blurb}
 			class:active={title === selected}
 			onmouseover={()=> { selected = title; }}
 			onfocus={() => { selected = title; }}
 			onmouseout={() => { selected = 'Morgan'; }}
 			onblur={() => { selected = 'Morgan'; }}
 			transition:fade={{ duration: 800, delay: 150 * index }}
-			>
+		>
 			{#if icon}
-					{@const Icon = icon}
-					<Icon 
-						style="color: {title === selected ? 'var(--highlight)' : 'var(--default)'}"
-						width="4.5em"
-						height="4.5em"
-					/>
+				{@const Icon = icon}
+				<Icon 
+					style="color: {title === selected ? 'var(--highlight)' : 'var(--default)'}"
+					width="4.5em"
+					height="4.5em"
+				/>
 			{/if}
 		</a>
 		{/each}
@@ -124,7 +136,7 @@
 
 <style>
 	:root {
-		--primary: black;
+		--primary: #000000;
 		--default: rgba(0, 0, 0, 0.8);
 		--highlight: rgb(30, 131, 255);
 		--bg: #ffffff;
@@ -158,6 +170,10 @@
 		font-family: sans-serif;
 		color: var(--primary);
 		margin: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		user-select: none; /* Prevents text selection on double click */
 	}
 
 	.container {
@@ -182,6 +198,7 @@
 		display: flex;
 		justify-content: center;
 		width: auto;
+		position: relative;
 	}
 
 	@media (max-width: 767px) {
@@ -207,5 +224,17 @@
 				width: auto;
 			}
 		}
+	}
+
+	.qr-overlay {
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		background: var(--bg);
+		padding: 1rem;
+		border-radius: 8px;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		z-index: 10;
 	}
 </style>
