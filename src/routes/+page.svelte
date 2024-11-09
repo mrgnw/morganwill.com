@@ -107,6 +107,8 @@
 			target="_blank" 
 			aria-label={blurb}
 			class:active={title === selected}
+			class:flash-on={qrMode}
+			class:flash-off={!qrMode}
 			onmouseover={()=> { selected = title; }}
 			onfocus={() => { selected = title; }}
 			onmouseout={() => { selected = 'Morgan'; }}
@@ -199,6 +201,15 @@
 		justify-content: center;
 		width: auto;
 		position: relative;
+		transition: transform 0.3s ease;
+	}
+
+	.qr-mode {
+		transform: scale(0.9);
+	}
+
+	.qr-mode:hover {
+		transform: scale(1.1);
 	}
 
 	@media (max-width: 767px) {
@@ -235,5 +246,25 @@
 		border-radius: 8px;
 		box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 		z-index: 10;
+	}
+
+	@keyframes flash-on {
+		0% { color: var(--default); }
+		50% { color: var(--highlight); }
+		100% { color: var(--default); }
+	}
+
+	@keyframes flash-off {
+		0% { color: var(--default); }
+		50% { color: rgba(128, 128, 128, 0.8); }
+		100% { color: var(--default); }
+	}
+
+	.flash-on :global(svg) {
+		animation: flash-on 0.5s ease-in-out;
+	}
+
+	.flash-off :global(svg) {
+		animation: flash-off 0.5s ease-in-out;
 	}
 </style>
