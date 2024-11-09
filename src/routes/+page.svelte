@@ -94,16 +94,14 @@
 
 <div class="container">
 
-	<h1 class="title" ondblclick={()=> qrMode = !qrMode}
-		>
+	<h1 class="title" ondblclick={()=> qrMode = !qrMode}>
 		{#if qrMode && selected !== 'Morgan'}
-		<a href={selectedUrl} target="_blank" style="text-decoration: none;">
-			<Qr url={selectedUrl} size={128} key={selected} />
-		</a>
+		<Qr url={selectedUrl} size={128} key={selected} />
 		{:else}
 		{selected}
 		{/if}
 	</h1>
+
 	<div class="links">
 		{#each links as { url, icon, blurb, title }, index}
 		<a href={qrMode ? undefined : url} target="_blank" aria-label={blurb} class:active={title===selected}
@@ -123,7 +121,9 @@
 
 	{#if qrMode && selectedUrl}
 	<div class="url-display" transition:fade={{ duration: 300 }}>
-		<p class="text-sm text-muted-foreground">{selectedUrl}</p>
+		<a href={selectedUrl} target="_blank" class="text-sm text-muted-foreground hover:underline">
+			{selectedUrl}
+		</a>
 	</div>
 	{/if}
 </div>
@@ -175,6 +175,7 @@
 		align-items: center;
 		user-select: none;
 		height: 128px;
+		z-index: 50;
 	}
 
 	.container {
@@ -285,7 +286,6 @@
 
 	.url-display {
 		position: fixed;
-		bottom: 1rem;
 		left: 50%;
 		transform: translateX(-50%);
 		background-color: var(--bg);
@@ -293,6 +293,20 @@
 		border-radius: 0.5rem;
 		border: 1px solid var(--default);
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		z-index: 50;
+		z-index: 40;
+	}
+
+	/* Desktop: bottom positioning */
+	@media (min-width: 768px) {
+		.url-display {
+			bottom: 1rem;
+		}
+	}
+
+	/* Mobile: top positioning */
+	@media (max-width: 767px) {
+		.url-display {
+			top: 1rem;
+		}
 	}
 </style>
