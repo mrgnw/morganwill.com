@@ -90,6 +90,7 @@
 	<title>Morgan</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="description" content="Contact Morgan or view his other work on 500px, Instagram, LinkedIn, or Github" />
+	<meta name="robots" content="index,follow" />
 </svelte:head>
 
 <div class="container">
