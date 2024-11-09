@@ -1,4 +1,6 @@
-import type { RequestHandler } from "@sveltejs/kit";
+import type { RequestHandler } from '@sveltejs/kit';
+
+export const prerender = true;
 
 export const GET: RequestHandler = async ({ url }) => {
 	const hostname = url.hostname;
@@ -12,8 +14,9 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	return new Response(robots, {
 		headers: {
-			"Content-Type": "text/plain",
+			"Content-Type": "text/plain; charset=utf-8",
 			"Cache-Control": "public, max-age=3600",
+			"X-Content-Type-Options": "nosniff",
 		},
 	});
 };
