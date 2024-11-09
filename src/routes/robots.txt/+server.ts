@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit";
 
-export const GET: RequestHandler = ({ url }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	const hostname = url.hostname;
 	const sitemapUrl = `https://${hostname}/sitemap.xml`;
 	const robots = [
