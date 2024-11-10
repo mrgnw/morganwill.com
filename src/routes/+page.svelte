@@ -10,52 +10,26 @@
 	import IconoirGithubCircle from '~icons/iconoir/github-circle'
 	import IconoirTelegramCircle from '~icons/iconoir/telegram-circle'
 	import RiBlueskyLine from '~icons/ri/bluesky-line'
-	import Qr from '$components/Qr.svelte';
 
 	let hostname = $state('')
 	let links = $state([])
 
-	let all_links = [
-		{
-			title: 'photos',
-			url: 'https://500px.com/p/morganw?view=licensing',
-			blurb: '500px photo portfolio',
-			icon: PhPanorama,
-		},
-		{
-			title: 'instagram',
-			url: 'https://instagram.com/zenfo.co',
-			blurb: 'Instagram profile',
-			icon: IconoirInstagram,
-		},
-		{
-			title: 'LinkedIn',
-			url: 'https://linkedin.com/in/mrgnw',
-			blurb: 'LinkedIn profile',
-			icon: JamLinkedinCircle,
-			iconRaw: '~icons/jam/linkedin-circle?raw&width=1em&height=1em'
-		},
-		{
-			title: 'github',
-			url: 'https://github.com/mrgnw',
-			blurb: 'GitHub profile',
-			icon: IconoirGithubCircle,
-		},
-		{
-			title: 'bluesky',
-			url: 'https://bsky.app/profile/xcc.es',
-			blurb: 'Bluesky profile',
-			icon: RiBlueskyLine,
-		},
-		{
-			title: 'message',
-			url: 'https://t.me/mrgnw',
-			blurb: 'Message on Telegram',
-			icon: IconoirTelegramCircle,
-		},
-	]
+	let { data } = $props()
+	let all_links = data.all_links
+	let link_icons = {
+		'photos': PhPanorama,
+		'instagram': IconoirInstagram,
+		'LinkedIn': JamLinkedinCircle,
+		'github': IconoirGithubCircle,
+		'bluesky': RiBlueskyLine,
+		'message': IconoirTelegramCircle,
+	}
 
 	onMount(() => {
+		console.debug(all_links)
+		all_links.forEach(link => {
+			link['icon'] = link_icons[link.title]
+		})
 		hostname = window.location.hostname;
 		if (hostname === "morganwill.com") {
 			links = get_links(['LinkedIn', 'github', 'bluesky', 'message'])
@@ -70,7 +44,7 @@
 
 	let selected = $state("Morgan");
 	let qrMode = $state(false);
-
+	let selected_qr = $derived(links.find(l => l.title === selected)?.qr);
 	let selectedUrl = $derived(links.find(l => l.title === selected)?.url);
 
 	/**
@@ -93,12 +67,11 @@
 </svelte:head>
 
 <div class="container">
-
 	<h1 class="title" ondblclick={()=> qrMode = !qrMode}>
 		{#if qrMode && selected !== 'Morgan'}
-		<Qr url={selectedUrl} size={128} key={selected} />
+			{@html selected_qr}
 		{:else}
-		{selected}
+			{selected}
 		{/if}
 	</h1>
 
@@ -133,7 +106,6 @@
 	<Projects />
 </div>
 {/if}
-
 <style>
 	:root {
 		--primary: #000000;
