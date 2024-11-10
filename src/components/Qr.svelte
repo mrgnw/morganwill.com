@@ -1,43 +1,35 @@
 <script>
 	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
-	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	/** @type {string} */
 	export let url;
 	/** @type {number} */
 	export let size = 128;
-	/** @type {string} */
-	export let color = '#ff0000';  // Bright red
 
-	let qrSvg = '';
-	let debugInfo = '';
+	let canvas;
 
 	async function generateQR() {
-		debugInfo = `URL: ${url}\nColor: ${color}`;
+		if (!canvas) return;
+
 		try {
 			const fullUrl = url.startsWith('http') ? url : `https://${url}`;
-			
-			qrSvg = await QRCode.toString(fullUrl, {
-				type: 'svg',
+			await QRCode.toCanvas(canvas, fullUrl, {
 				width: size,
 				margin: 1,
 				color: {
-					dark: color,
-					light: '#ffffff00'
-				},
-				rendererOpts: {
-					pathFillType: 'fill'
+					dark: getComputedStyle(document.documentElement)
+						.getPropertyValue('--primary')
+						.trim() || '#000000',
+					light: '#ffffff00' // transparent background
 				}
 			});
-			console.debug('Generated QR SVG:', qrSvg);
-			debugInfo += '\nSVG Generated: Yes';
 		} catch (err) {
-			debugInfo += '\nError: ' + err.message;
+			console.error('Error generating QR code:', err);
 		}
 	}
 
-	$: if (url && color) {
+	$: if (url && canvas) {
 		generateQR();
 	}
 
@@ -48,36 +40,11 @@
 	});
 </script>
 
-<Tooltip.Root>
-	<Tooltip.Trigger>
-		<div class="qr-container">
-			{#if qrSvg}
-				{@html qrSvg}
-			{:else}
-				<p>No QR code generated yet</p>
-			{/if}
-		</div>
-	</Tooltip.Trigger>
-	<Tooltip.Content>
-		<pre class="debug-info">{debugInfo}</pre>
-	</Tooltip.Content>
-</Tooltip.Root>
+<canvas bind:this={canvas} width={size} height={size} />
 
 <style>
-	.qr-container {
-		position: relative;
+	canvas {
 		max-width: 100%;
 		height: auto;
-		min-height: 128px;
-	}
-	.qr-container :global(svg) {
-		width: 100%;
-		height: auto;
-	}
-	.debug-info {
-		font-family: monospace;
-		font-size: 12px;
-		white-space: pre;
-		margin: 0;
 	}
 </style>

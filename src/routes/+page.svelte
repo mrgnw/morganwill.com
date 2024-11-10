@@ -1,7 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { theme } from '$lib/stores/theme';
 
 	import Projects from '$components/Projects.svelte';
 
@@ -135,10 +134,13 @@
 </div>
 {/if}
 
-
-
 <style>
 	:root {
+		--primary: #000000;
+		--default: rgba(0, 0, 0, 0.8);
+		--highlight: rgb(30, 131, 255);
+		--bg: #ffffff;
+		background-color: var(--bg);
 		overflow: hidden;
 	}
 
