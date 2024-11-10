@@ -64,6 +64,15 @@
 			return acc;
 		}, []);
 	}
+
+	// Debug the value
+	const selected_qr_debug = $derived({
+		type: typeof selected_qr,
+		value: selected_qr
+	});
+	$effect(() => {
+		console.log('selected_qr:', selected_qr_debug);
+	});
 </script>
 
 <svelte:head>
@@ -79,7 +88,9 @@
 	<h1 class="title" ondblclick={() => (qrMode = !qrMode)}>
 		{#if qrMode && selected_qr}
 			<div class="qr-wrapper">
-				{@html selected_qr}
+				{#if typeof selected_qr === 'string'}
+					{@html selected_qr}
+				{/if}
 			</div>
 		{:else}
 			{selected ?? "Morgan"}
