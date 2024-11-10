@@ -1,4 +1,3 @@
-
 import QRCode from 'qrcode';
 
 const all_links = [
@@ -35,15 +34,14 @@ const all_links = [
 ]
 
 export async function load() {
-	all_links.forEach(async link => {
-		var new_qr = await QRCode.toString(
+	await Promise.all(all_links.map(async (link) => {
+		link.qr = await QRCode.toString(
 			link.url, {
 			type: 'svg',
 			width: 164,
 		}
 		);
-		link.qr = new_qr;
-	});
+	}));
 
 	return {
 		all_links
