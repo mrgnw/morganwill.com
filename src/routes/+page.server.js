@@ -34,16 +34,21 @@ const all_links = [
 ]
 
 export async function load() {
-	await Promise.all(all_links.map(async (link) => {
-		link.qr = await QRCode.toString(
-			link.url, {
-			type: 'svg',
-			width: 164,
-		}
-		);
-	}));
+	const links = await Promise.all(
+		all_links.map(async (link) => {
+			const qr = await QRCode.toString(link.url, {
+				type: "svg",
+				width: 164,
+			}
+			);
+			return {
+				...link,
+				qr
+			};
+		})
+	);
 
 	return {
-		all_links
+		all_links: links
 	};
 }
