@@ -26,11 +26,19 @@
 	}
 
 	onMount(() => {
-		console.debug(all_links)
+		console.debug('Initial all_links:', all_links)
+		console.debug('Initial data:', data)
+		console.debug('link_icons:', link_icons)
+		
 		all_links.forEach(link => {
+			console.debug('Processing link:', link.title, 'icon before:', link.icon)
 			link['icon'] = link_icons[link.title]
+			console.debug('icon after:', link.icon)
 		})
+		
 		hostname = window.location.hostname;
+		console.debug('hostname:', hostname)
+		
 		if (hostname === "morganwill.com") {
 			links = get_links(['LinkedIn', 'github', 'bluesky', 'message'])
 		}
@@ -38,8 +46,9 @@
 			links = get_links(['photos', 'instagram', 'bluesky', 'message'])
 		}
 		else {
-			links = all_links.filter(link => link.icon);
+			links = all_links;
 		}
+		console.debug('Final links:', links)
 	});
 
 	let selected = $state("Morgan");
