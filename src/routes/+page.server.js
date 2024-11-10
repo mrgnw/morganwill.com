@@ -39,16 +39,10 @@ export async function load() {
 		var new_qr = await QRCode.toString(
 			link.url, {
 			type: 'svg',
-			width: 196,
-			margin: 1,
-			color: {
-				dark: '#1e83ff',
-				light: '#ffffff'
-			}
+			width: 164,
 		}
 		);
-
-		link['qr'] = new_qr;
+		link.qr = new_qr;
 	});
 
 	return {

@@ -57,7 +57,6 @@
 			return acc;
 		}, []);
 	}
-
 </script>
 
 <svelte:head>
@@ -69,7 +68,9 @@
 <div class="container">
 	<h1 class="title" ondblclick={()=> qrMode = !qrMode}>
 		{#if qrMode && selected !== 'Morgan'}
+		<div class="qr-wrapper" >
 			{@html selected_qr}
+		</div>
 		{:else}
 			{selected}
 		{/if}
@@ -111,6 +112,7 @@
 		--primary: #000000;
 		--default: rgba(0, 0, 0, 0.8);
 		--highlight: rgb(30, 131, 255);
+		--qr: rgb(30, 131, 255);
 		--bg: #ffffff;
 		background-color: var(--bg);
 		overflow: hidden;
@@ -121,6 +123,7 @@
 			--primary: white;
 			--highlight: white;
 			--default: rgb(30, 255, 139);
+			--qr: rgb(30, 255, 139);
 			--bg: #000000;
 		}
 	}
@@ -176,13 +179,7 @@
 		transition: transform 0.3s ease;
 	}
 
-	.qr-mode {
-		transform: scale(0.9);
-	}
-
-	.qr-mode:hover {
-		transform: scale(1.1);
-	}
+	
 
 	@media (max-width: 767px) {
 		.links {
@@ -206,18 +203,6 @@
 				width: auto;
 			}
 		}
-	}
-
-	.qr-overlay {
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		transform: translateX(-50%);
-		background: var(--bg);
-		padding: 1rem;
-		border-radius: 8px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		z-index: 10;
 	}
 
 	@keyframes flash-on {
@@ -280,5 +265,18 @@
 		.url-display {
 			top: 1rem;
 		}
+	}
+
+	:global(.qr-code svg path) {
+		transition: fill 0.3s ease;
+	}
+	
+	/* Apply custom colors using CSS variables */
+	.qr-wrapper :global(svg path:first-child) {
+		fill: rgba(0,0,0,0);
+	}
+	
+	.qr-wrapper :global(svg path:last-child) {
+		stroke: var(--qr);
 	}
 </style>
