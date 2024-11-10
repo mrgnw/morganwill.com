@@ -158,7 +158,7 @@
 			--primary: white;
 			--highlight: white;
 			--default: rgb(30, 255, 139);
-			--qr: rgb(30, 255, 139);
+			--qr: white;
 			--bg: #000000;
 		}
 	}
