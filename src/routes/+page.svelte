@@ -38,7 +38,7 @@
 			links = get_links(['photos', 'instagram', 'bluesky', 'message'])
 		}
 		else {
-			links = all_links;
+			links = all_links.filter(link => link.icon);
 		}
 	});
 
