@@ -49,9 +49,9 @@
 		console.debug("Final links:", links);
 	});
 
-	let selected = $state("Morgan");
+	let selected = $state(null);
 	let qrMode = $state(false);
-	let selected_qr = $derived(links.find((l) => l.title === selected)?.qr);
+	let selected_qr = $derived(links.find((l) => l.title === selected)?.qr ?? null);
 	let selectedUrl = $derived(links.find((l) => l.title === selected)?.url);
 
 	/**
@@ -77,12 +77,12 @@
 
 <div class="container">
 	<h1 class="title" ondblclick={() => (qrMode = !qrMode)}>
-		{#if qrMode && selected !== "Morgan"}
+		{#if qrMode && selected_qr}
 			<div class="qr-wrapper">
 				{@html selected_qr}
 			</div>
 		{:else}
-			{selected}
+			{selected ?? "Morgan"}
 		{/if}
 	</h1>
 
@@ -102,10 +102,10 @@
 					selected = title;
 				}}
 				onmouseout={() => {
-					if (!qrMode) selected = "Morgan";
+					if (!qrMode) selected = null;
 				}}
 				onblur={() => {
-					if (!qrMode) selected = "Morgan";
+					if (!qrMode) selected = null;
 				}}
 				transition:fade={{ duration: 800, delay: 150 * index }}
 			>
