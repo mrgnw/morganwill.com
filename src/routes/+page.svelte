@@ -45,15 +45,16 @@
 		} else {
 			links = all_links;
 		}
+		// params: set qr mode or show specific qr by its alias (li = linkedin)
 		const urlParams = new URLSearchParams(window.location.search);
 		if (urlParams.has('qr')) {
 			qrMode = true;
 		}
-		// li -> linked in
 		let aliases = links.map((l) => l.alias);
 		for (let alias of aliases) {
 			if (urlParams.has(alias)) {
 				selected = links.find((l) => l.alias === alias)?.title;
+				qrMode = true;
 			}
 		}
 	});
@@ -71,21 +72,11 @@
 		}, []);
 	}
 
-	// Debug the value
-	const selected_qr_debug = $derived({
-		type: typeof selected_qr,
-		value: selected_qr,
-	});
-	$effect(() => {});
 </script>
 
 <svelte:head>
 	<title>Morgan</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<meta
-		name="description"
-		content="Contact Morgan or view his other work on 500px, Instagram, LinkedIn, or Github"
-	/>
 	<meta
 		name="description"
 		content="Contact Morgan or view his other work on 500px, Instagram, LinkedIn, or Github"
@@ -168,7 +159,7 @@
 		--qr: rgb(30, 131, 255);
 		--bg: #ffffff;
 		background-color: var(--bg);
-		verflow: hidden;
+		overflow: hidden;
 	}
 
 	@media (prefers-color-scheme: dark) {
