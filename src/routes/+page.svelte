@@ -1,12 +1,8 @@
 <script>
 	import { onMount } from "svelte";
 	import { fade } from "svelte/transition";
-	import { onMount } from "svelte";
-	import { fade } from "svelte/transition";
 
 	import Projects from "$components/Projects.svelte";
-	import Projects from "$components/Projects.svelte";
-
 	import PhPanorama from "virtual:icons/ph/panorama";
 	import IconoirInstagram from "~icons/iconoir/instagram";
 	import JamLinkedinCircle from "~icons/jam/linkedin-circle";
@@ -47,10 +43,6 @@
 		} else if (hostname === "zenfo.co") {
 			links = get_links(["photos", "instagram", "bluesky", "message"]);
 		} else {
-			links = get_links(["LinkedIn", "github", "bluesky", "message"]);
-		} else if (hostname === "zenfo.co") {
-			links = get_links(["photos", "instagram", "bluesky", "message"]);
-		} else {
 			links = all_links;
 		}
 		console.debug("Final links:", links);
@@ -66,7 +58,6 @@
 	 */
 	function get_links(titles) {
 		return titles.reduce((acc, title) => {
-			const link = all_links.find((link) => link.title === title);
 			const link = all_links.find((link) => link.title === title);
 			if (link) acc.push(link);
 			return acc;
@@ -143,17 +134,6 @@
 					/>
 				{/if}
 			</a>
-				{#if icon}
-					{@const Icon = icon}
-					<Icon
-						style="color: {title === selected
-							? 'var(--highlight)'
-							: 'var(--default)'}"
-						width="4.5em"
-						height="4.5em"
-					/>
-				{/if}
-			</a>
 		{/each}
 	</div>
 
@@ -167,22 +147,9 @@
 				{selectedUrl}
 			</a>
 		</div>
-		<div class="url-display" transition:fade={{ duration: 300 }}>
-			<a
-				href={selectedUrl}
-				target="_blank"
-				class="text-sm text-muted-foreground hover:underline"
-			>
-				{selectedUrl}
-			</a>
-		</div>
 	{/if}
 </div>
 
-{#if hostname == "morganwill.com"}
-	<div transition:fade={{ duration: 500 }}>
-		<Projects />
-	</div>
 {#if hostname == "morganwill.com"}
 	<div transition:fade={{ duration: 500 }}>
 		<Projects />
