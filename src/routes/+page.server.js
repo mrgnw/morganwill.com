@@ -3,21 +3,25 @@ import QRCode from 'qrcode';
 const all_links = [
 	{
 		title: 'photos',
+		alias: 'photo',
 		url: 'https://500px.com/p/morganw?view=licensing',
 		blurb: '500px photo portfolio',
 	},
 	{
 		title: 'instagram',
+		alias: 'ig',
 		url: 'https://instagram.com/zenfo.co',
 		blurb: 'Instagram profile',
 	},
 	{
 		title: 'LinkedIn',
+		alias: 'li',
 		url: 'https://linkedin.com/in/mrgnw',
 		blurb: 'LinkedIn profile',
 	},
 	{
 		title: 'github',
+		alias: 'gh',
 		url: 'https://github.com/mrgnw',
 		blurb: 'GitHub profile',
 	},
@@ -28,6 +32,7 @@ const all_links = [
 	},
 	{
 		title: 'message',
+		alias: 'dm',
 		url: 'https://t.me/mrgnw',
 		blurb: 'Message on Telegram',
 	},

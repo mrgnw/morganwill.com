@@ -24,13 +24,20 @@
 		message: IconoirTelegramCircle,
 	};
 
+	let selected = $state(null);
+	let qrMode = $state(false);
+	let selected_qr = $derived(
+		links.find((l) => l.title === selected)?.qr ?? null
+	);
+	let selectedUrl = $derived(links.find((l) => l.title === selected)?.url);
+
 	onMount(() => {
+		
 		all_links.forEach((link) => {
 			link["icon"] = link_icons[link.title];
 		});
-
+		
 		hostname = window.location.hostname;
-
 		if (hostname === "morganwill.com") {
 			links = get_links(["LinkedIn", "github", "bluesky", "message"]);
 		} else if (hostname === "zenfo.co") {
@@ -38,14 +45,20 @@
 		} else {
 			links = all_links;
 		}
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.has('qr')) {
+			qrMode = true;
+		}
+		// li -> linked in
+		let aliases = links.map((l) => l.alias);
+		for (let alias of aliases) {
+			if (urlParams.has(alias)) {
+				selected = links.find((l) => l.alias === alias)?.title;
+			}
+		}
 	});
 
-	let selected = $state(null);
-	let qrMode = $state(false);
-	let selected_qr = $derived(
-		links.find((l) => l.title === selected)?.qr ?? null
-	);
-	let selectedUrl = $derived(links.find((l) => l.title === selected)?.url);
+
 
 	/**
 	 * @param {string[]} titles
@@ -83,6 +96,17 @@
 	<h1 class="title" ondblclick={() => (qrMode = !qrMode)}>
 		{#if qrMode && selected_qr}
 			<div class="qr-wrapper">
+				{#if qrMode && selectedUrl}
+					<div class="url-display" transition:fade={{ duration: 300 }}>
+						<a
+							href={selectedUrl}
+							target="_blank"
+							class="text-sm text-muted-foreground hover:underline"
+						>
+							{selectedUrl}
+						</a>
+					</div>
+				{/if}
 				{#if typeof selected_qr === "string"}
 					{@html selected_qr}
 				{/if}
@@ -128,18 +152,6 @@
 			</a>
 		{/each}
 	</div>
-
-	{#if qrMode && selectedUrl}
-		<div class="url-display" transition:fade={{ duration: 300 }}>
-			<a
-				href={selectedUrl}
-				target="_blank"
-				class="text-sm text-muted-foreground hover:underline"
-			>
-				{selectedUrl}
-			</a>
-		</div>
-	{/if}
 </div>
 
 {#if hostname == "morganwill.com"}
@@ -156,7 +168,7 @@
 		--qr: rgb(30, 131, 255);
 		--bg: #ffffff;
 		background-color: var(--bg);
-		overflow: hidden;
+		verflow: hidden;
 	}
 
 	@media (prefers-color-scheme: dark) {
@@ -280,29 +292,36 @@
 		animation: flash-off 0.5s ease-in-out;
 	}
 
+	.qr-wrapper {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
 	.url-display {
-		position: fixed;
+		position: absolute;
 		left: 50%;
 		transform: translateX(-50%);
-		background-color: var(--bg);
 		padding: 0.5rem 1rem;
 		border-radius: 0.5rem;
 		border: 1px solid var(--default);
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		z-index: 40;
+		white-space: nowrap;
 	}
 
 	/* Desktop: bottom positioning */
 	@media (min-width: 768px) {
 		.url-display {
-			bottom: 1rem;
+			top: -3rem;
 		}
 	}
 
 	/* Mobile: top positioning */
 	@media (max-width: 767px) {
 		.url-display {
-			top: 1rem;
+			top: -3rem;
 		}
 	}
 
