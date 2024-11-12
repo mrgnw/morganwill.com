@@ -468,7 +468,7 @@
 </script>
 
 <svelte:window on:resize />
-<canvas bind:this={canvas} class="matrix-rain" />
+<canvas bind:this={canvas} class="matrix-rain"></canvas>
 
 <style>
 	.matrix-rain {
