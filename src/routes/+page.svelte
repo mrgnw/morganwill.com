@@ -25,7 +25,6 @@
 	};
 
 	onMount(() => {
-
 		all_links.forEach((link) => {
 			link["icon"] = link_icons[link.title];
 		});
@@ -43,7 +42,9 @@
 
 	let selected = $state(null);
 	let qrMode = $state(false);
-	let selected_qr = $derived(links.find((l) => l.title === selected)?.qr ?? null);
+	let selected_qr = $derived(
+		links.find((l) => l.title === selected)?.qr ?? null
+	);
 	let selectedUrl = $derived(links.find((l) => l.title === selected)?.url);
 
 	/**
@@ -60,10 +61,9 @@
 	// Debug the value
 	const selected_qr_debug = $derived({
 		type: typeof selected_qr,
-		value: selected_qr
+		value: selected_qr,
 	});
-	$effect(() => {
-	});
+	$effect(() => {});
 </script>
 
 <svelte:head>
@@ -83,7 +83,7 @@
 	<h1 class="title" ondblclick={() => (qrMode = !qrMode)}>
 		{#if qrMode && selected_qr}
 			<div class="qr-wrapper">
-				{#if typeof selected_qr === 'string'}
+				{#if typeof selected_qr === "string"}
 					{@html selected_qr}
 				{/if}
 			</div>
@@ -319,4 +319,3 @@
 		stroke: var(--qr);
 	}
 </style>
-
