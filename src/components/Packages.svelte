@@ -54,7 +54,6 @@
 
 		// Media tools
 		"iina",
-		"handbrake",
 		"homebrew/cask/handbrake",
 		"losslesscut",
 		"plex-media-server",
@@ -220,6 +219,12 @@
 			selectedPackages = new Set(packages);
 		}
 	}
+
+	// Add a display name mapping function
+	function display(pkg) {
+		// Remove 'homebrew/cask/' prefix for display purposes
+		return pkg.name.replace('homebrew/cask/', '');
+	}
 </script>
 
 <div class="container mx-auto p-4">
@@ -243,12 +248,12 @@
 			</div>
 
 			<div class="package-list">
-				{#each [...packages].sort((a, b) => a.name.localeCompare(b.name)) as pkg}
+				{#each [...packages].sort((a, b) => display(a).localeCompare(display(b))) as pkg}
 					<button
 						class="package-name {selectedPackages.has(pkg) ? 'selected' : ''}"
 						on:click={() => togglePackage(pkg)}
 					>
-						{pkg.name}
+						{display(pkg)}
 					</button>
 				{/each}
 			</div>
