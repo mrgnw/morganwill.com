@@ -67,7 +67,7 @@
 
 	// Generate install commands for each installer
 	const installerCommands = $derived({
-		homebrew: packagesByInstaller.homebrew.length > 0 ? 
+		homebrew: (packagesByInstaller.homebrew.length > 0 || packagesByInstaller.mas.length > 0) ? 
 			`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` : 
 			null,
 		uv: packagesByInstaller.uv.length > 0 ? [
@@ -85,7 +85,7 @@
 			`brew install ${packagesByInstaller.homebrew.map(pkg => pkg.name).join(' ')}` :
 			null,
 		uv: packagesByInstaller.uv.length > 0 ?
-			`uv pip install ${packagesByInstaller.uv.map(pkg => pkg.name).join(' ')}` :
+			`uv tool install ${packagesByInstaller.uv.map(pkg => pkg.name).join(' ')}` :
 			null,
 		mas: packagesByInstaller.mas.length > 0 ?
 			`mas install ${packagesByInstaller.mas.map(pkg => pkg.id).join(' ')}` :
