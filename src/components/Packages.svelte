@@ -266,28 +266,26 @@
 			</Card.Header>
 			<Card.Content>
 				<div class="terminal-output">
-					<Button class="copy-all-button" on:click={copyToClipboard}>
-						Copy All Commands
-					</Button>
+					<div class="copy-all-section">
+						<Button class="copy-all-button" on:click={copyToClipboard}>
+							Copy All Commands
+						</Button>
+					</div>
 
 					{#if groupedCommands.installers.length > 0}
 						<div class="command-section">
-							<div class="section-header">
-								<Button variant="outline" size="sm" on:click={copyInstallers}>
-									Copy
-								</Button>
-							</div>
+							<Button variant="outline" size="sm" class="section-copy-button" on:click={copyInstallers}>
+								Copy
+							</Button>
 							<pre><code>{groupedCommands.installers.join("\n")}</code></pre>
 						</div>
 					{/if}
 
 					{#if groupedCommands.packages.length > 0}
 						<div class="command-section">
-							<div class="section-header">
-								<Button variant="outline" size="sm" on:click={copyPackages}>
-									Copy
-								</Button>
-							</div>
+							<Button variant="outline" size="sm" class="section-copy-button" on:click={copyPackages}>
+								Copy
+							</Button>
 							<pre><code>{groupedCommands.packages.join("\n")}</code></pre>
 						</div>
 					{/if}
@@ -341,74 +339,33 @@
 		white-space: pre-wrap;
 	}
 
-	.copy-button {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		background-color: #0d6efd;
-		color: #fff;
-		border: none;
-		padding: 0.5rem;
-		border-radius: 0.25rem;
-		cursor: pointer;
-	}
-
-	.terminal-output h4 {
-		color: #8b949e;
-		margin: 0.5rem 0;
-		font-size: 0.9rem;
-		font-weight: normal;
-	}
-
-	.terminal-output pre {
-		margin: 0.5rem 0 1rem 0;
-	}
-
 	.command-section {
+		position: relative;
 		margin-bottom: 1rem;
 		border: 1px solid #30363d;
 		border-radius: 0.5rem;
 		padding: 1rem;
 	}
 
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 0.5rem;
+	.section-copy-button {
+		position: absolute;
+		top: 0.5rem;
+		right: 0.5rem;
+		z-index: 1;
 	}
 
-	.section-header h4 {
-		margin: 0;
+	.copy-all-section {
+		position: relative;
+		margin-bottom: 1rem;
 	}
 
 	.copy-all-button {
-		display: block;
 		width: 100%;
-		margin-bottom: 1rem;
-		background-color: #0d6efd;
-		color: #fff;
-		border: none;
-		padding: 0.5rem;
-		border-radius: 0.25rem;
-		cursor: pointer;
 	}
 
-	.copy-section-button {
-		background-color: #21262d;
-		color: #c9d1d9;
-		border: 1px solid #30363d;
-		padding: 0.25rem 0.5rem;
-		border-radius: 0.25rem;
-		cursor: pointer;
-		font-size: 0.8rem;
-	}
-
-	.copy-section-button:hover {
-		background-color: #30363d;
-	}
-
-	/* Remove the old copy-button style if it exists */
+	/* Remove unused styles */
+	.section-header,
+	.copy-section-button,
 	.copy-button {
 		display: none;
 	}
