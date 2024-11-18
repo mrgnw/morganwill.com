@@ -336,7 +336,6 @@
 		padding: 1rem;
 		border-radius: 0.5rem;
 		font-family: monospace;
-		white-space: pre-wrap;
 	}
 
 	.command-section {
@@ -345,6 +344,13 @@
 		border: 1px solid #30363d;
 		border-radius: 0.5rem;
 		padding: 1rem;
+	}
+
+	.command-section pre {
+		white-space: pre-wrap;       /* preserve spaces and wrap text */
+		word-wrap: break-word;       /* break long words */
+		overflow-wrap: break-word;   /* modern version of word-wrap */
+		max-width: 100%;             /* ensure content stays within container */
 	}
 
 	.section-copy-button {
