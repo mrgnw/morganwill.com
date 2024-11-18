@@ -247,7 +247,15 @@
 				{#each [...packages].sort((a, b) => display(a).localeCompare(display(b))) as pkg}
 					<button
 						class="package-name {selectedPackages.has(pkg) ? 'selected' : ''}"
-						on:click={() => togglePackage(pkg)}
+						onpointerdown={(e) => {
+							if (e.button !== 0) return; // only handle left click/touch
+							togglePackage(pkg);
+						}}
+						onpointerenter={(e) => {
+							if (e.buttons > 0) { // check if button is pressed during hover
+								togglePackage(pkg);
+							}
+						}}
 					>
 						{display(pkg)}
 					</button>
