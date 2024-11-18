@@ -33,6 +33,7 @@
 		"clsx": "^2.1.1",
 		"lucide-svelte": "^0.460.1",
 		"qrcode": "^1.5.4",
+		"svelte-sonner": "^0.3.28",
 		"tailwind-merge": "^2.5.4",
 		"tailwind-variants": "^0.2.1",
 		"unplugin-icons": "^0.19.3"

@@ -1,6 +1,7 @@
 <script>
 	import * as Card from "$lib/components/ui/card";
 	import { Button } from "$lib/components/ui/button";
+	import { toast, Toaster } from 'svelte-sonner';
 
 	// Define the packages and their installers
 	const uv_tools = [
@@ -99,7 +100,6 @@
 
 	// Reactive variables for selected packages and copied state
 	let selectedPackages = $state(new Set(packages));
-	let copied = false;
 
 	// Toggle package selection
 	function togglePackage(pkg) {
@@ -175,13 +175,7 @@
 	// Copy the generated commands to clipboard
 	function copyToClipboard() {
 		navigator.clipboard.writeText(cmds);
-		showCopiedMessage();
-	}
-
-	// Show the "Copied!" message
-	function showCopiedMessage() {
-		copied = true;
-		setTimeout(() => (copied = false), 2000);
+		toast.success("Copied all commands to clipboard");
 	}
 
 	// Add new derived store to group commands by type
@@ -203,12 +197,12 @@
 	// Add new copy functions for each section
 	function copyInstallers() {
 		navigator.clipboard.writeText(groupedCommands.installers.join("\n"));
-		showCopiedMessage();
+		toast.success("Copied installer commands to clipboard");
 	}
 
 	function copyPackages() {
 		navigator.clipboard.writeText(groupedCommands.packages.join("\n"));
-		showCopiedMessage();
+		toast.success("Copied package commands to clipboard");
 	}
 
 	// Add select/deselect all function
@@ -228,6 +222,7 @@
 </script>
 
 <div class="container mx-auto p-4">
+	<Toaster />
 	<Card.Root>
 		<Card.Header>
 			<Card.Title>Package Selection</Card.Title>
@@ -295,10 +290,6 @@
 							<pre><code>{groupedCommands.packages.join("\n")}</code></pre>
 						</div>
 					{/if}
-
-					{#if copied}
-						<div class="copied-message">Copied!</div>
-					{/if}
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -359,16 +350,6 @@
 		padding: 0.5rem;
 		border-radius: 0.25rem;
 		cursor: pointer;
-	}
-
-	.copied-message {
-		position: absolute;
-		top: 0.5rem;
-		right: 5rem;
-		background-color: #198754;
-		color: #fff;
-		padding: 0.5rem;
-		border-radius: 0.25rem;
 	}
 
 	.terminal-output h4 {
