@@ -5,6 +5,8 @@
     'harlequin',
     'llm',
     'marimo',
+		'mopup',
+		'posting',
     'ruff',
     'yt-dlp'
   ];
@@ -19,34 +21,47 @@
   ];
 
   const appstore_packages = [
-    'notion'
+    { name: 'PairVPN', id: '1347012179' },
+    { name: 'Tailscale', id: '1475387142' },
+    { name: 'HotKey', id: '975890633' },
+    { name: 'Dark Reader', id: '1438243180' },
+    { name: 'Daisy Disk', id: '411643860' },
+    { name: 'Overlap', id: '1516950324' },
+    { name: 'Velja', id: '1607635845' },
+    { name: 'System Color Picker', id: '1545870783' },
+    { name: 'VPN Unlimited', id: '694633015' }
   ];
 
   // Combine all packages into a single list
   const packages = [
     ...uv_tools.map(name => ({ name, installer: 'uv' })),
     ...brews.map(name => ({ name, installer: 'homebrew' })),
-    ...appstore_packages.map(name => ({ name, installer: 'mas' }))
+    ...appstore_packages.map(pkg => ({ name: pkg.name, id: pkg.id, installer: 'mas' }))
   ].sort((a, b) => a.name.localeCompare(b.name));
 
   // Reactive variables for selected packages and copied state
-  let selectedPackages = $state([]);
-  let copied = $state(false);
+  let selectedPackages = $state(new Set());
+  let copied = false;
 
   // Toggle package selection
   function togglePackage(pkg) {
-    if (selectedPackages.includes(pkg)) {
-      selectedPackages = selectedPackages.filter(p => p !== pkg);
+    selectedPackages = new Set(selectedPackages); // Create new Set for reactivity
+    const found = Array.from(selectedPackages).find(
+      p => p.name === pkg.name && p.installer === pkg.installer
+    );
+    
+    if (found) {
+      selectedPackages.delete(found);
     } else {
-      selectedPackages = [...selectedPackages, pkg];
+      selectedPackages.add(pkg);
     }
   }
 
 	// Group packages by installer
 	const packagesByInstaller = $derived({
-		homebrew: selectedPackages.filter(pkg => pkg.installer === 'homebrew'),
-		uv: selectedPackages.filter(pkg => pkg.installer === 'uv'),
-		mas: selectedPackages.filter(pkg => pkg.installer === 'mas')
+		homebrew: Array.from(selectedPackages).filter(pkg => pkg.installer === 'homebrew'),
+		uv: Array.from(selectedPackages).filter(pkg => pkg.installer === 'uv'),
+		mas: Array.from(selectedPackages).filter(pkg => pkg.installer === 'mas')
 	});
 
 	// Generate install commands for each installer
@@ -72,19 +87,21 @@
 			`uv pip install ${packagesByInstaller.uv.map(pkg => pkg.name).join(' ')}` :
 			null,
 		mas: packagesByInstaller.mas.length > 0 ?
-			`mas install ${packagesByInstaller.mas.map(pkg => pkg.name).join(' ')}` :
+			`mas install ${packagesByInstaller.mas.map(pkg => pkg.id).join(' ')}` :
 			null
 	});
 
 	// Combine all commands in the correct order
 	const cmds = $derived([
-		installerCommands.homebrew,
-		installerCommands.uv,
-		installerCommands.mas,
-		packageCommands.homebrew,
-		packageCommands.uv,
-		packageCommands.mas
-	].filter(Boolean).flat());
+			installerCommands.homebrew,
+			installerCommands.uv,
+			installerCommands.mas,
+			packageCommands.homebrew,
+			packageCommands.uv,
+			packageCommands.mas
+	].filter(Boolean)
+		.flat()
+		.join('\n'));
 
   // Copy the generated commands to clipboard
   function copyToClipboard() {
@@ -160,10 +177,12 @@
   }
 </style>
 
+{cmds}
+
 <div class="package-list">
   {#each packages as pkg}
     <button
-      class="package-name {selectedPackages.includes(pkg) ? 'selected' : ''}"
+      class="package-name {selectedPackages.has(pkg) ? 'selected' : ''}"
       on:click={() => togglePackage(pkg)}
     >
       {pkg.name}
@@ -171,9 +190,9 @@
   {/each}
 </div>
 
-{#if selectedPackages.length > 0}
+{#if selectedPackages.size > 0}
   <div class="terminal-output">
-    <pre>{cmds}</pre>
+    <pre><code>{cmds}</code></pre>
     <button class="copy-button" on:click={copyToClipboard}>Copy</button>
     {#if copied}
       <div class="copied-message">
