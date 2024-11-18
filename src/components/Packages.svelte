@@ -354,18 +354,23 @@
 		padding: 1rem;
 	}
 
-	.command-section pre {
-		white-space: pre-wrap;       /* preserve spaces and wrap text */
-		word-wrap: break-word;       /* break long words */
-		overflow-wrap: break-word;   /* modern version of word-wrap */
-		max-width: 100%;             /* ensure content stays within container */
-	}
-
 	.section-copy-button {
 		position: absolute;
 		top: 0.5rem;
 		right: 0.5rem;
 		z-index: 1;
+		opacity: 0;
+		transition: opacity 0.2s ease;
+		pointer-events: none; /* Hide from interaction when invisible */
+	}
+
+	.command-section:hover .section-copy-button {
+		opacity: 1;
+		pointer-events: all; /* Restore interaction when visible */
+	}
+
+	.command-section pre {
+		margin: 0; /* Remove any default margins */
 	}
 
 	.copy-all-section {
