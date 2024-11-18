@@ -149,7 +149,7 @@
 				: null,
 		uv:
 			packagesByInstaller.uv.length > 0
-				? `(uv tool install ${packagesByInstaller.uv.map((pkg) => pkg.name).join(" ")} &)`
+				? `for tool (${packagesByInstaller.uv.map(pkg => `"${pkg.name}"`).join(' ')}) (uv tool install "$tool" &)`
 				: null,
 		mas:
 			packagesByInstaller.mas.length > 0
