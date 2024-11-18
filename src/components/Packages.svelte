@@ -29,7 +29,8 @@
     { name: 'Overlap', id: '1516950324' },
     { name: 'Velja', id: '1607635845' },
     { name: 'System Color Picker', id: '1545870783' },
-    { name: 'VPN Unlimited', id: '694633015' }
+    { name: 'VPN Unlimited', id: '694633015' },
+    { name: 'Consent-O-Matic', id: '1606897889' }
   ];
 
   // Combine all packages into a single list
