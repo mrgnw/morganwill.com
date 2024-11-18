@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   // Define the packages and their installers
   const uv_tools = [
     'fpw',
@@ -12,12 +12,63 @@
   ];
 
   const brews = [
+    // Base utilities
     'aria2',
     'cursor',
     'duckdb',
     'jq',
-    'syncthing',
-    'telegram'
+    'zoxide',
+    'choose-rust',
+    
+    // System utilities
+    'bartender',
+    'istat-menus',
+    'macmediakeyforwarder',
+    'lingon-x',
+    'lunar',
+    'onyx',
+    'pastebot',
+    
+    // Development tools
+    'beekeeper-studio',
+    'cloudflared',
+    'docker',
+    'docker-completion',
+    'docker-compose',
+    'github',
+    'orbstack',
+    'postico',
+    'postman',
+    'sublime-text',
+    
+    // File management
+    'cyberduck',
+    'mountain-duck',
+    'diskonaut',
+    'dust',
+    'duf',
+    'the-unarchiver',
+    
+    // Media tools
+    'iina',
+    'handbrake',
+    'homebrew/cask/handbrake',
+    'losslesscut',
+    'plex-media-server',
+    'qlvideo',
+    'subler',
+    
+    // Internet & Communication
+    'firefox',
+    'notion',
+    'qbittorrent',
+    'homebrew/cask/syncthing',
+    'homebrew/cask/transmission',
+    'telegram',
+    
+    // Text & Documentation
+    'typora',
+    'espanso'
   ];
 
   const appstore_packages = [
@@ -41,7 +92,7 @@
   ].sort((a, b) => a.name.localeCompare(b.name));
 
   // Reactive variables for selected packages and copied state
-  let selectedPackages = $state(new Set());
+  let selectedPackages = $state(new Set(packages));
   let copied = false;
 
   // Toggle package selection
@@ -140,26 +191,118 @@
     navigator.clipboard.writeText(groupedCommands.packages.join('\n'));
     showCopiedMessage();
   }
+
+  // Add select/deselect all function
+  function toggleSelectAll() {
+    if (selectedPackages.size === packages.length) {
+      selectedPackages = new Set();
+    } else {
+      selectedPackages = new Set(packages);
+    }
+  }
+
+  // Update package list UI
+  <div class="container mx-auto p-4">
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>Package Selection</Card.Title>
+        <Card.Description>Select packages to install on your system</Card.Description>
+      </Card.Header>
+      <Card.Content>
+        <div class="flex justify-between items-center mb-4">
+          <Button 
+            variant="outline" 
+            size="sm"
+            on:click={toggleSelectAll}
+          >
+            {selectedPackages.size === packages.length ? 'Deselect All' : 'Select All'}
+          </Button>
+          <span class="text-sm text-muted-foreground">
+            {selectedPackages.size} of {packages.length} selected
+          </span>
+        </div>
+
+        <div class="package-list">
+          {#each packages as pkg}
+            <div class="flex items-center space-x-2">
+              <Checkbox
+                checked={selectedPackages.has(pkg)}
+                onCheckedChange={() => togglePackage(pkg)}
+                id={`${pkg.installer}-${pkg.name}`}
+              />
+              <label
+                for={`${pkg.installer}-${pkg.name}`}
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {pkg.name}
+              </label>
+            </div>
+          {/each}
+        </div>
+      </Card.Content>
+    </Card.Root>
+
+    {#if selectedPackages.size > 0}
+      <Card.Root class="mt-4">
+        <Card.Header>
+          <Card.Title>Installation Commands</Card.Title>
+          <Card.Description>Copy and run these commands to install selected packages</Card.Description>
+        </Card.Header>
+        <Card.Content>
+          <div class="terminal-output">
+            <Button class="copy-all-button" on:click={copyToClipboard}>
+              Copy All Commands
+            </Button>
+            
+            {#if groupedCommands.installers.length > 0}
+              <div class="command-section">
+                <div class="section-header">
+                  <h4>Install Package Managers</h4>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    on:click={copyInstallers}
+                  >
+                    Copy
+                  </Button>
+                </div>
+                <pre><code>{groupedCommands.installers.join('\n')}</code></pre>
+              </div>
+            {/if}
+            
+            {#if groupedCommands.packages.length > 0}
+              <div class="command-section">
+                <div class="section-header">
+                  <h4>Install Packages</h4>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    on:click={copyPackages}
+                  >
+                    Copy
+                  </Button>
+                </div>
+                <pre><code>{groupedCommands.packages.join('\n')}</code></pre>
+              </div>
+            {/if}
+
+            {#if copied}
+              <div class="copied-message">Copied!</div>
+            {/if}
+          </div>
+        </Card.Content>
+      </Card.Root>
+    {/if}
+  </div>
 </script>
 
 <style>
   .package-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
-    max-width: 200px;  /* Start with single column width */
-    gap: 0.25rem;
-    padding: 1rem;
-    margin-bottom: calc(40vh + 2rem);
-    margin-inline: auto;
-    /* Expand to max 3 columns when content overflows vertically */
-    max-height: calc(100vh - 40vh - 4rem);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+    max-height: 60vh;
     overflow-y: auto;
-  }
-
-  @media (min-height: 800px) {
-    .package-list {
-      max-width: 500px;  /* Allow expansion to 3 columns on taller screens */
-    }
   }
 
   .package-name {
@@ -277,44 +420,3 @@
     display: none;
   }
 </style>
-
-<div class="package-list">
-  {#each packages as pkg}
-    <button
-      class="package-name {selectedPackages.has(pkg) ? 'selected' : ''}"
-      on:click={() => togglePackage(pkg)}
-    >
-      {pkg.name}
-    </button>
-  {/each}
-</div>
-
-{#if selectedPackages.size > 0}
-  <div class="terminal-output">
-    <button class="copy-all-button" on:click={copyToClipboard}>Copy All Commands</button>
-    
-    {#if groupedCommands.installers.length > 0}
-      <div class="command-section">
-        <div class="section-header">
-          <h4>Install Package Managers</h4>
-          <button class="copy-section-button" on:click={copyInstallers}>Copy</button>
-        </div>
-        <pre><code>{groupedCommands.installers.join('\n')}</code></pre>
-      </div>
-    {/if}
-    
-    {#if groupedCommands.packages.length > 0}
-      <div class="command-section">
-        <div class="section-header">
-          <h4>Install Packages</h4>
-          <button class="copy-section-button" on:click={copyPackages}>Copy</button>
-        </div>
-        <pre><code>{groupedCommands.packages.join('\n')}</code></pre>
-      </div>
-    {/if}
-
-    {#if copied}
-      <div class="copied-message">Copied!</div>
-    {/if}
-  </div>
-{/if}
