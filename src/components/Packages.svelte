@@ -145,19 +145,19 @@
 	const packageCommands = $derived({
 		homebrew:
 			packagesByInstaller.homebrew.length > 0
-				? `brew install ${packagesByInstaller.homebrew.map((pkg) => pkg.name).join(" ")}`
+				? `(brew install ${packagesByInstaller.homebrew.map((pkg) => pkg.name).join(" ")} &)`
 				: null,
 		uv:
 			packagesByInstaller.uv.length > 0
-				? `uv tool install ${packagesByInstaller.uv.map((pkg) => pkg.name).join(" ")}`
+				? `(uv tool install ${packagesByInstaller.uv.map((pkg) => pkg.name).join(" ")} &)`
 				: null,
 		mas:
 			packagesByInstaller.mas.length > 0
-				? `mas install ${packagesByInstaller.mas.map((pkg) => pkg.id).join(" ")}`
+				? `(mas install ${packagesByInstaller.mas.map((pkg) => pkg.id).join(" ")} &)`
 				: null,
 	});
 
-	// Combine all commands in the correct order
+	// Combine all commands in the correct order, adding wait at the end
 	const cmds = $derived(
 		[
 			installerCommands.homebrew,
@@ -166,6 +166,7 @@
 			packageCommands.homebrew,
 			packageCommands.uv,
 			packageCommands.mas,
+			"wait" // Add wait command to ensure all background processes complete
 		]
 			.filter(Boolean)
 			.flat()
