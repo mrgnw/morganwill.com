@@ -198,12 +198,12 @@
 	// Add new copy functions for each section
 	function copyInstallers() {
 		navigator.clipboard.writeText(groupedCommands.installers.join("\n"));
-		toast.success("Copied installer commands to clipboard");
+		toast.success("Copied prerequisite commands");
 	}
 
 	function copyPackages() {
 		navigator.clipboard.writeText(groupedCommands.packages.join("\n"));
-		toast.success("Copied package commands to clipboard");
+		toast.success("Copied package installation");
 	}
 
 	// Add select/deselect all function
