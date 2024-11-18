@@ -1,4 +1,8 @@
-<script lang="ts">
+<script>
+  import * as Card from "$lib/components/ui/card";
+  import { Button } from "$lib/components/ui/button";
+  import { Checkbox } from "$lib/components/ui/checkbox";
+
   // Define the packages and their installers
   const uv_tools = [
     'fpw',
@@ -201,101 +205,100 @@
     }
   }
 
-  // Update package list UI
-  <div class="container mx-auto p-4">
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>Package Selection</Card.Title>
-        <Card.Description>Select packages to install on your system</Card.Description>
-      </Card.Header>
-      <Card.Content>
-        <div class="flex justify-between items-center mb-4">
-          <Button 
-            variant="outline" 
-            size="sm"
-            on:click={toggleSelectAll}
-          >
-            {selectedPackages.size === packages.length ? 'Deselect All' : 'Select All'}
-          </Button>
-          <span class="text-sm text-muted-foreground">
-            {selectedPackages.size} of {packages.length} selected
-          </span>
-        </div>
-
-        <div class="package-list">
-          {#each packages as pkg}
-            <div class="flex items-center space-x-2">
-              <Checkbox
-                checked={selectedPackages.has(pkg)}
-                onCheckedChange={() => togglePackage(pkg)}
-                id={`${pkg.installer}-${pkg.name}`}
-              />
-              <label
-                for={`${pkg.installer}-${pkg.name}`}
-                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {pkg.name}
-              </label>
-            </div>
-          {/each}
-        </div>
-      </Card.Content>
-    </Card.Root>
-
-    {#if selectedPackages.size > 0}
-      <Card.Root class="mt-4">
-        <Card.Header>
-          <Card.Title>Installation Commands</Card.Title>
-          <Card.Description>Copy and run these commands to install selected packages</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          <div class="terminal-output">
-            <Button class="copy-all-button" on:click={copyToClipboard}>
-              Copy All Commands
-            </Button>
-            
-            {#if groupedCommands.installers.length > 0}
-              <div class="command-section">
-                <div class="section-header">
-                  <h4>Install Package Managers</h4>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    on:click={copyInstallers}
-                  >
-                    Copy
-                  </Button>
-                </div>
-                <pre><code>{groupedCommands.installers.join('\n')}</code></pre>
-              </div>
-            {/if}
-            
-            {#if groupedCommands.packages.length > 0}
-              <div class="command-section">
-                <div class="section-header">
-                  <h4>Install Packages</h4>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    on:click={copyPackages}
-                  >
-                    Copy
-                  </Button>
-                </div>
-                <pre><code>{groupedCommands.packages.join('\n')}</code></pre>
-              </div>
-            {/if}
-
-            {#if copied}
-              <div class="copied-message">Copied!</div>
-            {/if}
-          </div>
-        </Card.Content>
-      </Card.Root>
-    {/if}
-  </div>
 </script>
 
+<div class="container mx-auto p-4">
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>Package Selection</Card.Title>
+			<Card.Description>Select packages to install on your system</Card.Description>
+		</Card.Header>
+		<Card.Content>
+			<div class="flex justify-between items-center mb-4">
+				<Button 
+					variant="outline" 
+					size="sm"
+					on:click={toggleSelectAll}
+				>
+					{selectedPackages.size === packages.length ? 'Deselect All' : 'Select All'}
+				</Button>
+				<span class="text-sm text-muted-foreground">
+					{selectedPackages.size} of {packages.length} selected
+				</span>
+			</div>
+
+			<div class="package-list">
+				{#each packages as pkg}
+					<div class="flex items-center space-x-2">
+						<Checkbox
+							checked={selectedPackages.has(pkg)}
+							onCheckedChange={() => togglePackage(pkg)}
+							id={`${pkg.installer}-${pkg.name}`}
+						/>
+						<label
+							for={`${pkg.installer}-${pkg.name}`}
+							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						>
+							{pkg.name}
+						</label>
+					</div>
+				{/each}
+			</div>
+		</Card.Content>
+	</Card.Root>
+
+	{#if selectedPackages.size > 0}
+		<Card.Root class="mt-4">
+			<Card.Header>
+				<Card.Title>Installation Commands</Card.Title>
+				<Card.Description>Copy and run these commands to install selected packages</Card.Description>
+			</Card.Header>
+			<Card.Content>
+				<div class="terminal-output">
+					<Button class="copy-all-button" on:click={copyToClipboard}>
+						Copy All Commands
+					</Button>
+					
+					{#if groupedCommands.installers.length > 0}
+						<div class="command-section">
+							<div class="section-header">
+								<h4>Install Package Managers</h4>
+								<Button 
+									variant="outline" 
+									size="sm" 
+									on:click={copyInstallers}
+								>
+									Copy
+								</Button>
+							</div>
+							<pre><code>{groupedCommands.installers.join('\n')}</code></pre>
+						</div>
+					{/if}
+					
+					{#if groupedCommands.packages.length > 0}
+						<div class="command-section">
+							<div class="section-header">
+								<h4>Install Packages</h4>
+								<Button 
+									variant="outline" 
+									size="sm" 
+									on:click={copyPackages}
+								>
+									Copy
+								</Button>
+							</div>
+							<pre><code>{groupedCommands.packages.join('\n')}</code></pre>
+						</div>
+					{/if}
+
+					{#if copied}
+						<div class="copied-message">Copied!</div>
+					{/if}
+				</div>
+			</Card.Content>
+		</Card.Root>
+	{/if}
+</div>
 <style>
   .package-list {
     display: grid;
