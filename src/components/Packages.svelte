@@ -371,8 +371,10 @@
 
 	.command-section pre {
 		margin: 0; /* Remove any default margins */
+		white-space: pre-wrap; /* Allow text to wrap */
+		word-wrap: break-word; /* Break long words if necessary */
+		overflow-wrap: break-word; /* Ensure long words break to fit */
 		padding: 1rem; /* Ensure padding for the text */
-		position: relative; /* Ensure the pre element is positioned */
 	}
 
 	.copy-all-section {
