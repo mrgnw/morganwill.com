@@ -1,7 +1,6 @@
 <script>
   import * as Card from "$lib/components/ui/card";
   import { Button } from "$lib/components/ui/button";
-  import { Checkbox } from "$lib/components/ui/checkbox";
 
   // Define the packages and their installers
   const uv_tools = [
@@ -137,14 +136,14 @@
 	// Generate package install commands
 	const packageCommands = $derived({
 		homebrew: packagesByInstaller.homebrew.length > 0 ?
-			`brew install ${packagesByInstaller.homebrew.map(pkg => pkg.name).join(' ')}` :
-			null,
+				`brew install ${packagesByInstaller.homebrew.map(pkg => pkg.name).join(' ')}` :
+				null,
 		uv: packagesByInstaller.uv.length > 0 ?
-			`uv tool install ${packagesByInstaller.uv.map(pkg => pkg.name).join(' ')}` :
-			null,
+				`uv tool install ${packagesByInstaller.uv.map(pkg => pkg.name).join(' ')}` :
+				null,
 		mas: packagesByInstaller.mas.length > 0 ?
-			`mas install ${packagesByInstaller.mas.map(pkg => pkg.id).join(' ')}` :
-			null
+				`mas install ${packagesByInstaller.mas.map(pkg => pkg.id).join(' ')}` :
+				null
 	});
 
 	// Combine all commands in the correct order
@@ -229,19 +228,12 @@
 
 			<div class="package-list">
 				{#each packages as pkg}
-					<div class="flex items-center space-x-2">
-						<Checkbox
-							checked={selectedPackages.has(pkg)}
-							onCheckedChange={() => togglePackage(pkg)}
-							id={`${pkg.installer}-${pkg.name}`}
-						/>
-						<label
-							for={`${pkg.installer}-${pkg.name}`}
-							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						>
-							{pkg.name}
-						</label>
-					</div>
+					<button
+						class="package-name {selectedPackages.has(pkg) ? 'selected' : ''}"
+						on:click={() => togglePackage(pkg)}
+					>
+						{pkg.name}
+					</button>
 				{/each}
 			</div>
 		</Card.Content>
@@ -309,9 +301,9 @@
   }
 
   .package-name {
-    color: #333;
+    color: #666;
     cursor: pointer;
-    padding: 0.25rem;
+    padding: 0.5rem;
     border: none;
     background: none;
     font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
@@ -319,10 +311,18 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.2s ease;
+    width: 100%;
+    border-radius: 0.25rem;
+  }
+
+  .package-name:hover {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 
   .package-name.selected {
     color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
   }
 
   .terminal-output {
