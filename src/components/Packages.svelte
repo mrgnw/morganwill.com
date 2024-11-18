@@ -256,7 +256,7 @@
 	</Card.Root>
 
 	{#if selectedPackages.size > 0}
-		<Card.Root class="mt-4">
+		<Card.Root class="mt-4 mb-4">
 			<Card.Header>
 				<Card.Title>Installation Commands</Card.Title>
 				<Card.Description
@@ -340,15 +340,8 @@
 		color: #c9d1d9;
 		padding: 1rem;
 		border-radius: 0.5rem;
-		position: fixed;
-		bottom: 1rem;
-		left: 1rem;
-		right: 1rem;
-		max-height: 40vh;
-		overflow-y: auto;
 		font-family: monospace;
 		white-space: pre-wrap;
-		z-index: 10; /* Ensure terminal stays on top */
 	}
 
 	.copy-button {
