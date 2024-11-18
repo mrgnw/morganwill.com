@@ -115,29 +115,68 @@
     copied = true;
     setTimeout(() => copied = false, 2000);
   }
+
+  // Add new derived store to group commands by type
+  const groupedCommands = $derived({
+    installers: [
+      installerCommands.homebrew,
+      installerCommands.uv,
+      installerCommands.mas
+    ].filter(Boolean).flat(),
+    packages: [
+      packageCommands.homebrew,
+      packageCommands.uv,
+      packageCommands.mas
+    ].filter(Boolean)
+  });
+
+  // Add new copy functions for each section
+  function copyInstallers() {
+    navigator.clipboard.writeText(groupedCommands.installers.join('\n'));
+    showCopiedMessage();
+  }
+
+  function copyPackages() {
+    navigator.clipboard.writeText(groupedCommands.packages.join('\n'));
+    showCopiedMessage();
+  }
 </script>
 
 <style>
   .package-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    min-height: calc(100vh - 40vh - 2rem);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+    max-width: 200px;  /* Start with single column width */
+    gap: 0.25rem;
     padding: 1rem;
+    margin-bottom: calc(40vh + 2rem);
+    margin-inline: auto;
+    /* Expand to max 3 columns when content overflows vertically */
+    max-height: calc(100vh - 40vh - 4rem);
+    overflow-y: auto;
+  }
+
+  @media (min-height: 800px) {
+    .package-list {
+      max-width: 500px;  /* Allow expansion to 3 columns on taller screens */
+    }
   }
 
   .package-name {
-    color: #333; /* unselected color */
+    color: #333;
     cursor: pointer;
     padding: 0.25rem;
     border: none;
     background: none;
-    font: inherit;
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
     text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .package-name.selected {
-    color: #0d6efd; /* startup-blue */
+    color: #0d6efd;
   }
 
   .terminal-output {
@@ -153,6 +192,7 @@
     overflow-y: auto;
     font-family: monospace;
     white-space: pre-wrap;
+    z-index: 10; /* Ensure terminal stays on top */
   }
 
   .copy-button {
@@ -176,9 +216,67 @@
     padding: 0.5rem;
     border-radius: 0.25rem;
   }
-</style>
 
-{cmds}
+  .terminal-output h4 {
+    color: #8b949e;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: normal;
+  }
+
+  .terminal-output pre {
+    margin: 0.5rem 0 1rem 0;
+  }
+
+  .command-section {
+    margin-bottom: 1rem;
+    border: 1px solid #30363d;
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-header h4 {
+    margin: 0;
+  }
+
+  .copy-all-button {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+    background-color: #0d6efd;
+    color: #fff;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+  }
+
+  .copy-section-button {
+    background-color: #21262d;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+
+  .copy-section-button:hover {
+    background-color: #30363d;
+  }
+
+  /* Remove the old copy-button style if it exists */
+  .copy-button {
+    display: none;
+  }
+</style>
 
 <div class="package-list">
   {#each packages as pkg}
@@ -193,12 +291,30 @@
 
 {#if selectedPackages.size > 0}
   <div class="terminal-output">
-    <pre><code>{cmds}</code></pre>
-    <button class="copy-button" on:click={copyToClipboard}>Copy</button>
-    {#if copied}
-      <div class="copied-message">
-        Copied!
+    <button class="copy-all-button" on:click={copyToClipboard}>Copy All Commands</button>
+    
+    {#if groupedCommands.installers.length > 0}
+      <div class="command-section">
+        <div class="section-header">
+          <h4>Install Package Managers</h4>
+          <button class="copy-section-button" on:click={copyInstallers}>Copy</button>
+        </div>
+        <pre><code>{groupedCommands.installers.join('\n')}</code></pre>
       </div>
+    {/if}
+    
+    {#if groupedCommands.packages.length > 0}
+      <div class="command-section">
+        <div class="section-header">
+          <h4>Install Packages</h4>
+          <button class="copy-section-button" on:click={copyPackages}>Copy</button>
+        </div>
+        <pre><code>{groupedCommands.packages.join('\n')}</code></pre>
+      </div>
+    {/if}
+
+    {#if copied}
+      <div class="copied-message">Copied!</div>
     {/if}
   </div>
 {/if}
