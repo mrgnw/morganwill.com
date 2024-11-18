@@ -243,7 +243,7 @@
 			</div>
 
 			<div class="package-list">
-				{#each packages as pkg}
+				{#each [...packages].sort((a, b) => a.name.localeCompare(b.name)) as pkg}
 					<button
 						class="package-name {selectedPackages.has(pkg) ? 'selected' : ''}"
 						on:click={() => togglePackage(pkg)}
