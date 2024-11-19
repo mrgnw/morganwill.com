@@ -324,6 +324,10 @@
 		gap: 0.5rem;
 		max-height: 60vh;
 		overflow-y: auto;
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
 	}
 
 	.package-name {
@@ -341,6 +345,10 @@
 		transition: color 0.2s ease;
 		width: 100%;
 		border-radius: 0.25rem;
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
 	}
 
 	.package-name:hover {
