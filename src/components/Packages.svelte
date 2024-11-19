@@ -361,9 +361,8 @@
 	}
 
 	.terminal-output {
-		background-color: #161b22;
-		color: #c9d1d9;
-		padding: 1rem;
+		background-color: transparent;
+		padding: 0;
 		border-radius: 0.5rem;
 		font-family: monospace;
 		position: relative;
@@ -385,6 +384,17 @@
 
 	.code-container {
 		position: relative;
+		background-color: #161b22;
+		padding: 1rem;
+		border-radius: 0.5rem;
+	}
+
+	.code-container pre {
+		margin: 0;
+		white-space: pre-wrap;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		color: #c9d1d9;
 	}
 
 	.section-copy-button {
@@ -401,13 +411,6 @@
 	.code-container:hover .section-copy-button {
 		opacity: 1;
 		pointer-events: all;
-	}
-
-	.code-container pre {
-		margin: 0; /* Remove default margins */
-		white-space: pre-wrap; /* Allow text to wrap */
-			word-wrap: break-word; /* Break long words if necessary */
-		overflow-wrap: break-word;
 	}
 
 	/* Remove unused styles */
