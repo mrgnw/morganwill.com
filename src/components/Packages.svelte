@@ -366,36 +366,7 @@
 		padding: 1rem;
 		border-radius: 0.5rem;
 		font-family: monospace;
-	}
-
-	.command-section {
-		margin-bottom: 1rem;
-	}
-
-	.code-container {
 		position: relative;
-	}
-
-	.section-copy-button {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		z-index: 10;
-		opacity: 0;
-		transition: opacity 0.2s ease;
-		pointer-events: none; /* Prevent interaction when hidden */
-	}
-
-	.code-container:hover .section-copy-button {
-		opacity: 1;
-		pointer-events: all; /* Enable interaction when visible */
-	}
-
-	.code-container pre {
-		margin: 0; /* Remove default margins */
-		white-space: pre-wrap; /* Allow text to wrap */
-		word-wrap: break-word; /* Break long words if necessary */
-		overflow-wrap: break-word;
 	}
 
 	.copy-all-section {
@@ -405,6 +376,38 @@
 
 	.copy-all-button {
 		width: 100%;
+	}
+
+	.command-section {
+		margin-bottom: 1rem;
+		position: relative;
+	}
+
+	.code-container {
+		position: relative;
+	}
+
+	.section-copy-button {
+		position: absolute;
+		top: 0;
+		right: 0;
+		z-index: 10;
+		opacity: 0;
+		transition: opacity 0.2s ease;
+		pointer-events: none;
+		margin: 0.5rem;
+	}
+
+	.code-container:hover .section-copy-button {
+		opacity: 1;
+		pointer-events: all;
+	}
+
+	.code-container pre {
+		margin: 0; /* Remove default margins */
+		white-space: pre-wrap; /* Allow text to wrap */
+			word-wrap: break-word; /* Break long words if necessary */
+		overflow-wrap: break-word;
 	}
 
 	/* Remove unused styles */
