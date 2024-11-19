@@ -382,7 +382,7 @@
 			if (!ctx) return;
 
 			// Clear canvas with translucent black for fade effect
-			ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+			ctx.fillStyle = "rgb(0, 0, 0)";
 			ctx.fillRect(0, 0, width, height);
 
 			// Create new streams with spacing check
