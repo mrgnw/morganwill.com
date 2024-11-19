@@ -282,19 +282,33 @@
 
 					{#if groupedCommands.installers.length > 0}
 						<div class="command-section">
-							<Button variant="outline" size="sm" class="section-copy-button" on:click={copyInstallers}>
-								Copy
-							</Button>
-							<pre><code>{groupedCommands.installers.join("\n")}</code></pre>
+							<div class="code-container">
+								<Button
+									variant="outline"
+									size="sm"
+									class="section-copy-button"
+									on:click={copyInstallers}
+								>
+									Copy
+								</Button>
+								<pre><code>{groupedCommands.installers.join("\n")}</code></pre>
+							</div>
 						</div>
 					{/if}
 
 					{#if groupedCommands.packages.length > 0}
 						<div class="command-section">
-							<Button variant="outline" size="sm" class="section-copy-button" on:click={copyPackages}>
-								Copy
-							</Button>
-							<pre><code>{groupedCommands.packages.join("\n")}</code></pre>
+							<div class="code-container">
+								<Button
+									variant="outline"
+									size="sm"
+									class="section-copy-button"
+									on:click={copyPackages}
+								>
+									Copy
+								</Button>
+								<pre><code>{groupedCommands.packages.join("\n")}</code></pre>
+							</div>
 						</div>
 					{/if}
 				</div>
@@ -347,11 +361,11 @@
 	}
 
 	.command-section {
-		position: relative;
 		margin-bottom: 1rem;
-		border: 1px solid #30363d;
-		border-radius: 0.5rem;
-		padding: 1rem;
+	}
+
+	.code-container {
+		position: relative;
 	}
 
 	.section-copy-button {
@@ -361,20 +375,19 @@
 		z-index: 10;
 		opacity: 0;
 		transition: opacity 0.2s ease;
-		pointer-events: none; /* Hide from interaction when invisible */
+		pointer-events: none; /* Prevent interaction when hidden */
 	}
 
-	.command-section:hover .section-copy-button {
+	.code-container:hover .section-copy-button {
 		opacity: 1;
-		pointer-events: all; /* Restore interaction when visible */
+		pointer-events: all; /* Enable interaction when visible */
 	}
 
-	.command-section pre {
-		margin: 0; /* Remove any default margins */
+	.code-container pre {
+		margin: 0; /* Remove default margins */
 		white-space: pre-wrap; /* Allow text to wrap */
 		word-wrap: break-word; /* Break long words if necessary */
-		overflow-wrap: break-word; /* Ensure long words break to fit */
-		padding: 1rem; /* Ensure padding for the text */
+		overflow-wrap: break-word;
 	}
 
 	.copy-all-section {
