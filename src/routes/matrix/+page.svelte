@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from "svelte";
 	import { SvelteSet } from "svelte/reactivity";
+	import { fade } from 'svelte/transition';
+	import { cubicOut } from 'svelte/easing';
 
 	// Constants with min and max values for randomization
 	const ANIMATION = {
@@ -117,6 +119,12 @@
 			isVisible: false,
 			isDecrypting: false,
 			decryptStartTime: 0,
+			charSet: selectedSet,
+			rotateSpeed: getRandomValue(50, 150),
+			rotateSpeedVariance: getRandomValue(0.8, 1.2),
+			isRotating: false,
+			rotateStartTime: 0,
+			flashProgress: 0
 		}));
 	}
 
@@ -245,9 +253,22 @@
 	}
 
 	// Color Calculation
-	function getCharColor(char, stream, timestamp, baseAlpha, index) {
+	function getCharColor(char, stream, timestamp, baseAlpha) {
 		if (!stream.decrypted) {
-			// Regular matrix rain (green)
+			if (char.isRotating) {
+				const progress = Math.min(1, (timestamp - char.rotateStartTime) / 200);
+				char.flashProgress = 1 - progress;
+
+				if (progress >= 1) {
+					char.isRotating = false;
+					char.flashProgress = 0;
+				}
+
+				const green = 70 + (185 * char.flashProgress);
+				const redBlue = 255 * char.flashProgress;
+				
+				return `rgba(${redBlue}, ${green}, ${redBlue}, ${char.alpha * baseAlpha * (1 + char.flashProgress * 0.5)})`;
+			}
 			return `rgba(0, 255, 70, ${char.alpha * baseAlpha})`;
 		}
 
@@ -306,27 +327,86 @@
 	}
 
 	function updateStream(stream, timestamp) {
-		// Move stream down
+		// Move entire stream down
 		stream.y += stream.speed;
 
-		// Reveal next character if it's time
-		if (timestamp - stream.lastCharRevealTime > stream.charRevealDelay) {
-			if (stream.nextRevealIndex < stream.chars.length) {
-				revealChar(stream.chars[stream.nextRevealIndex], timestamp);
-				stream.nextRevealIndex++;
+		if (!stream.decrypted) {
+			// Initialize stream's indices if not set
+			if (stream.nextRevealIndex === undefined) {
+				stream.nextRevealIndex = 0;  // Start from first (bottom) character
+				stream.nextRotationIndex = stream.chars.length - 1;  // Start rotation from bottom
+				stream.nextRotationTime = timestamp;
 				stream.lastCharRevealTime = timestamp;
-			} else if (stream.decrypted && !stream.initialFlashDone) {
-				// Initial stream flash before decryption starts
-				flashStream(stream, timestamp);
-				stream.initialFlashDone = true;
+				stream.isFullyRevealed = false;  // Track if stream is fully revealed
 			}
-		}
 
-		// Handle decryption after initial flash
-		if (stream.decrypted && stream.initialFlashDone && !stream.isFlashing) {
-			if (stream.decryptedPositions.size < stream.chars.length) {
-				if (Math.random() < stream.decryptSpeed) {
-					decryptNextCharacter(stream, timestamp);
+			// Initial reveal phase - bottom to top with flash
+			if (!stream.isFullyRevealed) {
+				if (timestamp - stream.lastCharRevealTime > stream.charRevealDelay) {
+					if (stream.nextRevealIndex < stream.chars.length) {
+						// Reveal from bottom up
+						const revealIndex = stream.chars.length - 1 - stream.nextRevealIndex;
+						const char = stream.chars[revealIndex];
+						
+						// Reveal with flash effect
+						revealChar(char, timestamp);
+						char.isRotating = true;
+						char.rotateStartTime = timestamp;
+						
+						stream.nextRevealIndex++;
+						stream.lastCharRevealTime = timestamp;
+					} else {
+						// Stream is fully revealed, start rotation phase
+						stream.isFullyRevealed = true;
+						stream.nextRotationTime = timestamp;
+						stream.nextRotationIndex = stream.chars.length - 1;
+					}
+				}
+			}
+			// Rotation phase - only start after stream is fully revealed
+			else if (timestamp >= stream.nextRotationTime) {
+				const char = stream.chars[stream.nextRotationIndex];
+				
+				// Rotate the character and trigger flash
+				char.char = char.charSet[Math.floor(Math.random() * char.charSet.length)];
+				char.isRotating = true;
+				char.rotateStartTime = timestamp;
+				
+				// Move to next character (going upward)
+				stream.nextRotationIndex = stream.nextRotationIndex - 1;
+				
+				// If we hit the top, go back to bottom
+				if (stream.nextRotationIndex < 0) {
+					stream.nextRotationIndex = stream.chars.length - 1;
+				}
+				
+				// Set next rotation time
+				const speed = char.rotateSpeed * char.rotateSpeedVariance;
+				stream.nextRotationTime = timestamp + speed;
+				
+				// Update variance for next rotation
+				char.rotateSpeedVariance = getRandomValue(0.8, 1.2);
+			}
+		} else {
+			// Reveal next character if it's time
+			if (timestamp - stream.lastCharRevealTime > stream.charRevealDelay) {
+				if (stream.nextRevealIndex < stream.chars.length) {
+					revealChar(stream.chars[stream.nextRevealIndex], timestamp);
+					stream.nextRevealIndex++;
+					stream.lastCharRevealTime = timestamp;
+				} else if (!stream.initialFlashDone) {
+					// Initial stream flash before decryption starts
+					flashStream(stream, timestamp);
+					stream.initialFlashDone = true;
+				}
+			}
+
+			// Handle decryption after initial flash
+			if (stream.initialFlashDone && !stream.isFlashing) {
+				if (stream.decryptedPositions.size < stream.chars.length) {
+					if (Math.random() < stream.decryptSpeed) {
+						decryptNextCharacter(stream, timestamp);
+					}
 				}
 			}
 		}
@@ -337,6 +417,40 @@
 				char.alpha = Math.max(0.8, char.alpha - stream.fadeRate);
 			}
 		});
+
+		// Rotate characters in non-decrypted streams
+		if (!stream.decrypted) {
+			// Initialize stream's next rotation index if not set
+			if (stream.nextRotationIndex === undefined) {
+				stream.nextRotationIndex = 0;
+				stream.nextRotationTime = timestamp;
+			}
+
+			// Only proceed if it's time for next rotation
+			if (timestamp >= stream.nextRotationTime && stream.nextRotationIndex < stream.chars.length) {
+				const char = stream.chars[stream.nextRotationIndex];
+				
+				if (char.isVisible) {
+					// Rotate the character and trigger flash
+					char.char = char.charSet[Math.floor(Math.random() * char.charSet.length)];
+					char.isRotating = true;
+					char.rotateStartTime = timestamp;
+					
+					// Move to next character
+					stream.nextRotationIndex = (stream.nextRotationIndex + 1) % stream.chars.length;
+					
+					// Set next rotation time
+					const speed = char.rotateSpeed * char.rotateSpeedVariance;
+					stream.nextRotationTime = timestamp + speed;
+					
+					// Update variance for next rotation
+					char.rotateSpeedVariance = getRandomValue(0.8, 1.2);
+				} else {
+					// If character isn't visible yet, skip to next one
+					stream.nextRotationIndex = (stream.nextRotationIndex + 1) % stream.chars.length;
+				}
+			}
+		}
 	}
 
 	function decryptNextCharacter(stream, timestamp) {
@@ -443,8 +557,7 @@
 						char,
 						stream,
 						timestamp,
-						baseAlpha,
-						index
+						baseAlpha
 					);
 					ctx.fillText(char.char, Math.round(stream.x), y);
 				});
@@ -478,5 +591,28 @@
 		width: 100%;
 		height: 100%;
 		background-color: black;
+	}
+
+	.matrix-char {
+		position: absolute;
+		font-family: monospace;
+		text-align: center;
+		transform: translate(-50%, -50%);
+		pointer-events: none;
+	}
+
+	.rotating {
+		animation: flash 200ms ease-out;
+	}
+
+	@keyframes flash {
+		0% {
+			color: white;
+			text-shadow: 0 0 8px white;
+		}
+		100% {
+			color: rgb(0, 255, 70);
+			text-shadow: 0 0 8px rgba(0, 255, 70, 0.5);
+		}
 	}
 </style>
