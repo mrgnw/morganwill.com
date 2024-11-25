@@ -9,6 +9,7 @@
 	import IconoirGithubCircle from "~icons/iconoir/github-circle";
 	import IconoirTelegramCircle from "~icons/iconoir/telegram-circle";
 	import RiBlueskyLine from "~icons/ri/bluesky-line";
+	import TablerFileCv from '~icons/tabler/file-cv'
 
 	let hostname = $state("");
 	let links = $state([]);
@@ -22,6 +23,7 @@
 		github: IconoirGithubCircle,
 		bluesky: RiBlueskyLine,
 		message: IconoirTelegramCircle,
+		cv: TablerFileCv
 	};
 
 	let selected = $state(null);
@@ -39,11 +41,11 @@
 		
 		hostname = window.location.hostname;
 		if (hostname === "morganwill.com") {
-			links = get_links(["LinkedIn", "github", "bluesky", "message"]);
+			links = get_links(["LinkedIn", "github", "bluesky", "message", "cv"]);
 		} else if (hostname === "zenfo.co") {
 			links = get_links(["photos", "instagram", "bluesky", "message"]);
 		} else {
-			links = all_links;
+			links = all_links.filter(link => link.title !== "cv");
 		}
 		// params: set qr mode or show specific qr by its alias (li = linkedin)
 		const urlParams = new URLSearchParams(window.location.search);

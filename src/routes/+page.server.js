@@ -36,6 +36,12 @@ const all_links = [
 		url: 'https://t.me/mrgnw',
 		blurb: 'Message on Telegram',
 	},
+	{
+		title: 'cv',
+		alias: 'cv',
+		url: 'https://cv.morganwill.com/',
+		blurb: 'View my résumé/cv in HTML or download a PDF',
+	},
 ]
 
 export async function load() {
