@@ -23,10 +23,14 @@
 	const STREAM = {
 		MIN_LENGTH: 5,
 		MAX_LENGTH: 25,
-		CREATION_GAP_MIN: 150, // in ms
-		CREATION_GAP_MAX: 350, // in ms
+		CREATION_GAP_MIN: 30,
+		CREATION_GAP_MAX: 80,
 		DEPTH_LEVELS: 5,
-		DECRYPT_PROBABILITY: 13, // percent probability
+		DECRYPT_PROBABILITY: 13,
+		TARGET_DENSITY: 0.65,
+		DENSITY_VARIANCE: 0.15,
+		MAX_TIME_WITHOUT_STREAM: 500, // Force create after 500ms
+		FORCE_CREATE_COUNT: 3, // Number of streams to force create
 	};
 
 	// Character Sets
@@ -254,6 +258,8 @@
 
 	// Color Calculation
 	function getCharColor(char, stream, timestamp, baseAlpha) {
+		const adjustedBaseAlpha = 0.4 + (stream.depthLevel / (STREAM.DEPTH_LEVELS - 1)) * 0.6;
+		
 		if (!stream.decrypted) {
 			if (char.isRotating) {
 				const progress = Math.min(1, (timestamp - char.rotateStartTime) / 200);
@@ -267,9 +273,9 @@
 				const green = 70 + (185 * char.flashProgress);
 				const redBlue = 255 * char.flashProgress;
 				
-				return `rgba(${redBlue}, ${green}, ${redBlue}, ${char.alpha * baseAlpha * (1 + char.flashProgress * 0.5)})`;
+				return `rgba(${redBlue}, ${green}, ${redBlue}, ${char.alpha * adjustedBaseAlpha * (1 + char.flashProgress * 0.5)})`;
 			}
-			return `rgba(0, 255, 70, ${char.alpha * baseAlpha})`;
+			return `rgba(0, 255, 70, ${char.alpha * adjustedBaseAlpha})`;
 		}
 
 		if (char.isDecrypted) {
@@ -282,7 +288,7 @@
 				if (flashIntensity > 0) {
 					const whiteBoost = Math.floor(255 * flashIntensity);
 					return `rgba(255, ${whiteBoost}, ${whiteBoost}, ${
-						char.alpha * baseAlpha * (1 + flashIntensity)
+						char.alpha * adjustedBaseAlpha * (1 + flashIntensity)
 					})`;
 				} else {
 					// Transition to blue after flash
@@ -290,7 +296,7 @@
 				}
 			}
 			// Decrypted blue character
-			return `rgba(50, 150, 255, ${char.alpha * baseAlpha})`;
+			return `rgba(50, 150, 255, ${char.alpha * adjustedBaseAlpha})`;
 		}
 
 		if (stream.isFlashing) {
@@ -301,7 +307,7 @@
 			);
 			if (flashIntensity > 0) {
 				const whiteBoost = Math.floor(255 * flashIntensity);
-				return `rgba(255, ${whiteBoost}, ${whiteBoost}, ${char.alpha * baseAlpha * (1 + flashIntensity)})`;
+				return `rgba(255, ${whiteBoost}, ${whiteBoost}, ${char.alpha * adjustedBaseAlpha * (1 + flashIntensity)})`;
 			} else {
 				// Flash finished
 				stream.isFlashing = false;
@@ -309,7 +315,7 @@
 		}
 
 		// Undecrypted characters in decrypted stream (red)
-		return `rgba(255, 0, 0, ${char.alpha * baseAlpha})`;
+		return `rgba(255, 0, 0, ${char.alpha * adjustedBaseAlpha})`;
 	}
 
 	// Stream Management Functions
@@ -413,8 +419,12 @@
 
 		// Fade visible characters
 		stream.chars.forEach((char) => {
-			if (char.isVisible && char.alpha > 0.8) {
-				char.alpha = Math.max(0.8, char.alpha - stream.fadeRate);
+			if (char.isVisible) {
+				// Set different minimum alpha values for encrypted vs decrypted streams
+				const minAlpha = stream.decrypted ? 0.9 : 0.85;
+				if (char.alpha > minAlpha) {
+					char.alpha = Math.max(minAlpha, char.alpha - stream.fadeRate);
+				}
 			}
 		});
 
@@ -500,34 +510,45 @@
 			ctx.fillRect(0, 0, width, height);
 
 			// Create new streams with spacing check
-			if (
-				timestamp - lastStreamCreationTime >
-				getRandomValue(STREAM.CREATION_GAP_MIN, STREAM.CREATION_GAP_MAX)
-			) {
-				const minSpacing = ANIMATION.FONT_SIZE_MAX * 2; // Adjust based on max font size
+			const timeSinceLastStream = timestamp - lastStreamCreationTime;
+
+			// Force create streams if too much time has passed
+			if (timeSinceLastStream > STREAM.MAX_TIME_WITHOUT_STREAM) {
+				for (let i = 0; i < STREAM.FORCE_CREATE_COUNT; i++) {
+					const newX = Math.floor(Math.random() * width);
+					const isDecrypted = Math.random() * 100 < STREAM.DECRYPT_PROBABILITY;
+					const newStream = createStream(isDecrypted);
+					newStream.x = newX;
+					streams.add(newStream);
+				}
+				lastStreamCreationTime = timestamp;
+			} 
+			// Regular stream creation logic
+			else if (timeSinceLastStream > getRandomValue(STREAM.CREATION_GAP_MIN, STREAM.CREATION_GAP_MAX)) {
+				const minSpacing = ANIMATION.FONT_SIZE_MAX * 1.2;
 				const maxStreams = Math.floor(width / minSpacing);
 				const currentDensity = streams.size / maxStreams;
-				const creationProbability = Math.max(0.1, 1 - currentDensity);
+				
+				const targetDensity = STREAM.TARGET_DENSITY + (Math.random() * 2 - 1) * STREAM.DENSITY_VARIANCE;
+				const densityDiff = targetDensity - currentDensity;
+				const creationProbability = Math.max(0.2, Math.min(0.95, 0.6 + densityDiff * 1.5));
 
 				if (Math.random() < creationProbability) {
-					// Generate potential new x position
 					const newX = Math.floor(Math.random() * width);
 
-					// Check distance from existing streams
 					let tooClose = false;
 					streams.forEach((existingStream) => {
 						const distance = Math.abs(existingStream.x - newX);
-						if (distance < minSpacing) {
+						const minAllowedDistance = minSpacing * (0.7 + Math.random() * 0.3);
+						if (distance < minAllowedDistance) {
 							tooClose = true;
 						}
 					});
 
-					// Only create new stream if not too close to others
 					if (!tooClose) {
-						const isDecrypted =
-							Math.random() * 100 < STREAM.DECRYPT_PROBABILITY;
+						const isDecrypted = Math.random() * 100 < STREAM.DECRYPT_PROBABILITY;
 						const newStream = createStream(isDecrypted);
-						newStream.x = newX; // Use our calculated x position
+						newStream.x = newX;
 						streams.add(newStream);
 						lastStreamCreationTime = timestamp;
 					}
