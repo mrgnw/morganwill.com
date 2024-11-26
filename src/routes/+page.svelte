@@ -118,6 +118,14 @@
 				class:active={title === selected}
 				class:flash-on={qrMode}
 				class:flash-off={!qrMode}
+				ontouchstart={() => {
+					selected = title;
+				}}
+				ontouchend={(e) => {
+					if (selected === title && !qrMode) {
+						window.open(url, '_blank');
+					}
+				}}
 				onmouseover={() => {
 					selected = title;
 				}}
@@ -329,5 +337,13 @@
 
 	.qr-wrapper :global(svg path:last-child) {
 		stroke: var(--qr);
+	}
+
+	a :global(svg) {
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		pointer-events: none;
 	}
 </style>
