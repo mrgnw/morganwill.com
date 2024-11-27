@@ -1,4 +1,7 @@
 <script>
+	import { createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { onMount } from "svelte";
 	import { SvelteSet } from "svelte/reactivity";
 	import { fade } from 'svelte/transition';
@@ -96,7 +99,7 @@
 	];
 
 	// States
-	let canvas;
+	let canvas = $state();
 	let ctx = null;
 	let streams = new SvelteSet();
 	let width = 0;
@@ -601,7 +604,7 @@
 	});
 </script>
 
-<svelte:window on:resize />
+<svelte:window onresize={bubble('resize')} />
 <canvas bind:this={canvas} class="matrix-rain"></canvas>
 
 <style>

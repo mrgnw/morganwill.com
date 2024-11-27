@@ -1,13 +1,21 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
 
-	/** @type {string} */
-	export let url;
-	/** @type {number} */
-	export let size = 128;
+	
+	
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} url
+	 * @property {number} [size]
+	 */
 
-	let canvas;
+	/** @type {Props} */
+	let { url, size = 128 } = $props();
+
+	let canvas = $state();
 
 	async function generateQR() {
 		if (!canvas) return;
@@ -29,9 +37,11 @@
 		}
 	}
 
-	$: if (url && canvas) {
-		generateQR();
-	}
+	run(() => {
+		if (url && canvas) {
+			generateQR();
+		}
+	});
 
 	onMount(() => {
 		if (url) {
@@ -40,7 +50,7 @@
 	});
 </script>
 
-<canvas bind:this={canvas} width={size} height={size} />
+<canvas bind:this={canvas} width={size} height={size}></canvas>
 
 <style>
 	canvas {
