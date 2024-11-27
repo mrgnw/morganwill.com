@@ -109,45 +109,51 @@
 		{/if}
 	</h1>
 
-	<div class="links">
+	<div class="links"
+		ontouchmove={(e) => {
+			const touch = e.touches[0];
+			const element = document.elementFromPoint(touch.clientX, touch.clientY);
+			const linkElement = element?.closest('a');
+			if (linkElement) {
+				const linkData = links.find(link => 
+					linkElement.getAttribute('data-title') === link.title
+				);
+				if (linkData) selected = linkData.title;
+			}
+		}}
+	>
 		{#each links as { url, icon, blurb, title }, index}
 			<a
 				href={qrMode ? undefined : url}
 				target="_blank"
 				aria-label={blurb}
+				data-title={title}
 				class:active={title === selected}
 				class:flash-on={qrMode}
 				class:flash-off={!qrMode}
-				ontouchstart={() => {
-					selected = title;
-				}}
+				
+				ontouchstart={() => selected = title}
 				ontouchend={(e) => {
 					if (selected === title && !qrMode) {
 						window.open(url, '_blank');
 					}
 				}}
-				onmouseover={() => {
-					selected = title;
-				}}
-				onfocus={() => {
-					selected = title;
-				}}
-				onmouseout={() => {
-					if (!qrMode) selected = null;
-				}}
-				onblur={() => {
-					if (!qrMode) selected = null;
-				}}
+				onmouseover={() => selected = title}
+				onmouseout={() => !qrMode && (selected = null)}
+				onfocus={() => selected = title}
+				onblur={() => !qrMode && (selected = null)}
 				transition:fade={{ duration: 800, delay: 150 * index }}
 			>
 				{#if icon}
 					{@const Icon = icon}
 					<Icon
+						
 						style="color: {title === selected
 							? 'var(--highlight)'
 							: 'var(--default)'}"
 						width="4.5em"
 						height="4.5em"
+					
 					/>
 				{/if}
 			</a>
