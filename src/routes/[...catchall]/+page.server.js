@@ -9,6 +9,7 @@ const redirects = {
 	'': 'sms:morgan@textme.cc',
 	'apple': 'sms:morgan@textme.cc',
 	'imessage': 'sms:morgan@textme.cc',
+	'cal': 'https://cal.com/mrgnw/hi',
 };
 
 
