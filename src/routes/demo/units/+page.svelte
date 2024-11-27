@@ -1,14 +1,16 @@
 <script>
 	import * as Table from '$lib/components/ui/table';
+	import { Progress } from '$lib/components/ui/progress';
 	import { onMount, onDestroy } from 'svelte';
-	import { writable, derived } from 'svelte/store';
+	import { writable } from 'svelte/store';
 
+	let megabits = 1024 * 1024 * 8;
 	// Define transfer data structure
-	let transfers = [
-		{ id: '1', name: 'Transfer A', size: 10 * 1024 * 1024, downloaded: 0, speed: 1.90 * 1024 }, // Size in Bytes, Speed in Bytes/s
-		{ id: '2', name: 'Transfer B', size: 50 * 1024 * 1024, downloaded: 0, speed: 999 * 1024 },
-		{ id: '3', name: 'Transfer C', size: 100 * 1024 * 1024, downloaded: 0, speed: 1.50 * 1024 * 1024 },
-	];
+	let transfers = writable([
+		{ id: '1', name: 'Transfer A', size: 10 * megabits, downloaded: 0, speed: 1.90 * megabits }, // Size in Bytes, Speed in Bytes/s
+		{ id: '2', name: 'Transfer B', size: 5000 * megabits, downloaded: 0, speed: 999 * megabits },
+		{ id: '3', name: 'Transfer C', size: 100 * megabits, downloaded: 0, speed: 1.50 * megabits },
+	]);
 
 	// Toggle between easy units and mixed units
 	const displayEasyUnits = writable(true);
@@ -23,7 +25,7 @@
 		if (easy) {
 			// Convert to Mbps
 			const mbps = (bytesPerSec * 8) / (1024 * 1024);
-			return mbps < 1 ? '…' : mbps.toFixed(1) + ' Mbps';
+			return mbps < 1 ? '…' : mbps.toFixed(1);
 		} else {
 			// Mixed units
 			if (bytesPerSec >= 1024 * 1024) {
@@ -40,7 +42,7 @@
 		if (easy) {
 			// Convert to MB
 			const mb = bytes / (1024 * 1024);
-			return mb.toFixed(2) + ' MB';
+			return mb.toFixed(2);
 		} else {
 			// Mixed units
 			if (bytes >= 1024 * 1024 * 1024) {
@@ -60,18 +62,18 @@
 
 	onMount(() => {
 		interval = setInterval(() => {
-			transfers = transfers.map(transfer => {
+			transfers.update(current => current.map(transfer => {
 				if (transfer.downloaded >= transfer.size) return transfer;
 
 				// Vary speed by ±10%
-				let variedSpeed = transfer.speed * (0.9 + Math.random() * 0.2);
+				const variedSpeed = transfer.speed * (0.9 + Math.random() * 0.2);
 
 				// Calculate new downloaded amount
 				let newDownloaded = transfer.downloaded + variedSpeed;
 				if (newDownloaded > transfer.size) newDownloaded = transfer.size;
 
 				return { ...transfer, downloaded: newDownloaded, speed: variedSpeed };
-			});
+			}));
 		}, 1000);
 	});
 
@@ -81,38 +83,60 @@
 </script>
 
 <style>
-	.number {
-		font-family: monospace;
+	:global(.number) {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 		text-align: right;
 	}
 	.button {
 		margin-bottom: 1rem;
 	}
+	.progress-bar {
+		height: 8px;
+		border-radius: 4px;
+		background-color: #e5e7eb; /* Tailwind gray-200 */
+		margin-top: 4px;
+		overflow: hidden;
+	}
+	.progress {
+		height: 100%;
+		background-color: #3b82f6; /* Tailwind blue-500 */
+	}
 </style>
 
 <div class="container p-6">
-	<h2 class="text-xl font-semibold mb-4">Transfer Speeds Comparison</h2>
+	<h2 class="text-2xl font-semibold">Transfer Speeds</h2>
+	
 	<button class="button px-4 py-2 bg-blue-500 text-white rounded" on:click={toggleUnits}>
 		Toggle Units
 	</button>
+	
 	<div class="rounded-md border">
 		<Table.Root>
 			<Table.Header>
 				<Table.Row>
+					<Table.Head>Progress</Table.Head>
 					<Table.Head>#</Table.Head>
 					<Table.Head>Name</Table.Head>
-					<Table.Head>Size</Table.Head>
+					<Table.Head class="number">Size</Table.Head>
 					<Table.Head class="number">Downloaded</Table.Head>
 					<Table.Head class="number">Remaining</Table.Head>
 					<Table.Head class="number">Speed</Table.Head>
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#each transfers as transfer, index}
+				{#each $transfers as transfer}
 					<Table.Row>
+						<Table.Cell>
+							<div class="progress-bar">
+								<div 
+									class="progress" 
+									style="width: {(transfer.downloaded / transfer.size) * 100}%"
+								></div>
+							</div>
+						</Table.Cell>
 						<Table.Cell>{transfer.id}</Table.Cell>
 						<Table.Cell>{transfer.name}</Table.Cell>
-						<Table.Cell>
+						<Table.Cell class="number">
 							{#if $displayEasyUnits}
 								{formatSize(transfer.size, true)}
 							{:else}
