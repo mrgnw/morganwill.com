@@ -59,6 +59,16 @@
 				qrMode = true;
 			}
 		}
+
+		document.body.addEventListener('touchstart', (e) => {
+			if (!e.target.closest('.links a') && !qrMode) {
+				selected = null;
+			}
+		});
+
+		return () => {
+			document.body.removeEventListener('touchstart', handleBodyTouch);
+		};
 	});
 
 
@@ -90,7 +100,7 @@
 		{#if qrMode && selected_qr}
 			<div class="qr-wrapper">
 				{#if qrMode && selectedUrl}
-					<div class="url-display" transition:fade={{ duration: 300 }}>
+					<div class="url-display" transition:ofade={{ duration: 300 }}>
 						<a
 							href={selectedUrl}
 							target="_blank"
@@ -111,6 +121,7 @@
 
 	<div class="links"
 		ontouchmove={(e) => {
+			e.preventDefault();
 			const touch = e.touches[0];
 			const element = document.elementFromPoint(touch.clientX, touch.clientY);
 			const linkElement = element?.closest('a');
@@ -119,6 +130,8 @@
 					linkElement.getAttribute('data-title') === link.title
 				);
 				if (linkData) selected = linkData.title;
+			} else if (!qrMode) {
+				selected = null;
 			}
 		}}
 	>
@@ -131,11 +144,16 @@
 				class:active={title === selected}
 				class:flash-on={qrMode}
 				class:flash-off={!qrMode}
-				
-				ontouchstart={() => selected = title}
+				ontouchstart={(e) => {
+					e.preventDefault();
+					selected = title;
+				}}
 				ontouchend={(e) => {
+					e.preventDefault();
 					if (selected === title && !qrMode) {
-						window.open(url, '_blank');
+						setTimeout(() => {
+							window.open(url, '_blank');
+						}, 100);
 					}
 				}}
 				onmouseover={() => selected = title}
