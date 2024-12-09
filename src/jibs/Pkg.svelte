@@ -3,6 +3,25 @@
 	import { Button } from "$lib/components/ui/button";
 	import { toast, Toaster } from 'svelte-sonner';
 
+	let data = $props();
+
+	const direct_from_curl = [
+		{
+			name: "bun",
+			homepage: "bun.sh",
+			install: "curl -fsSL https://bun.sh/install | bash",
+		},
+		{
+			name: "uv",
+			homepage: "docs.astral.sh/uv",
+			install: "curl -LsSf https://astral.sh/uv/install.sh | sh",
+		},
+		{
+			name: "brew",
+			homepage: "brew.sh",
+			install: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`,
+		},
+	];
 	// Define the packages and their installers
 	const uv_tools = [
 		"fpw",
@@ -89,12 +108,27 @@
 
 	// Combine all packages into a single list
 	const packages = [
-		...uv_tools.map((name) => ({ name, installer: "uv" })),
-		...brews.map((name) => ({ name, installer: "homebrew" })),
+		...direct_from_curl.map((pkg) => ({
+			name: pkg.name,
+			homepage: pkg.homepage,
+			install: pkg.install,
+			installer: pkg.name,
+		})),
+		...uv_tools.map((name) => ({ 
+			name, 
+			installer: "uv",
+			install: "curl -LsSf https://astral.sh/uv/install.sh | sh"
+		})),
+		...brews.map((name) => ({ 
+			name, 
+			installer: "homebrew",
+			install: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` 
+		})),
 		...appstore_packages.map((pkg) => ({
 			name: pkg.name,
 			id: pkg.id,
 			installer: "mas",
+			install: "brew install mas"
 		})),
 	].sort((a, b) => a.name.localeCompare(b.name));
 
@@ -117,59 +151,45 @@
 
 	// Group packages by installer
 	const packagesByInstaller = $derived({
-		homebrew: Array.from(selectedPackages).filter(
-			(pkg) => pkg.installer === "homebrew"
-		),
-		uv: Array.from(selectedPackages).filter((pkg) => pkg.installer === "uv"),
-		mas: Array.from(selectedPackages).filter((pkg) => pkg.installer === "mas"),
-	});
-
-	// Generate install commands for each installer
-	const installerCommands = $derived({
-		homebrew:
-			packagesByInstaller.homebrew.length > 0 ||
-			packagesByInstaller.mas.length > 0
-				? `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-				: null,
-		uv:
-			packagesByInstaller.uv.length > 0
-				? [
-						"curl -LsSf https://astral.sh/uv/install.sh | sh",
-						"uv python install",
-					]
-				: null,
-		mas: packagesByInstaller.mas.length > 0 ? "brew install mas" : null,
+		homebrew: Array.from(selectedPackages).filter(pkg => pkg.installer === "homebrew"),
+		uv: Array.from(selectedPackages).filter(pkg => pkg.installer === "uv"),
+		mas: Array.from(selectedPackages).filter(pkg => pkg.installer === "mas"),
+		bun: Array.from(selectedPackages).filter(pkg => pkg.installer === "bun"),
+		direct: Array.from(selectedPackages).filter(pkg => direct_from_curl.some(d => d.name === pkg.installer))
 	});
 
 	// Generate package install commands
 	const packageCommands = $derived({
-		homebrew:
-			packagesByInstaller.homebrew.length > 0
-				? `(brew install ${packagesByInstaller.homebrew.map((pkg) => pkg.name).join(" ")} &)`
-				: null,
-		uv:
-			packagesByInstaller.uv.length > 0
-				? `for tool (${packagesByInstaller.uv.map(pkg => `"${pkg.name}"`).join(' ')}) (uv tool install "$tool" &)`
-				: null,
-		mas:
-			packagesByInstaller.mas.length > 0
-				? `(mas install ${packagesByInstaller.mas.map((pkg) => pkg.id).join(" ")} &)`
-				: null,
+		prerequisites: Array.from(selectedPackages)
+			.map(pkg => pkg.install)
+			.filter((cmd, index, self) => self.indexOf(cmd) === index), // Remove duplicates
+		homebrew: packagesByInstaller.homebrew.length > 0
+			? `(brew install ${packagesByInstaller.homebrew.map(pkg => pkg.name).join(" ")} &)`
+			: null,
+		uv: packagesByInstaller.uv.length > 0
+			? `for tool (${packagesByInstaller.uv.map(pkg => `"${pkg.name}"`).join(' ')}) (uv tool install "$tool" &)`
+			: null,
+		mas: packagesByInstaller.mas.length > 0
+			? `(mas install ${packagesByInstaller.mas.map(pkg => pkg.id).join(" ")} &)`
+			: null,
+		bun: packagesByInstaller.bun.length > 0
+			? `(bun install -g ${packagesByInstaller.bun.map(pkg => pkg.name).join(" ")} &)`
+			: null,
+		direct: packagesByInstaller.direct.map(pkg => pkg.install)
 	});
 
-	// Combine all commands in the correct order, adding wait at the end
+	// Combine all commands in the correct order
 	const cmds = $derived(
 		[
-			installerCommands.homebrew,
-			installerCommands.uv,
-			installerCommands.mas,
+			...packageCommands.direct,
+			...packageCommands.prerequisites,
 			packageCommands.homebrew,
 			packageCommands.uv,
 			packageCommands.mas,
-			"wait" // Add wait command to ensure all background processes complete
+			packageCommands.bun,
+			"wait"
 		]
 			.filter(Boolean)
-			.flat()
 			.join("\n")
 	);
 
@@ -182,16 +202,16 @@
 	// Add new derived store to group commands by type
 	const groupedCommands = $derived({
 		installers: [
-			installerCommands.homebrew,
-			installerCommands.uv,
-			installerCommands.mas,
-		]
-			.filter(Boolean)
-			.flat(),
+			...new Set([
+				...packageCommands.direct,
+				...packageCommands.prerequisites
+			])
+		],
 		packages: [
 			packageCommands.homebrew,
 			packageCommands.uv,
 			packageCommands.mas,
+			packageCommands.bun,
 		].filter(Boolean),
 	});
 
