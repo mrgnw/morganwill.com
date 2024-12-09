@@ -1,10 +1,5 @@
 import { dev } from '$app/environment';
-
-function getJibComponents() {
-	const components = import.meta.glob('$jibs/*.svelte', { eager: true });
-	return Object.keys(components)
-		.filter(path => !path.includes('+page'));
-}
+import { getJibComponents } from '$jibs/index';
 
 export function entries() {
 	return getJibComponents().map(path => ({
@@ -14,9 +9,9 @@ export function entries() {
 
 export async function load() {
 	return {
-		jibs: getJibComponents().map(path => ({
-			name: path.split('/').pop().replace('.svelte', ''),
-			path: path.toLowerCase()
-			}))
+		jibs: getJibComponents().paths.map(path => ({
+			name: path.name,
+			path: path.path
+		}))
 	};
 }
