@@ -8,10 +8,14 @@ export function entries() {
 }
 
 export async function load() {
+	const { paths, components } = getJibComponents();
+	
+	// Return just the paths - we'll load components client-side
 	return {
-		jibs: getJibComponents().paths.map(path => ({
+		jibs: paths.map(path => ({
 			name: path.name,
-			path: path.path
+			path: path.path,
+			slug: path.slug
 		}))
 	};
 }
