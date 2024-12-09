@@ -2,8 +2,8 @@ import { dev } from '$app/environment';
 import { getJibComponents } from '$jibs/index';
 
 export function entries() {
-	return getJibComponents().map(path => ({
-		jib: path.split('/').pop().replace('.svelte', '').toLowerCase()
+	return getJibComponents().paths.map(path => ({
+		jib: path.slug
 	}));
 }
 
