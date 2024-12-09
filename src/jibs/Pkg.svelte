@@ -202,8 +202,10 @@
 	// Add new derived store to group commands by type
 	const groupedCommands = $derived({
 		installers: [
-			...packageCommands.direct,
-			...packageCommands.prerequisites
+			...new Set([
+				...packageCommands.direct,
+				...packageCommands.prerequisites
+			])
 		],
 		packages: [
 			packageCommands.homebrew,
