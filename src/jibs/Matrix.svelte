@@ -34,6 +34,7 @@
 		DENSITY_VARIANCE: 0.15,
 		MAX_TIME_WITHOUT_STREAM: 500, // Force create after 500ms
 		FORCE_CREATE_COUNT: 3, // Number of streams to force create
+		MAX_STREAMS: 99,
 	};
 
 	// Character Sets
@@ -515,45 +516,55 @@
 			// Create new streams with spacing check
 			const timeSinceLastStream = timestamp - lastStreamCreationTime;
 
-			// Force create streams if too much time has passed
-			if (timeSinceLastStream > STREAM.MAX_TIME_WITHOUT_STREAM) {
-				for (let i = 0; i < STREAM.FORCE_CREATE_COUNT; i++) {
-					const newX = Math.floor(Math.random() * width);
-					const isDecrypted = Math.random() * 100 < STREAM.DECRYPT_PROBABILITY;
-					const newStream = createStream(isDecrypted);
-					newStream.x = newX;
-					streams.add(newStream);
-				}
-				lastStreamCreationTime = timestamp;
-			} 
-			// Regular stream creation logic
-			else if (timeSinceLastStream > getRandomValue(STREAM.CREATION_GAP_MIN, STREAM.CREATION_GAP_MAX)) {
-				const minSpacing = ANIMATION.FONT_SIZE_MAX * 1.2;
-				const maxStreams = Math.floor(width / minSpacing);
-				const currentDensity = streams.size / maxStreams;
-				
-				const targetDensity = STREAM.TARGET_DENSITY + (Math.random() * 2 - 1) * STREAM.DENSITY_VARIANCE;
-				const densityDiff = targetDensity - currentDensity;
-				const creationProbability = Math.max(0.2, Math.min(0.95, 0.6 + densityDiff * 1.5));
-
-				if (Math.random() < creationProbability) {
-					const newX = Math.floor(Math.random() * width);
-
-					let tooClose = false;
-					streams.forEach((existingStream) => {
-						const distance = Math.abs(existingStream.x - newX);
-						const minAllowedDistance = minSpacing * (0.7 + Math.random() * 0.3);
-						if (distance < minAllowedDistance) {
-							tooClose = true;
-						}
-					});
-
-					if (!tooClose) {
+			// Only create new streams if we're under the maximum limit
+			if (streams.size < STREAM.MAX_STREAMS) {
+				// Force create streams if too much time has passed
+				if (timeSinceLastStream > STREAM.MAX_TIME_WITHOUT_STREAM) {
+					// Calculate how many streams we can safely add
+					const availableSlots = STREAM.MAX_STREAMS - streams.size;
+					const streamsToCreate = Math.min(STREAM.FORCE_CREATE_COUNT, availableSlots);
+					
+					for (let i = 0; i < streamsToCreate; i++) {
+						const newX = Math.floor(Math.random() * width);
 						const isDecrypted = Math.random() * 100 < STREAM.DECRYPT_PROBABILITY;
 						const newStream = createStream(isDecrypted);
 						newStream.x = newX;
 						streams.add(newStream);
-						lastStreamCreationTime = timestamp;
+					}
+					lastStreamCreationTime = timestamp;
+				} 
+				// Regular stream creation logic
+				else if (timeSinceLastStream > getRandomValue(STREAM.CREATION_GAP_MIN, STREAM.CREATION_GAP_MAX)) {
+					const minSpacing = ANIMATION.FONT_SIZE_MAX * 1.2;
+					const maxStreams = Math.min(
+						Math.floor(width / minSpacing),
+						STREAM.MAX_STREAMS
+					);
+					const currentDensity = streams.size / maxStreams;
+					
+					const targetDensity = STREAM.TARGET_DENSITY + (Math.random() * 2 - 1) * STREAM.DENSITY_VARIANCE;
+					const densityDiff = targetDensity - currentDensity;
+					const creationProbability = Math.max(0.2, Math.min(0.95, 0.6 + densityDiff * 1.5));
+
+					if (Math.random() < creationProbability) {
+						const newX = Math.floor(Math.random() * width);
+
+						let tooClose = false;
+						streams.forEach((existingStream) => {
+							const distance = Math.abs(existingStream.x - newX);
+							const minAllowedDistance = minSpacing * (0.7 + Math.random() * 0.3);
+							if (distance < minAllowedDistance) {
+								tooClose = true;
+							}
+						});
+
+						if (!tooClose) {
+							const isDecrypted = Math.random() * 100 < STREAM.DECRYPT_PROBABILITY;
+							const newStream = createStream(isDecrypted);
+							newStream.x = newX;
+							streams.add(newStream);
+							lastStreamCreationTime = timestamp;
+						}
 					}
 				}
 			}

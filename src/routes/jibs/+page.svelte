@@ -27,6 +27,8 @@
 					src="/jibs/{jib.slug}" 
 					title={jib.name}
 					class="absolute inset-0 w-full h-full border-none"
+					loading="lazy"
+					style="will-change: transform; transform: translateZ(0);"
 				/>
 			</div>
 		{/each}
