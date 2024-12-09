@@ -1,4 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
+import { getJibComponents } from '$jibs/index';
 
 export const prerender = true;
 
@@ -12,7 +13,6 @@ const redirects = {
 	'cal': 'https://cal.com/mrgnw/hi',
 };
 
-
 export function entries() {
 	return Object.keys(redirects).map(
 		catchall => ({ catchall })
@@ -21,15 +21,22 @@ export function entries() {
 
 export const load = ({ params }) => {
 	const { catchall } = params;
-	const slug = catchall; // catchall is a string now, not an array
-	console.log(slug);
-	const url = redirects[slug.toLowerCase()];
+	const slug = catchall.toLowerCase(); // catchall is a string now, not an array
 
+	// Check if the slug matches a jib component
+	const { paths } = getJibComponents();
+	const matchingJib = paths.find(path => path.slug === slug);
+	if (matchingJib) {
+		return redirect(301, `/jibs/${slug}`);
+	}
+
+	// Check regular redirects
+	const url = redirects[slug];
 	if (url) {
 		return redirect(301, url);
-	} else {
-		return error(404, {
-			message: 'Not found',
-		});
 	}
-}
+
+	return error(404, {
+		message: 'Not found',
+	});
+};
