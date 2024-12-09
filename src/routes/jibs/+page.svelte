@@ -29,7 +29,7 @@
 </script>
 
 <div class="container mx-auto py-8">
-	<h1 class="text-3xl font-bold mb-8">Experiments</h1>
+	<h1 class="text-3xl font-bold mb-8">Jibs</h1>
 
 	<!-- Simple list of components -->
 	<div class="flex flex-col gap-2 mb-8">
