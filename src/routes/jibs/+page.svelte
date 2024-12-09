@@ -1,31 +1,22 @@
 <script>
-	import { Card } from "$lib/components/ui/card";
 	import { onMount } from "svelte";
 
 	let { data } = $props();
-
 	let loadedComponents = $state([]);
 
 	onMount(async () => {
 		// Load all components in parallel
-		const components = import.meta.glob("/src/jibs/*.svelte");
+		const components = import.meta.glob("/src/jibs/*.svelte", { eager: true });
 
-		const loaded = await Promise.all(
-			data.jibs.map(async (jib) => {
-				const component = components[jib.path];
-				return {
-					...jib,
-					component: (await component()).default,
-				};
-			})
-		);
+		const loaded = data.jibs.map((jib) => {
+			return {
+				...jib,
+				component: components[jib.path]?.default
+			};
+		});
 
 		loadedComponents = loaded;
 	});
-
-	const gridClasses =
-		"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6";
-	const cardClasses = "min-h-[200px] flex flex-col relative overflow-hidden";
 </script>
 
 <div class="container mx-auto py-8">
@@ -43,25 +34,23 @@
 		{/each}
 	</div>
 
-	<!-- Original grid view -->
-	<div class={gridClasses}>
+	<!-- Grid view -->
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 		{#each loadedComponents as jib}
-			<Card.Root class={cardClasses}>
-				<Card.Header>
-					<Card.Title>
-						<a href="/jibs/{jib.slug}" class="hover:underline">
-							{jib.name}
-						</a>
-					</Card.Title>
-				</Card.Header>
-				<Card.Content class="flex-1">
-					<div class="w-full h-full">
-						{#if jib.component}
-							<svelte:component this={jib.component} />
-						{/if}
-					</div>
-				</Card.Content>
-			</Card.Root>
+			<div class="border rounded-lg p-4 shadow-sm">
+				<div class="mb-4">
+					<a href="/jibs/{jib.slug}" class="text-lg font-semibold hover:underline">
+						{jib.name}
+					</a>
+				</div>
+				<div class="min-h-[200px] flex flex-col relative overflow-hidden">
+					{#if jib.component}
+						{#key jib.component}
+							<jib.component />
+						{/key}
+					{/if}
+				</div>
+			</div>
 		{/each}
 	</div>
 </div>
