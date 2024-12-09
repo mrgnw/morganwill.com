@@ -6,12 +6,25 @@
 
 	onMount(async () => {
 		// Load all components in parallel
-		const components = import.meta.glob("/src/jibs/*.svelte", { eager: true });
+		const components = import.meta.glob("$jibs/*.svelte", { eager: true });
+		console.log('Available components:', components); // Debug log
 
 		const loaded = data.jibs.map((jib) => {
+			// Convert path preserving case
+			const componentPath = jib.path.replace('/src/jibs/', '$jibs/').replace(/(matrix|pkg|t90|units)/i, (match) => {
+				const capitalized = {
+					'matrix': 'Matrix',
+					'pkg': 'Pkg',
+					't90': 'T90',
+					'units': 'Units'
+				};
+				return capitalized[match.toLowerCase()];
+			});
+			const component = components[componentPath];
+			console.log('Looking up component:', componentPath, component); // Debug log
 			return {
 				...jib,
-				component: components[jib.path]?.default
+				component: component?.default
 			};
 		});
 
@@ -36,7 +49,7 @@
 
 	<!-- Grid view -->
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-		{#each loadedComponents as jib}
+		{#each data.jibs as jib}
 			<div class="border rounded-lg p-4 shadow-sm">
 				<div class="mb-4">
 					<a href="/jibs/{jib.slug}" class="text-lg font-semibold hover:underline">
@@ -44,11 +57,11 @@
 					</a>
 				</div>
 				<div class="min-h-[200px] flex flex-col relative overflow-hidden">
-					{#if jib.component}
-						{#key jib.component}
-							<jib.component />
-						{/key}
-					{/if}
+					<iframe 
+						src="/jibs/{jib.slug}" 
+						title={jib.name}
+						class="w-full h-full border-none"
+					/>
 				</div>
 			</div>
 		{/each}
