@@ -1,37 +1,19 @@
 <script>
-	import { onMount } from "svelte";
-	import { slide } from "svelte/transition";
-	import IconoirMenu from "~icons/iconoir/menu";
-
 	let { data } = $props();
-	let menuOpen = $state(false);
 </script>
 
 <div class="py-8 px-4">
-	<div class="flex justify-between items-center mb-8 max-w-[2000px] mx-auto">
+	<div class="flex flex-wrap gap-x-6 gap-y-2 items-baseline mb-8 max-w-[2000px] mx-auto">
 		<h1 class="text-3xl font-bold">Jibs</h1>
-		<button 
-			class="p-2 hover:bg-gray-100 rounded-full transition-colors"
-			on:click={() => menuOpen = !menuOpen}
-		>
-			<IconoirMenu width="24" height="24" />
-		</button>
+		{#each data.jibs as jib}
+			<a 
+				href="/jibs/{jib.slug}" 
+				class="font-mono text-sm hover:underline text-blue-600"
+			>
+				{jib.name}
+			</a>
+		{/each}
 	</div>
-
-	{#if menuOpen}
-		<div class="mb-8 max-w-[2000px] mx-auto" transition:slide>
-			<div class="flex flex-col gap-2 bg-gray-50 p-4 rounded-lg">
-				{#each data.jibs as jib}
-					<a 
-						href="/jibs/{jib.slug}" 
-						class="font-mono hover:underline text-blue-600"
-					>
-						{jib.name}
-					</a>
-				{/each}
-			</div>
-		</div>
-	{/if}
 
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mx-auto" style="width: min(100%, 2000px);">
 		{#each data.jibs as jib}
