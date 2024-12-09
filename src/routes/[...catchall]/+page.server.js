@@ -1,8 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { getJibComponents } from '$jibs/index';
 
-export const prerender = true;
-
 /**
  * @type {{ [key: string]: string }}
  */
@@ -19,14 +17,22 @@ export function entries() {
 	);
 }
 
-export const load = ({ params }) => {
+export const load = ({ params, platform }) => {
 	const { catchall } = params;
-	const slug = catchall.toLowerCase(); // catchall is a string now, not an array
-
+	platform?.env?.ENVIRONMENT && platform.log.debug('Catchall param:', catchall);
+	
+	const slug = catchall.toLowerCase();
+	platform?.env?.ENVIRONMENT && platform.log.debug('Slug:', slug);
+	
 	// Check if the slug matches a jib component
 	const { paths } = getJibComponents();
+	platform?.env?.ENVIRONMENT && platform.log.debug('Available paths:', paths);
+	
 	const matchingJib = paths.find(path => path.slug === slug);
+	platform?.env?.ENVIRONMENT && platform.log.debug('Matching jib:', matchingJib);
+	
 	if (matchingJib) {
+		platform?.env?.ENVIRONMENT && platform.log.debug('Redirecting to:', `/jibs/${slug}`);
 		return redirect(301, `/jibs/${slug}`);
 	}
 
