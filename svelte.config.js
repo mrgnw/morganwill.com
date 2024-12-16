@@ -11,6 +11,7 @@ const config = {
 			$components: "./src/components",
 			"@/*": "./src/lib/*",
 			$jibs: "./src/jibs/*",
+			$content: "./src/content/*",
 		},
     adapter: adapter({
       pages: "build",
@@ -25,11 +26,17 @@ const config = {
     }),
   },
 
-  preprocess: [preprocess({
-    postcss: true,
-  }), vitePreprocess({}), mdsvex()],
+  preprocess: [
+    preprocess({
+      postcss: true,
+    }), 
+    mdsvex({
+      extensions: ['.md']
+    }),
+    vitePreprocess({})
+  ],
 
-  extensions: [".svelte", ".svx"]
+  extensions: [".svelte", ".md", ".svx"]
 };
 
 export default config;
