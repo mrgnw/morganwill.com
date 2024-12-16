@@ -9,6 +9,7 @@ const redirects = {
 	'apple': 'sms:morgan@textme.cc',
 	'imessage': 'sms:morgan@textme.cc',
 	'cal': 'https://cal.com/mrgnw/hi',
+	'dm': 'https://a.xcc.es/telegram'
 };
 
 export function entries() {
