@@ -2,10 +2,11 @@
   /** @type {import('./$types').PageData} */
   let { data } = $props();
 </script>
+<div>
+    <a href="/posts">← Back to posts</a>
+</div> 
 
 <article>
-    {data}
-  <h1>{data.metadata.title || ''}</h1>
   {#if data.metadata.date}
     <p>{new Date(data.metadata.date).toLocaleDateString()}</p>
   {/if}
@@ -15,6 +16,5 @@
   {/if}
 </article>
 
-<div>
-  <a href="/posts">← Back to posts</a>
-</div> 
+<pre>{JSON.stringify(data, null, 2)}</pre>
+
