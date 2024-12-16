@@ -1,10 +1,18 @@
 <script>
   /** @type {import('./$types').PageData} */
-  export let data;
+  let { data } = $props();
 </script>
 
 <article>
-  <svelte:component this={data.content} />
+    {data}
+  <h1>{data.metadata.title || ''}</h1>
+  {#if data.metadata.date}
+    <p>{new Date(data.metadata.date).toLocaleDateString()}</p>
+  {/if}
+  
+  {#if data.component}
+    <data.component />
+  {/if}
 </article>
 
 <div>
