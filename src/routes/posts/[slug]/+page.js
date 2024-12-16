@@ -1,6 +1,5 @@
 import { error } from '@sveltejs/kit';
 
-export const ssr = false; // Disable SSR for this route
 const posts = import.meta.glob('$content/*.md');
 
 export async function load({ params }) {
