@@ -47,13 +47,13 @@
             <h3>Generated Links:</h3>
             {#each links as link}
                 <div class="link-item">
-                    <div class="link-preview">
-                        {@html link.html}
-                    </div>
-                    <div class="copy-section">
-                        <button onclick={() => handleCopy(link)}>
+                    <div class="link-item-content">
+                        <button class="copy-button" onclick={() => handleCopy(link)}>
                             <Copy size={16} />
                         </button>
+                        <div class="link-preview">
+                            {@html link.html}
+                        </div>
                     </div>
                 </div>
             {/each}
