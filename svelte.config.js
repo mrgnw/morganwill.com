@@ -3,15 +3,19 @@ import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import preprocess from "svelte-preprocess";
 import adapter from '@sveltejs/adapter-cloudflare';
 import { fileURLToPath } from 'url';
+import { codeToHtml, getHighlighter } from 'shiki/bundle/full';
+import { addCopyButton } from 'shiki-transformer-copy-button';
+
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   kit: {
     alias: {
-			$components: "./src/components",
-			"@/*": "./src/lib/*",
-			$jibs: "./src/jibs/*",
-		},
+      $components: "./src/components",
+      "@/*": "./src/lib/*",
+      $jibs: "./src/jibs/*",
+      $content: "./src/content/*",
+    },
     adapter: adapter({
       pages: "build",
       assets: "build",
@@ -25,9 +29,32 @@ const config = {
     }),
   },
 
-  preprocess: [preprocess({
-    postcss: true,
-  }), vitePreprocess({}), mdsvex()],
+  preprocess: [
+    preprocess({
+      postcss: true,
+    }),
+    mdsvex({
+      extensions: ['.md'],
+      highlight: {
+        highlighter: async (code, lang) => {
+          const html = await codeToHtml(code, {
+            lang,
+            theme: 'github-dark',
+            transformers: [
+              addCopyButton({
+                copy: 'Copy',
+                copied: 'Copied!',
+                copyIcon: '<svg>...</svg>',
+                checkIcon: '<svg>...</svg>'
+              })
+            ]
+          });
+          return `{@html \`${html}\`}`;
+        }
+      }
+    }),
+    vitePreprocess({})
+  ],
 
   extensions: [".svelte", ".svx"]
 };

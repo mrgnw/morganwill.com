@@ -108,6 +108,12 @@
 		{ name: "Slack", id: "803453959" },
 	];
 
+	// Add this new array for Bun packages
+	const bun_packages = [
+		"@343dev/optimizt",
+		"wrangler",
+	];
+
 	// Combine all packages into a single list
 	const packages = [
 		...direct_from_curl.map((pkg) => ({
@@ -115,6 +121,11 @@
 			homepage: pkg.homepage,
 			install: pkg.install,
 			installer: pkg.name,
+		})),
+		...bun_packages.map((name) => ({
+			name,
+			installer: "bun",
+			install: "curl -fsSL https://bun.sh/install | bash"
 		})),
 		...uv_tools.map((name) => ({ 
 			name, 

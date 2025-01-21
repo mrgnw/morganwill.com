@@ -7,7 +7,8 @@
 		<h1 class="text-3xl font-bold">Jibs</h1>
 		{#each data.jibs as jib}
 			<a 
-				href="/jibs/{jib.slug}" 
+				href={jib.path.startsWith('http') ? jib.path : `/jibs/${jib.path.split('/').pop().replace('.svelte', '')}`}
+				target={jib.path.startsWith('http') ? "_blank" : "_self"}
 				class="font-mono text-sm hover:underline text-blue-600"
 			>
 				{jib.name}
@@ -19,12 +20,16 @@
 		{#each data.jibs as jib}
 			<div class="relative rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow" style="aspect-ratio: 3/2;">
 				<div class="absolute top-0 left-0 right-0 z-10 p-4 text-center bg-gradient-to-b from-white/90 to-white/0">
-					<a href="/jibs/{jib.slug}" class="text-2xl font-semibold hover:underline">
+					<a 
+						href={jib.path.startsWith('http') ? jib.path : `/jibs/${jib.path.split('/').pop().replace('.svelte', '')}`}
+						target={jib.path.startsWith('http') ? "_blank" : "_self"}
+						class="text-2xl font-semibold hover:underline"
+					>
 						{jib.name}
 					</a>
 				</div>
 				<iframe 
-					src="/jibs/{jib.slug}" 
+					src={jib.path.startsWith('http') ? jib.path : `/jibs/${jib.path.split('/').pop().replace('.svelte', '')}`}
 					title={jib.name}
 					class="absolute inset-0 w-full h-full border-none"
 					loading="lazy"
