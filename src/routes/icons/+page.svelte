@@ -1,7 +1,7 @@
 <script>
     /** @type {import('./$types').PageData} */
     let { data } = $props();
-    import Icon from '$lib/components/Icon.svelte';
+    import Icon from '$components/Icon.svelte';
     import { toast, Toaster } from 'svelte-sonner';
     let size = '6em';
 
@@ -19,8 +19,6 @@
     <title>Icons</title>
     <meta name="description" content="Icon gallery with {data.icons.length} icons" />
 </svelte:head>
-
-<Icon id="noto:thong-sandal" size="8em" />
 
 <Toaster />
 <div class="p-4">
