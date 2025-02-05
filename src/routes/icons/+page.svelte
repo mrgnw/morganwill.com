@@ -4,13 +4,22 @@
     import Icon from '@iconify/svelte';
 </script>
 
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
+<div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-6 p-8">
     {#each data.icons as {id}}
-        <div class="flex flex-col items-center p-4 border rounded hover:bg-gray-50">
-            <div class="w-8 h-8 flex items-center justify-center">
-                <Icon icon={id} width="24" />
-            </div>
-            <span class="mt-2 text-sm text-gray-600 text-center break-all">{id}</span>
-        </div>
+        <button 
+            class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors relative group"
+            title={id}
+        >
+            <Icon icon={id} width="24" height="24" />
+            <span class="opacity-0 group-hover:opacity-100 absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-600 whitespace-nowrap transition-opacity">
+                {id}
+            </span>
+        </button>
     {/each}
 </div>
+
+<style>
+    button {
+        -webkit-tap-highlight-color: transparent;
+    }
+</style>
