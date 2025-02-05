@@ -21,8 +21,11 @@
 </svelte:head>
 
 <Toaster />
-<main class="relative min-h-screen">
-    <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-6 p-8">
+<div class="p-4">
+    <div 
+        class="grid gap-4 justify-items-center"
+        style="grid-template-columns: repeat(auto-fill, minmax({size}, {size}));"
+    >
         {#each data.icons as {id}}
             <button 
                 class="flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors relative group p-2"
@@ -37,11 +40,11 @@
             </button>
         {/each}
     </div>
+</div>
 
-    <div class="fixed bottom-4 right-4 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm text-xs text-gray-500 font-light shadow-sm z-10">
-        {data.icons.length.toLocaleString()} icons
-    </div>
-</main>
+<div class="fixed bottom-4 right-4 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm text-xs text-gray-500 font-light shadow-sm z-10">
+    {data.icons.length.toLocaleString()} icons
+</div>
 
 <style>
     button {
