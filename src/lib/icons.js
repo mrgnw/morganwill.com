@@ -2,6 +2,7 @@ export const icons = [
     "fluent-emoji-high-contrast:thong-sandal",
     "noto:thong-sandal",
     "hugeicons:sandals",
+    "simple-icons:europeanunion",
     "iconoir:cinema-old",
     "iconoir:cube-dots-solid",
     "iconoir:cube-hole",
