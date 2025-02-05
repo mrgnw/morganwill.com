@@ -1,7 +1,7 @@
 <script>
     /** @type {import('./$types').PageData} */
-    export let data;
-    import Icon from '@iconify/svelte';
+    let { data } = $props();
+    import Icon from '$lib/components/Icon.svelte';
     import { toast, Toaster } from 'svelte-sonner';
     let size = '6em';
 
@@ -20,6 +20,8 @@
     <meta name="description" content="Icon gallery with {data.icons.length} icons" />
 </svelte:head>
 
+<Icon id="noto:thong-sandal" size="8em" />
+
 <Toaster />
 <div class="p-4">
     <div 
@@ -33,7 +35,7 @@
                 title={id}
                 on:click={() => copyToClipboard(id)}
             >
-                <Icon icon={id} width={size} height={size} />
+                <Icon id={id} size={size} />
                 <span class="opacity-0 group-hover:opacity-100 absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-600 whitespace-nowrap transition-opacity">
                     {id}
                 </span>
