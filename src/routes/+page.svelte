@@ -4,12 +4,12 @@
 
 	import Projects from "$components/Projects.svelte";
 	import PhPanorama from "virtual:icons/ph/panorama";
-	import IconoirInstagram from "~icons/iconoir/instagram";
 	import JamLinkedinCircle from "~icons/jam/linkedin-circle";
 	import IconoirGithubCircle from "~icons/iconoir/github-circle";
 	import IconoirTelegramCircle from "~icons/iconoir/telegram-circle";
 	import RiBlueskyLine from "~icons/ri/bluesky-line";
 	import TablerFileCv from '~icons/tabler/file-cv'
+	import IconoirBookStack from "~icons/iconoir/book-stack";
 
 	let hostname = $state("");
 	let links = $state([]);
@@ -18,11 +18,11 @@
 	let all_links = data.all_links;
 	let link_icons = {
 		photos: PhPanorama,
-		instagram: IconoirInstagram,
 		LinkedIn: JamLinkedinCircle,
 		github: IconoirGithubCircle,
 		bluesky: RiBlueskyLine,
 		message: IconoirTelegramCircle,
+		blog: IconoirBookStack,
 		cv: TablerFileCv
 	};
 
@@ -43,7 +43,7 @@
 		if (hostname === "morganwill.com") {
 			links = get_links(["LinkedIn", "github", "bluesky", "message", "cv"]);
 		} else if (hostname === "zenfo.co") {
-			links = get_links(["photos", "instagram", "bluesky", "message"]);
+			links = get_links(["photos", "blog", "bluesky", "message"]);
 		} else {
 			links = all_links.filter(link => link.title !== "cv");
 		}
@@ -91,7 +91,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta
 		name="description"
-		content="Contact Morgan or view his other work on 500px, Instagram, LinkedIn, or Github"
+		content="Contact Morgan or view his other work on 500px, LinkedIn, or Github"
 	/>
 </svelte:head>
 

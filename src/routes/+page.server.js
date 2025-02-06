@@ -9,13 +9,6 @@ const all_links = [
 		blurb: '500px photo portfolio',
 	},
 	{
-		title: 'instagram',
-		alias: 'ig',
-		url: 'https://instagram.com/zenfo.co',
-		shortUrl: 'https://a.xcc.es/ig',
-		blurb: 'Instagram profile',
-	},
-	{
 		title: 'LinkedIn',
 		alias: 'li',
 		url: 'https://linkedin.com/in/mrgnw',
@@ -28,6 +21,13 @@ const all_links = [
 		url: 'https://github.com/mrgnw',
 		shortUrl: 'https://a.xcc.es/gh',
 		blurb: 'GitHub profile',
+	},
+	{
+		title: 'blog',
+		alias: 'blog',
+		url: 'https://blog.morganwill.com',
+		shortUrl: 'https://blog.morganwill.com',
+		blurb: 'Blog',
 	},
 	{
 		title: 'bluesky',
