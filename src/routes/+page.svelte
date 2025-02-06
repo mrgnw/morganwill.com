@@ -10,6 +10,7 @@
 	import RiBlueskyLine from "~icons/ri/bluesky-line";
 	import TablerFileCv from '~icons/tabler/file-cv'
 	import IconoirBookStack from "~icons/iconoir/book-stack";
+	import PhBookmarkSimpleBold from "~icons/ph/bookmark-simple-bold";
 
 	let hostname = $state("");
 	let links = $state([]);
@@ -22,7 +23,7 @@
 		github: IconoirGithubCircle,
 		bluesky: RiBlueskyLine,
 		message: IconoirTelegramCircle,
-		blog: IconoirBookStack,
+		blog: PhBookmarkSimpleBold,
 		cv: TablerFileCv
 	};
 
