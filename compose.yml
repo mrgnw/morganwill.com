@@ -5,14 +5,14 @@ services:
     ports: ["${TS_PORT:-4164}:4164"]
     volumes:
       - ./tailscale:/var/lib/tailscale:rw
-      - ${PWD}/config:/config
+      - ${PWD}/tailscale_serve.json:/config/serve.json:ro
     environment:
-      - TS_SERVE_CONFIG=./config/serve.json
+      - TS_SERVE_CONFIG=/config/serve.json
       - TS_AUTHKEY=${TS_AUTHKEY}
-      - TS_HOSTNAME=${TS_HOSTNAME}
+      - TS_HOSTNAME=${TS_HOSTNAME:-${COMPOSE_PROJECT_NAME}}
       - TS_STATE_DIR=/var/lib/tailscale
     networks:
-      - blogscale
+      - app_network
     cap_add:
       - net_admin
       - sys_module
@@ -31,8 +31,8 @@ services:
       - tailscale
 
 networks:
-  blogscale:
-    name: blogscale-network
+  app_network:
+    name: ${COMPOSE_PROJECT_NAME}-network
     driver: bridge
 
 volumes:
