@@ -42,6 +42,7 @@
 		"jq",
 		"zoxide",
 		"choose-rust",
+		"ripgrep",
 
 		// System utilities
 		"bartender",
