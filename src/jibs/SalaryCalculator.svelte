@@ -11,25 +11,17 @@
   };
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
   
-  // Handler for annual salary input blur event
-  const onAnnualBlur = (e) => {
+  const createMultiplier = (unit, threshold) => (e) => {
     const value = parseFloat(e.target.value) || 0;
-    if (value > 0 && value < 1000) {
+    if (value > 0 && value < threshold) {
       const adjustedValue = value * 1000;
-      hourlyRate = adjustedValue / timeUnits.annual;
+      hourlyRate = adjustedValue / timeUnits[unit];
       e.target.value = Math.round(adjustedValue);
     }
   };
   
-  // Handler for monthly salary input blur event
-  const onMonthlyBlur = (e) => {
-    const value = parseFloat(e.target.value) || 0;
-    if (value > 0 && value < 20) {
-      const adjustedValue = value * 1000;
-      hourlyRate = adjustedValue / timeUnits.monthly;
-      e.target.value = Math.round(adjustedValue);
-    }
-  };
+  const onAnnualBlur = createMultiplier('annual', 1000);
+  const onMonthlyBlur = createMultiplier('monthly', 20);
 
   // Enhanced salary object with input handling built into the setters
   const salary = Object.fromEntries(
