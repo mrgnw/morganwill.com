@@ -6,39 +6,67 @@
   const weeksPerYear = 52;
   const biWeeklyWeeks = 2;
 
-  // The hourly rate is our source of truth
+  // Track which field is currently being edited
+  let editingField = $state(null);
+  
+  // Input values (separate from calculation values)
+  let hourlyInput = $state("20");
+  let dailyInput = $state("160");
+  let weeklyInput = $state("800");
+  let biWeeklyInput = $state("1600");
+  let monthlyInput = $state("3467");
+  let annualInput = $state("41600");
+
+  // The hourly rate is our source of truth for calculations
   let hourlyRate = $state(20);
   
-  // Derived values for display
+  // Derived values for calculations
   let dailyRate = $derived(hourlyRate * hoursPerDay);
   let weeklyRate = $derived(dailyRate * daysPerWeek);
   let biWeeklyRate = $derived(weeklyRate * biWeeklyWeeks);
   let monthlyRate = $derived(weeklyRate * weeksPerMonth);
   let annualRate = $derived(weeklyRate * weeksPerYear);
 
-  // Update functions for each rate type
-  function updateFromHourly(value) {
-    if (!isNaN(value)) hourlyRate = value;
+  // Update displayed input values when not being edited
+  $effect(() => {
+    if (editingField !== 'hourly') hourlyInput = Math.round(hourlyRate).toString();
+    if (editingField !== 'daily') dailyInput = Math.round(dailyRate).toString();
+    if (editingField !== 'weekly') weeklyInput = Math.round(weeklyRate).toString();
+    if (editingField !== 'biWeekly') biWeeklyInput = Math.round(biWeeklyRate).toString();
+    if (editingField !== 'monthly') monthlyInput = Math.round(monthlyRate).toString();
+    if (editingField !== 'annual') annualInput = Math.round(annualRate).toString();
+  });
+
+  // Handle input events
+  function startEditing(field) {
+    editingField = field;
   }
   
-  function updateFromDaily(value) {
-    if (!isNaN(value)) hourlyRate = value / hoursPerDay;
-  }
-  
-  function updateFromWeekly(value) {
-    if (!isNaN(value)) hourlyRate = value / (hoursPerDay * daysPerWeek);
-  }
-  
-  function updateFromBiWeekly(value) {
-    if (!isNaN(value)) hourlyRate = value / (hoursPerDay * daysPerWeek * biWeeklyWeeks);
-  }
-  
-  function updateFromMonthly(value) {
-    if (!isNaN(value)) hourlyRate = value / (hoursPerDay * daysPerWeek * weeksPerMonth);
-  }
-  
-  function updateFromAnnual(value) {
-    if (!isNaN(value)) hourlyRate = value / (hoursPerDay * daysPerWeek * weeksPerYear);
+  function finishEditing(field, value) {
+    const parsedValue = parseInt(value, 10);
+    if (!isNaN(parsedValue)) {
+      switch (field) {
+        case 'hourly':
+          hourlyRate = parsedValue;
+          break;
+        case 'daily':
+          hourlyRate = parsedValue / hoursPerDay;
+          break;
+        case 'weekly':
+          hourlyRate = parsedValue / (hoursPerDay * daysPerWeek);
+          break;
+        case 'biWeekly':
+          hourlyRate = parsedValue / (hoursPerDay * daysPerWeek * biWeeklyWeeks);
+          break;
+        case 'monthly':
+          hourlyRate = parsedValue / (hoursPerDay * daysPerWeek * weeksPerMonth);
+          break;
+        case 'annual':
+          hourlyRate = parsedValue / (hoursPerDay * daysPerWeek * weeksPerYear);
+          break;
+      }
+    }
+    editingField = null;
   }
 </script>
 
@@ -47,32 +75,80 @@
 
   <div class="input-group">
     <label for="hourly">Hourly Rate:</label>
-    <input type="number" id="hourly" value={hourlyRate.toFixed(2)} oninput={(e) => updateFromHourly(parseFloat(e.target.value))} step="0.01">
+    <input 
+      type="number" 
+      id="hourly" 
+      value={hourlyInput}
+      onfocus={() => startEditing('hourly')}
+      onblur={(e) => finishEditing('hourly', e.target.value)}
+      onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
+      step="1"
+    >
   </div>
 
   <div class="input-group">
     <label for="daily">Daily Rate:</label>
-    <input type="number" id="daily" value={dailyRate.toFixed(2)} oninput={(e) => updateFromDaily(parseFloat(e.target.value))} step="0.01">
+    <input 
+      type="number" 
+      id="daily" 
+      value={dailyInput}
+      onfocus={() => startEditing('daily')}
+      onblur={(e) => finishEditing('daily', e.target.value)}
+      onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
+      step="1"
+    >
   </div>
 
   <div class="input-group">
     <label for="weekly">Weekly Rate:</label>
-    <input type="number" id="weekly" value={weeklyRate.toFixed(2)} oninput={(e) => updateFromWeekly(parseFloat(e.target.value))} step="0.01">
+    <input 
+      type="number" 
+      id="weekly" 
+      value={weeklyInput}
+      onfocus={() => startEditing('weekly')}
+      onblur={(e) => finishEditing('weekly', e.target.value)}
+      onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
+      step="1"
+    >
   </div>
   
   <div class="input-group">
     <label for="bi-weekly">Bi-Weekly Rate:</label>
-    <input type="number" id="bi-weekly" value={biWeeklyRate.toFixed(2)} oninput={(e) => updateFromBiWeekly(parseFloat(e.target.value))} step="0.01">
+    <input 
+      type="number" 
+      id="bi-weekly" 
+      value={biWeeklyInput}
+      onfocus={() => startEditing('biWeekly')}
+      onblur={(e) => finishEditing('biWeekly', e.target.value)}
+      onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
+      step="1"
+    >
   </div>
 
   <div class="input-group">
     <label for="monthly">Monthly Rate:</label>
-    <input type="number" id="monthly" value={monthlyRate.toFixed(2)} oninput={(e) => updateFromMonthly(parseFloat(e.target.value))} step="0.01">
+    <input 
+      type="number" 
+      id="monthly" 
+      value={monthlyInput}
+      onfocus={() => startEditing('monthly')}
+      onblur={(e) => finishEditing('monthly', e.target.value)}
+      onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
+      step="1"
+    >
   </div>
 
   <div class="input-group">
     <label for="annual">Annual Rate:</label>
-    <input type="number" id="annual" value={annualRate.toFixed(2)} oninput={(e) => updateFromAnnual(parseFloat(e.target.value))} step="0.01">
+    <input 
+      type="number" 
+      id="annual" 
+      value={annualInput}
+      onfocus={() => startEditing('annual')}
+      onblur={(e) => finishEditing('annual', e.target.value)}
+      onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
+      step="1"
+    >
   </div>
 </div>
 
