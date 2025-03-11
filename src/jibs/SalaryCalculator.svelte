@@ -76,10 +76,10 @@
 
   <div class="currency-converter">
     <button class="currency-button" onclick={convertToUSD}>
-      $ <span class="rate">{(1 / exchangeRate).toFixed(2)}x</span>
+      <span class="currency-symbol">$</span><span class="rate">{(1 / exchangeRate).toFixed(2)}</span>
     </button>
     <button class="currency-button" onclick={convertToEUR}>
-      € <span class="rate">{exchangeRate.toFixed(2)}x</span>
+      <span class="currency-symbol">€</span><span class="rate">{exchangeRate.toFixed(2)}</span>
     </button>
   </div>
 </div>
@@ -174,29 +174,50 @@
   .currency-button {
     flex: 0 0 auto;
     padding: 0.6rem 1.25rem;
-    background-color: #f9f9f9;
-    color: #333;
-    border: 1px solid #ddd;
+    background-color: #f0fdfa; /* Use a very light green */
+    color: #064e3b; /* Use a dark green */
+    border: 1px solid #b2f2bb; /* Use a light green border */
     border-radius: 6px;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     min-width: 80px;
-    position: relative; /* Add relative positioning */
+    position: relative;
+    overflow: hidden; /* Ensure content stays within the button */
+  }
+
+  .currency-button:hover {
+    background-color: #d1fae5; /* Slightly darker green on hover */
+    border-color: #6ee7b7;
+    transform: translateY(-1px);
+  }
+
+  .currency-button:active {
+    transform: translateY(0);
+    background-color: #a7f3d0; /* Even darker green on active */
+  }
+
+  .currency-button .currency-symbol {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-right: 0.4rem;
+    position: relative;
+    z-index: 1; /* Ensure symbol is above the rate */
   }
 
   .currency-button .rate {
     font-size: 0.7rem;
-    font-weight: normal;
-    color: #777;
+    font-weight: 600;
+    color: #064e3b; /* Dark green for the rate */
     position: absolute;
-    top: 2px;
+    bottom: 4px;
     right: 6px;
+    opacity: 0.8;
   }
 
   .exchange-rates {
