@@ -9,11 +9,8 @@
     month: 8 * 5 * (52 / 12),
     year: 8 * 5 * 52,
   };
-  
+  const thresholds = { week: 10, month: 20, year: 1000 };
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
-  
-  // Multiplier thresholds for automatic value scaling
-  const thresholds = { month: 20, year: 1000 };
 
   // Enhanced salary object with input handling and auto-scaling built in
   const salary = Object.fromEntries(
@@ -27,13 +24,13 @@
         },
         onblur: (e) => {
           if (!thresholds[unit]) return;
-          
+
           const value = parseFloat(e.target.value) || 0;
           if (value > 0 && value < thresholds[unit]) {
             hourlyRate = (value * 1000) / multiplier;
             e.target.value = Math.round(value * 1000);
           }
-        }
+        },
       },
     ])
   );
@@ -58,7 +55,7 @@
           />
         </div>
         <label for={unit} class="label">
-          / {unit === 'biweekly' ? '2 weeks' : unit}
+          / {unit === "biweekly" ? "2 weeks" : unit}
         </label>
       </div>
     {/each}
