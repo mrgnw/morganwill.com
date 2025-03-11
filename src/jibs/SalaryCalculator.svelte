@@ -10,6 +10,26 @@
     annual: 8 * 5 * 52,
   };
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
+  
+  // Handler for annual salary input blur event
+  const onAnnualBlur = (e) => {
+    const value = parseFloat(e.target.value) || 0;
+    if (value > 0 && value < 1000) {
+      const adjustedValue = value * 1000;
+      hourlyRate = adjustedValue / timeUnits.annual;
+      e.target.value = Math.round(adjustedValue);
+    }
+  };
+  
+  // Handler for monthly salary input blur event
+  const onMonthlyBlur = (e) => {
+    const value = parseFloat(e.target.value) || 0;
+    if (value > 0 && value < 20) {
+      const adjustedValue = value * 1000;
+      hourlyRate = adjustedValue / timeUnits.monthly;
+      e.target.value = Math.round(adjustedValue);
+    }
+  };
 
   // Enhanced salary object with input handling built into the setters
   const salary = Object.fromEntries(
@@ -102,6 +122,7 @@
           id="monthly"
           value={Math.round(salary.monthly.get())}
           oninput={salary.monthly.set}
+          onblur={onMonthlyBlur}
           {onkeydown}
           step="1"
           class="input input-number"
@@ -118,6 +139,7 @@
           id="annual"
           value={Math.round(salary.annual.get())}
           oninput={salary.annual.set}
+          onblur={onAnnualBlur}
           {onkeydown}
           step="1"
           class="input input-number"
