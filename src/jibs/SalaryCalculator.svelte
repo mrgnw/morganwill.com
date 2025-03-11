@@ -8,47 +8,23 @@
   let hourlyRate = $state(70);
 
   let salary = {
-    get hourly() {
-      return hourlyRate;
-    },
-    set hourly(value) {
-      hourlyRate = value;
-    },
+    get hourly() { return hourlyRate; },
+    set hourly(value) { hourlyRate = value; },
 
-    get daily() {
-      return hourlyRate * HOURS_PER_DAY;
-    },
-    set daily(value) {
-      hourlyRate = value / HOURS_PER_DAY;
-    },
+    get daily() { return hourlyRate * HOURS_PER_DAY; },
+    set daily(value) { hourlyRate = value / HOURS_PER_DAY; },
 
-    get weekly() {
-      return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK;
-    },
-    set weekly(value) {
-      hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK);
-    },
+    get weekly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK; },
+    set weekly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK); },
+    
+    get biWeekly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * BI_WEEKLY_WEEKS; },
+    set biWeekly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * BI_WEEKLY_WEEKS); },
 
-    get biWeekly() {
-      return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * BI_WEEKLY_WEEKS;
-    },
-    set biWeekly(value) {
-      hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * BI_WEEKLY_WEEKS);
-    },
+    get monthly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_MONTH; },
+    set monthly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_MONTH); },
 
-    get monthly() {
-      return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_MONTH;
-    },
-    set monthly(value) {
-      hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_MONTH);
-    },
-
-    get annual() {
-      return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_YEAR;
-    },
-    set annual(value) {
-      hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_YEAR);
-    },
+    get annual() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_YEAR; },
+    set annual(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_YEAR); },
   };
 </script>
 
