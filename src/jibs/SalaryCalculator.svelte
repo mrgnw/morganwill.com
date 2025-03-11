@@ -5,17 +5,29 @@
     hourly: 1,
     daily: 8,
     weekly: 8 * 5,
-    biWeekly: 8 * 5 * 2,
+    biweekly: 8 * 5 * 2,
     monthly: 8 * 5 * (52 / 12),
     annual: 8 * 5 * 52,
   };
+  const onkeydown = (e) => e.key === "Enter" && e.target.blur();
 
+  // Enhanced salary object with input handling built into the setters
   const salary = Object.fromEntries(
     Object.entries(timeUnits).map(([unit, multiplier]) => [
       unit,
       {
         get: () => hourlyRate * multiplier,
-        set: (value) => (hourlyRate = value / multiplier),
+        set: (value) => {
+          // Handle both direct value setting and event handling
+          if (value && value.target) {
+            // If it's an input event
+            const parsedValue = parseFloat(value.target.value) || 0;
+            hourlyRate = parsedValue / multiplier;
+          } else {
+            // If it's a direct value
+            hourlyRate = value / multiplier;
+          }
+        },
       },
     ])
   );
@@ -32,8 +44,8 @@
           type="number"
           id="hourly"
           value={Math.round(salary.hourly.get())}
-          oninput={(e) => salary.hourly.set(parseFloat(e.target.value) || 0)}
-          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          oninput={salary.hourly.set}
+          onkeydown={onkeydown}
           step="1"
           class="input input-number"
         />
@@ -48,8 +60,8 @@
           type="number"
           id="daily"
           value={Math.round(salary.daily.get())}
-          oninput={(e) => salary.daily.set(parseFloat(e.target.value) || 0)}
-          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          oninput={salary.daily.set}
+          onkeydown={onkeydown}
           step="1"
           class="input input-number"
         />
@@ -64,8 +76,8 @@
           type="number"
           id="weekly"
           value={Math.round(salary.weekly.get())}
-          oninput={(e) => salary.weekly.set(parseFloat(e.target.value) || 0)}
-          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          oninput={salary.weekly.set}
+          onkeydown={onkeydown}
           step="1"
           class="input input-number"
         />
@@ -79,9 +91,9 @@
         <input
           type="number"
           id="bi-weekly"
-          value={Math.round(salary.biWeekly.get())}
-          oninput={(e) => salary.biWeekly.set(parseFloat(e.target.value) || 0)}
-          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          value={Math.round(salary.biweekly.get())}
+          oninput={salary.biweekly.set}
+          onkeydown={onkeydown}
           step="1"
           class="input input-number"
         />
@@ -96,8 +108,8 @@
           type="number"
           id="monthly"
           value={Math.round(salary.monthly.get())}
-          oninput={(e) => salary.monthly.set(parseFloat(e.target.value) || 0)}
-          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          oninput={salary.monthly.set}
+          onkeydown={onkeydown}
           step="1"
           class="input input-number"
         />
@@ -112,8 +124,8 @@
           type="number"
           id="annual"
           value={Math.round(salary.annual.get())}
-          oninput={(e) => salary.annual.set(parseFloat(e.target.value) || 0)}
-          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          oninput={salary.annual.set}
+          onkeydown={onkeydown}
           step="1"
           class="input input-number"
         />
