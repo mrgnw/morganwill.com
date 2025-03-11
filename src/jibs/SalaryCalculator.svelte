@@ -180,13 +180,12 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
-    justify-content: flex-end;
     max-width: 220px;
     margin: 0 auto;
   }
 
   .input-container {
-    width: 150px;
+    width: 140px; /* Fixed width for the input container */
     display: flex;
     justify-content: flex-end;
   }
@@ -224,8 +223,10 @@
     white-space: nowrap;
     margin-left: 4px;
     text-align: left;
-    min-width: 80px; /* Increased min-width to accommodate longer labels */
-    display: inline-block; /* Ensures the min-width is respected */
+    width: 80px; /* Fixed width for the label */
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Remove browser styling for number inputs */
