@@ -18,15 +18,8 @@
       {
         get: () => hourlyRate * multiplier,
         set: (value) => {
-          // Handle both direct value setting and event handling
-          if (value && value.target) {
-            // If it's an input event
-            const parsedValue = parseFloat(value.target.value) || 0;
-            hourlyRate = parsedValue / multiplier;
-          } else {
-            // If it's a direct value
-            hourlyRate = value / multiplier;
-          }
+          const inputValue = parseFloat(value?.target?.value ?? value) || 0;
+          hourlyRate = inputValue / multiplier;
         },
       },
     ])
@@ -45,7 +38,7 @@
           id="hourly"
           value={Math.round(salary.hourly.get())}
           oninput={salary.hourly.set}
-          onkeydown={onkeydown}
+          {onkeydown}
           step="1"
           class="input input-number"
         />
@@ -61,7 +54,7 @@
           id="daily"
           value={Math.round(salary.daily.get())}
           oninput={salary.daily.set}
-          onkeydown={onkeydown}
+          {onkeydown}
           step="1"
           class="input input-number"
         />
@@ -77,12 +70,12 @@
           id="weekly"
           value={Math.round(salary.weekly.get())}
           oninput={salary.weekly.set}
-          onkeydown={onkeydown}
+          {onkeydown}
           step="1"
           class="input input-number"
         />
       </div>
-      <label for="weekly" class="label"> / week</label>
+      <label for="weekly" class="label">/ week</label>
     </div>
 
     <!-- Bi-Weekly Rate -->
@@ -93,7 +86,7 @@
           id="bi-weekly"
           value={Math.round(salary.biweekly.get())}
           oninput={salary.biweekly.set}
-          onkeydown={onkeydown}
+          {onkeydown}
           step="1"
           class="input input-number"
         />
@@ -109,7 +102,7 @@
           id="monthly"
           value={Math.round(salary.monthly.get())}
           oninput={salary.monthly.set}
-          onkeydown={onkeydown}
+          {onkeydown}
           step="1"
           class="input input-number"
         />
@@ -125,7 +118,7 @@
           id="annual"
           value={Math.round(salary.annual.get())}
           oninput={salary.annual.set}
-          onkeydown={onkeydown}
+          {onkeydown}
           step="1"
           class="input input-number"
         />
@@ -164,17 +157,17 @@
   }
 
   .input-container {
-    width: 6em; /* Fixed width for the input container */
+    width: 6em;
     display: flex;
     justify-content: flex-end;
   }
 
   .input {
-    font-family: "JetBrains Mono", "Roboto Mono", "SF Mono", "Fira Code",
-      "Fira Mono", "Menlo", monospace;
+    font-family: "Roboto Mono", "SF Mono", "Fira Code", "Fira Mono", "Menlo",
+      monospace;
     font-size: 1.5rem;
-    font-weight: 600;
-    padding: 0.4rem 0;  /* Reduced from 0.75rem to 0.4rem */
+    font-weight: 300;
+    padding: 0.4rem 0;
     text-align: right;
     background: transparent;
     border: none;
@@ -197,20 +190,21 @@
 
   .label {
     font-size: 1.125rem;
-    font-weight: 500;
+    font-weight: 300;
     color: #4b5563;
     white-space: nowrap;
     margin-left: 4px;
     text-align: left;
-    width: 80px; /* Fixed width for the label */
+    width: 80px;
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  /* Remove browser styling for number inputs */
   :global(input[type="number"]) {
     -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+    appearance: textfield;
   }
 
   :global(input[type="number"]::-webkit-outer-spin-button),
@@ -221,17 +215,8 @@
 
   /* Mobile responsive adjustments */
   @media (max-width: 640px) {
-    .container {
-      padding: 1rem;
-    }
-
     .input-group {
       justify-content: flex-end;
-    }
-
-    .input {
-      font-size: 1.25rem;
-      padding: 0.3rem 0;  /* Reduced from 0.5rem to 0.3rem for mobile */
     }
   }
 </style>
