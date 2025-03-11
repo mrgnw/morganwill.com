@@ -1,4 +1,5 @@
 <script>
+  import { fade } from 'svelte/transition';
   let hourlyRate = $state(70);
 //   let currencySymbol = $state('$'); // Default to USD
 
@@ -98,7 +99,7 @@
     <button class="currency-button" disabled>&times; €</button>
   </div>
   {:then _}
-    <div class="currency-converter">
+    <div class="currency-converter" transition:fade>
       <button class="currency-button" onclick={convertToUSD}>&times; {eur_to_usd.toFixed(2)} to $</button>
       <button class="currency-button" onclick={convertToEUR}>&times; {usd_to_eur.toFixed(2)} to €</button>
     </div>
@@ -240,7 +241,7 @@
   }
 
   .currency-button:disabled {
-    opacity: 0.5;
+    opacity: 0;
     cursor: not-allowed;
   }
 
