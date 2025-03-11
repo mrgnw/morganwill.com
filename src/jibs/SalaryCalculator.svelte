@@ -2,18 +2,18 @@
   let hourlyRate = $state(70);
 
   const timeUnits = {
-    hourly: 1,
-    daily: 8,
-    weekly: 8 * 5,
+    hour: 1,
+    day: 8,
+    week: 8 * 5,
     biweekly: 8 * 5 * 2,
-    monthly: 8 * 5 * (52 / 12),
-    annual: 8 * 5 * 52,
+    month: 8 * 5 * (52 / 12),
+    year: 8 * 5 * 52,
   };
   
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
   
   // Multiplier thresholds for automatic value scaling
-  const thresholds = { monthly: 20, annual: 1000 };
+  const thresholds = { week: 20, year: 1000 };
 
   // Enhanced salary object with input handling and auto-scaling built in
   const salary = Object.fromEntries(
@@ -58,7 +58,7 @@
           />
         </div>
         <label for={unit} class="label">
-          / {unit === 'biweekly' ? '2 weeks' : unit.replace('ly', '')}
+          / {unit === 'biweekly' ? '2 weeks' : unit}
         </label>
       </div>
     {/each}
