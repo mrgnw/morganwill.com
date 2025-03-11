@@ -1,31 +1,24 @@
 <script>
-  const HOURS_PER_DAY = 8;
-  const DAYS_PER_WEEK = 5;
-  const WEEKS_PER_MONTH = 4 + 1 / 3; // Approximation
-  const WEEKS_PER_YEAR = 52;
-  const BI_WEEKLY_WEEKS = 2;
-
   let hourlyRate = $state(70);
 
-  let salary = {
-    get hourly() { return hourlyRate; },
-    set hourly(value) { hourlyRate = value; },
-
-    get daily() { return hourlyRate * HOURS_PER_DAY; },
-    set daily(value) { hourlyRate = value / HOURS_PER_DAY; },
-
-    get weekly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK; },
-    set weekly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK); },
-    
-    get biWeekly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * BI_WEEKLY_WEEKS; },
-    set biWeekly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * BI_WEEKLY_WEEKS); },
-
-    get monthly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_MONTH; },
-    set monthly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_MONTH); },
-
-    get annual() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_YEAR; },
-    set annual(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_YEAR); },
+  const timeUnits = {
+    hourly: 1,
+    daily: 8,
+    weekly: 8 * 5,
+    biWeekly: 8 * 5 * 2,
+    monthly: 8 * 5 * (52 / 12),
+    annual: 8 * 5 * 52,
   };
+
+  const salary = Object.fromEntries(
+    Object.entries(timeUnits).map(([unit, multiplier]) => [
+      unit,
+      {
+        get: () => hourlyRate * multiplier,
+        set: (value) => (hourlyRate = value / multiplier),
+      },
+    ])
+  );
 </script>
 
 <div class="container">
@@ -38,8 +31,8 @@
         <input
           type="number"
           id="hourly"
-          value={Math.round(salary.hourly)}
-          oninput={(e) => (salary.hourly = parseFloat(e.target.value) || 0)}
+          value={Math.round(salary.hourly.get())}
+          oninput={(e) => salary.hourly.set(parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
           class="input input-number"
@@ -54,8 +47,8 @@
         <input
           type="number"
           id="daily"
-          value={Math.round(salary.daily)}
-          oninput={(e) => (salary.daily = parseFloat(e.target.value) || 0)}
+          value={Math.round(salary.daily.get())}
+          oninput={(e) => salary.daily.set(parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
           class="input input-number"
@@ -70,8 +63,8 @@
         <input
           type="number"
           id="weekly"
-          value={Math.round(salary.weekly)}
-          oninput={(e) => (salary.weekly = parseFloat(e.target.value) || 0)}
+          value={Math.round(salary.weekly.get())}
+          oninput={(e) => salary.weekly.set(parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
           class="input input-number"
@@ -79,15 +72,15 @@
       </div>
       <label for="weekly" class="label">/ week</label>
     </div>
-    
+
     <!-- Bi-Weekly Rate -->
     <div class="input-group">
       <div class="input-container">
         <input
           type="number"
           id="bi-weekly"
-          value={Math.round(salary.biWeekly)}
-          oninput={(e) => (salary.biWeekly = parseFloat(e.target.value) || 0)}
+          value={Math.round(salary.biWeekly.get())}
+          oninput={(e) => salary.biWeekly.set(parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
           class="input input-number"
@@ -102,8 +95,8 @@
         <input
           type="number"
           id="monthly"
-          value={Math.round(salary.monthly)}
-          oninput={(e) => (salary.monthly = parseFloat(e.target.value) || 0)}
+          value={Math.round(salary.monthly.get())}
+          oninput={(e) => salary.monthly.set(parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
           class="input input-number"
@@ -118,8 +111,8 @@
         <input
           type="number"
           id="annual"
-          value={Math.round(salary.annual)}
-          oninput={(e) => (salary.annual = parseFloat(e.target.value) || 0)}
+          value={Math.round(salary.annual.get())}
+          oninput={(e) => salary.annual.set(parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
           class="input input-number"
@@ -221,11 +214,11 @@
     .container {
       padding: 1rem;
     }
-    
+
     .input-group {
       justify-content: flex-end;
     }
-    
+
     .input {
       font-size: 1.25rem;
       padding: 0.5rem 0;
