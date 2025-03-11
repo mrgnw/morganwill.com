@@ -1,50 +1,39 @@
 <script>
-  class SalaryCalculator {
-    // Constants for rate calculations
-    static hoursPerDay = 8;
-    static daysPerWeek = 5;
-    static weeksPerMonth = 4 + (1/3); // Approximation
-    static weeksPerYear = 52;
-    static biWeeklyWeeks = 2;
-    
-    // Base rate (our source of truth)
-    hourlyRate = $state(20);
-    
-    // Derived rates using $derived
-    dailyRate = $derived(this.hourlyRate * SalaryCalculator.hoursPerDay);
-    weeklyRate = $derived(this.dailyRate * SalaryCalculator.daysPerWeek);
-    biWeeklyRate = $derived(this.weeklyRate * SalaryCalculator.biWeeklyWeeks);
-    monthlyRate = $derived(this.weeklyRate * SalaryCalculator.weeksPerMonth);
-    annualRate = $derived(this.weeklyRate * SalaryCalculator.weeksPerYear);
-    
-    // Conversion factors to calculate hourly rate from each field
-    conversions = {
-      hourly: value => value,
-      daily: value => value / SalaryCalculator.hoursPerDay,
-      weekly: value => value / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek),
-      biWeekly: value => value / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.biWeeklyWeeks),
-      monthly: value => value / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.weeksPerMonth),
-      annual: value => value / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.weeksPerYear)
-    };
-    
-    constructor(initialHourlyRate = 20) {
-      this.hourlyRate = initialHourlyRate;
-    }
-    
-    updateFromField(field, value) {
-      const numValue = parseFloat(value);
-      if (isNaN(numValue) || !this.conversions[field]) return;
-      
-      this.hourlyRate = this.conversions[field](numValue);
-    }
-  }
+  const HOURS_PER_DAY = 8;
+  const DAYS_PER_WEEK = 5;
+  const WEEKS_PER_MONTH = 4 + (1/3); // Approximation
+  const WEEKS_PER_YEAR = 52;
+  const BI_WEEKLY_WEEKS = 2;
   
-  // Create a calculator instance
-  const calculator = new SalaryCalculator();
+  let hourlyRate = $state(20);
   
-  // Handle input events - simplified since we update in real-time
-  function handleInput(field, e) {
-    calculator.updateFromField(field, e.target.value);
+  let salary = {
+    get hourly() { return hourlyRate; },
+    set hourly(value) { hourlyRate = value; },
+    
+    get daily() { return hourlyRate * HOURS_PER_DAY; },
+    set daily(value) { hourlyRate = value / HOURS_PER_DAY; },
+    
+    get weekly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK; },
+    set weekly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK); },
+    
+    get biWeekly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * BI_WEEKLY_WEEKS; },
+    set biWeekly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * BI_WEEKLY_WEEKS); },
+    
+    get monthly() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_MONTH; },
+    set monthly(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_MONTH); },
+    
+    get annual() { return hourlyRate * HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_YEAR; },
+    set annual(value) { hourlyRate = value / (HOURS_PER_DAY * DAYS_PER_WEEK * WEEKS_PER_YEAR); }
+  };
+  
+  // Optionally add formatting helper
+  function formatCurrency(value) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(value);
   }
 </script>
 
@@ -56,8 +45,8 @@
     <input
       type="number"
       id="hourly"
-      value={Math.round(calculator.hourlyRate)}
-      oninput={(e) => handleInput('hourly', e)}
+      value={Math.round(salary.hourly)}
+      oninput={(e) => salary.hourly = parseFloat(e.target.value) || 0}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -68,8 +57,8 @@
     <input
       type="number"
       id="daily"
-      value={Math.round(calculator.dailyRate)}
-      oninput={(e) => handleInput('daily', e)}
+      value={Math.round(salary.daily)}
+      oninput={(e) => salary.daily = parseFloat(e.target.value) || 0}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -80,8 +69,8 @@
     <input
       type="number"
       id="weekly"
-      value={Math.round(calculator.weeklyRate)}
-      oninput={(e) => handleInput('weekly', e)}
+      value={Math.round(salary.weekly)}
+      oninput={(e) => salary.weekly = parseFloat(e.target.value) || 0}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -92,8 +81,8 @@
     <input
       type="number"
       id="bi-weekly"
-      value={Math.round(calculator.biWeeklyRate)}
-      oninput={(e) => handleInput('biWeekly', e)}
+      value={Math.round(salary.biWeekly)}
+      oninput={(e) => salary.biWeekly = parseFloat(e.target.value) || 0}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -104,8 +93,8 @@
     <input
       type="number"
       id="monthly"
-      value={Math.round(calculator.monthlyRate)}
-      oninput={(e) => handleInput('monthly', e)}
+      value={Math.round(salary.monthly)}
+      oninput={(e) => salary.monthly = parseFloat(e.target.value) || 0}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -116,8 +105,8 @@
     <input
       type="number"
       id="annual"
-      value={Math.round(calculator.annualRate)}
-      oninput={(e) => handleInput('annual', e)}
+      value={Math.round(salary.annual)}
+      oninput={(e) => salary.annual = parseFloat(e.target.value) || 0}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
