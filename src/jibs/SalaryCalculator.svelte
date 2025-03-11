@@ -1,70 +1,74 @@
 <script>
-
-  // Constants for rate calculations
-  const hoursPerDay = 8;
-  const daysPerWeek = 5;
-  const weeksPerMonth = 4 + (1/3); // Approximation
-  const weeksPerYear = 52;
-  const biWeeklyWeeks = 2;
-
+  class SalaryCalculator {
+    // Constants for rate calculations
+    static hoursPerDay = 8;
+    static daysPerWeek = 5;
+    static weeksPerMonth = 4 + (1/3); // Approximation
+    static weeksPerYear = 52;
+    static biWeeklyWeeks = 2;
+    
+    // Base rate (our source of truth)
+    hourlyRate = $state(20);
+    
+    // Derived rates using $derived
+    dailyRate = $derived(this.hourlyRate * SalaryCalculator.hoursPerDay);
+    weeklyRate = $derived(this.dailyRate * SalaryCalculator.daysPerWeek);
+    biWeeklyRate = $derived(this.weeklyRate * SalaryCalculator.biWeeklyWeeks);
+    monthlyRate = $derived(this.weeklyRate * SalaryCalculator.weeksPerMonth);
+    annualRate = $derived(this.weeklyRate * SalaryCalculator.weeksPerYear);
+    
+    // Formatted values for display
+    hourlyFormatted = $derived(Math.round(this.hourlyRate).toString());
+    dailyFormatted = $derived(Math.round(this.dailyRate).toString());
+    weeklyFormatted = $derived(Math.round(this.weeklyRate).toString());
+    biWeeklyFormatted = $derived(Math.round(this.biWeeklyRate).toString());
+    monthlyFormatted = $derived(Math.round(this.monthlyRate).toString());
+    annualFormatted = $derived(Math.round(this.annualRate).toString());
+    
+    constructor(initialHourlyRate = 20) {
+      this.hourlyRate = initialHourlyRate;
+    }
+    
+    updateFromField(field, value) {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue)) return;
+      
+      switch(field) {
+        case 'hourly':
+          this.hourlyRate = numValue;
+          break;
+        case 'daily':
+          this.hourlyRate = numValue / SalaryCalculator.hoursPerDay;
+          break;
+        case 'weekly':
+          this.hourlyRate = numValue / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek);
+          break;
+        case 'biWeekly':
+          this.hourlyRate = numValue / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.biWeeklyWeeks);
+          break;
+        case 'monthly':
+          this.hourlyRate = numValue / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.weeksPerMonth);
+          break;
+        case 'annual':
+          this.hourlyRate = numValue / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.weeksPerYear);
+          break;
+      }
+    }
+  }
+  
+  // Create a calculator instance
+  const calculator = new SalaryCalculator();
+  
   // Track which field is currently being edited
   let editingField = $state(null);
   
-  // Input values (separate from calculation values)
-  let hourlyInput = $state("20");
-  let dailyInput = $state("160");
-  let weeklyInput = $state("800");
-  let biWeeklyInput = $state("1600");
-  let monthlyInput = $state("3467");
-  let annualInput = $state("41600");
-
-  // The hourly rate is our source of truth for calculations
-  let hourlyRate = $state(20);
-  
-  // Derived values for calculations
-  let dailyRate = $derived(hourlyRate * hoursPerDay);
-  let weeklyRate = $derived(dailyRate * daysPerWeek);
-  let biWeeklyRate = $derived(weeklyRate * biWeeklyWeeks);
-  let monthlyRate = $derived(weeklyRate * weeksPerMonth);
-  let annualRate = $derived(weeklyRate * weeksPerYear);
-
   // Handle input events
   function startEditing(field) {
     editingField = field;
   }
   
   function finishEditing(field, value) {
-    const parsedValue = parseInt(value, 10);
-    if (!isNaN(parsedValue)) {
-      switch (field) {
-        case 'hourly':
-          hourlyRate = parsedValue;
-          break;
-        case 'daily':
-          hourlyRate = parsedValue / hoursPerDay;
-          break;
-        case 'weekly':
-          hourlyRate = parsedValue / (hoursPerDay * daysPerWeek);
-          break;
-        case 'biWeekly':
-          hourlyRate = parsedValue / (hoursPerDay * daysPerWeek * biWeeklyWeeks);
-          break;
-        case 'monthly':
-          hourlyRate = parsedValue / (hoursPerDay * daysPerWeek * weeksPerMonth);
-          break;
-        case 'annual':
-          hourlyRate = parsedValue / (hoursPerDay * daysPerWeek * weeksPerYear);
-          break;
-      }
-
-      // Update input values directly
-      hourlyInput = Math.round(hourlyRate).toString();
-      dailyInput = Math.round(dailyRate).toString();
-      weeklyInput = Math.round(weeklyRate).toString();
-      biWeeklyInput = Math.round(biWeeklyRate).toString();
-      monthlyInput = Math.round(monthlyRate).toString();
-      annualInput = Math.round(annualRate).toString();
-    }
+    calculator.updateFromField(field, value);
     editingField = null;
   }
 </script>
@@ -77,7 +81,7 @@
     <input
       type="number"
       id="hourly"
-      value={hourlyInput}
+      value={calculator.hourlyFormatted}
       onfocus={() => startEditing('hourly')}
       onblur={(e) => finishEditing('hourly', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
@@ -90,7 +94,7 @@
     <input
       type="number"
       id="daily"
-      value={dailyInput}
+      value={calculator.dailyFormatted}
       onfocus={() => startEditing('daily')}
       onblur={(e) => finishEditing('daily', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
@@ -103,7 +107,7 @@
     <input
       type="number"
       id="weekly"
-      value={weeklyInput}
+      value={calculator.weeklyFormatted}
       onfocus={() => startEditing('weekly')}
       onblur={(e) => finishEditing('weekly', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
@@ -116,7 +120,7 @@
     <input
       type="number"
       id="bi-weekly"
-      value={biWeeklyInput}
+      value={calculator.biWeeklyFormatted}
       onfocus={() => startEditing('biWeekly')}
       onblur={(e) => finishEditing('biWeekly', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
@@ -129,7 +133,7 @@
     <input
       type="number"
       id="monthly"
-      value={monthlyInput}
+      value={calculator.monthlyFormatted}
       onfocus={() => startEditing('monthly')}
       onblur={(e) => finishEditing('monthly', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
@@ -142,7 +146,7 @@
     <input
       type="number"
       id="annual"
-      value={annualInput}
+      value={calculator.annualFormatted}
       onfocus={() => startEditing('annual')}
       onblur={(e) => finishEditing('annual', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
