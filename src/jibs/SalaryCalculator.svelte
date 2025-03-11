@@ -86,7 +86,7 @@
       step="1"
       class="calculator-input calculator-input-number"
     />
-    <label for="hourly" class="calculator-label">Hourly Rate</label>
+    <label for="hourly" class="calculator-label">Hourly</label>
 
     <!-- Daily Rate -->
     <input
@@ -99,7 +99,7 @@
       step="1"
       class="calculator-input calculator-input-number"
     />
-    <label for="daily" class="calculator-label">Daily Rate</label>
+    <label for="daily" class="calculator-label">Daily</label>
 
     <!-- Weekly Rate -->
     <input
@@ -112,7 +112,7 @@
       step="1"
       class="calculator-input calculator-input-number"
     />
-    <label for="weekly" class="calculator-label">Weekly Rate</label>
+    <label for="weekly" class="calculator-label">Weekly</label>
     
     <!-- Bi-Weekly Rate -->
     <input
@@ -125,7 +125,7 @@
       step="1"
       class="calculator-input calculator-input-number"
     />
-    <label for="bi-weekly" class="calculator-label">Bi-Weekly Rate</label>
+    <label for="bi-weekly" class="calculator-label">Bi-Weekly</label>
 
     <!-- Monthly Rate -->
     <input
@@ -138,7 +138,7 @@
       step="1"
       class="calculator-input calculator-input-number"
     />
-    <label for="monthly" class="calculator-label">Monthly Rate</label>
+    <label for="monthly" class="calculator-label">Monthly</label>
 
     <!-- Annual Rate -->
     <input
@@ -151,7 +151,7 @@
       step="1"
       class="calculator-input calculator-input-number"
     />
-    <label for="annual" class="calculator-label">Annual Rate</label>
+    <label for="annual" class="calculator-label">Annual</label>
   </div>
 </div>
 
