@@ -82,7 +82,7 @@
           class="input input-number"
         />
       </div>
-      <label for="weekly" class="label">/ week</label>
+      <label for="weekly" class="label"> / week</label>
     </div>
 
     <!-- Bi-Weekly Rate -->
@@ -145,14 +145,12 @@
   .title {
     font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 2rem;
     text-align: center;
   }
 
   .grid {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
     width: 100%;
   }
 
@@ -166,7 +164,7 @@
   }
 
   .input-container {
-    width: 140px; /* Fixed width for the input container */
+    width: 6em; /* Fixed width for the input container */
     display: flex;
     justify-content: flex-end;
   }
@@ -176,7 +174,7 @@
       "Fira Mono", "Menlo", monospace;
     font-size: 1.5rem;
     font-weight: 600;
-    padding: 0.75rem 0;
+    padding: 0.4rem 0;  /* Reduced from 0.75rem to 0.4rem */
     text-align: right;
     background: transparent;
     border: none;
@@ -233,7 +231,7 @@
 
     .input {
       font-size: 1.25rem;
-      padding: 0.5rem 0;
+      padding: 0.3rem 0;  /* Reduced from 0.5rem to 0.3rem for mobile */
     }
   }
 </style>
