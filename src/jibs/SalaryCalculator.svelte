@@ -52,10 +52,10 @@
   };
 </script>
 
-<div class="calculator-container">
-  <h1 class="calculator-title">Salary Calculator</h1>
+<div class="container">
+  <h1 class="title">Salary Calculator</h1>
 
-  <div class="calculator-grid">
+  <div class="grid">
     <!-- Hourly Rate -->
     <div class="input-group">
       <div class="input-container">
@@ -66,10 +66,10 @@
           oninput={(e) => (salary.hourly = parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
-          class="calculator-input calculator-input-number"
+          class="input input-number"
         />
       </div>
-      <label for="hourly" class="calculator-label">/ hr</label>
+      <label for="hourly" class="label">/ hr</label>
     </div>
 
     <!-- Daily Rate -->
@@ -82,10 +82,10 @@
           oninput={(e) => (salary.daily = parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
-          class="calculator-input calculator-input-number"
+          class="input input-number"
         />
       </div>
-      <label for="daily" class="calculator-label">/ day</label>
+      <label for="daily" class="label">/ day</label>
     </div>
 
     <!-- Weekly Rate -->
@@ -98,10 +98,10 @@
           oninput={(e) => (salary.weekly = parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
-          class="calculator-input calculator-input-number"
+          class="input input-number"
         />
       </div>
-      <label for="weekly" class="calculator-label">/ week</label>
+      <label for="weekly" class="label">/ week</label>
     </div>
     
     <!-- Bi-Weekly Rate -->
@@ -114,10 +114,10 @@
           oninput={(e) => (salary.biWeekly = parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
-          class="calculator-input calculator-input-number"
+          class="input input-number"
         />
       </div>
-      <label for="bi-weekly" class="calculator-label">/ 2 weeks</label>
+      <label for="bi-weekly" class="label">/ 2 weeks</label>
     </div>
 
     <!-- Monthly Rate -->
@@ -130,10 +130,10 @@
           oninput={(e) => (salary.monthly = parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
-          class="calculator-input calculator-input-number"
+          class="input input-number"
         />
       </div>
-      <label for="monthly" class="calculator-label">/ month</label>
+      <label for="monthly" class="label">/ month</label>
     </div>
 
     <!-- Annual Rate -->
@@ -146,29 +146,29 @@
           oninput={(e) => (salary.annual = parseFloat(e.target.value) || 0)}
           onkeydown={(e) => e.key === "Enter" && e.target.blur()}
           step="1"
-          class="calculator-input calculator-input-number"
+          class="input input-number"
         />
       </div>
-      <label for="annual" class="calculator-label">/ year</label>
+      <label for="annual" class="label">/ year</label>
     </div>
   </div>
 </div>
 
 <style>
-  .calculator-container {
+  .container {
     max-width: 400px;
     margin: 0 auto;
     padding: 2rem;
   }
 
-  .calculator-title {
+  .title {
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 2rem;
     text-align: center;
   }
 
-  .calculator-grid {
+  .grid {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -190,7 +190,7 @@
     justify-content: flex-end;
   }
 
-  .calculator-input {
+  .input {
     font-family: "JetBrains Mono", "Roboto Mono", "SF Mono", "Fira Code",
       "Fira Mono", "Menlo", monospace;
     font-size: 1.5rem;
@@ -205,18 +205,18 @@
     border-radius: 0;
   }
 
-  .calculator-input-number {
+  .input-number {
     text-align: right;
   }
 
-  .calculator-input:focus {
+  .input:focus {
     outline: none;
     border-color: #2563eb;
     box-shadow: none;
     background: transparent;
   }
 
-  .calculator-label {
+  .label {
     font-size: 1.125rem;
     font-weight: 500;
     color: #4b5563;
@@ -242,7 +242,7 @@
 
   /* Mobile responsive adjustments */
   @media (max-width: 640px) {
-    .calculator-container {
+    .container {
       padding: 1rem;
     }
     
@@ -250,7 +250,7 @@
       justify-content: flex-end;
     }
     
-    .calculator-input {
+    .input {
       font-size: 1.25rem;
       padding: 0.5rem 0;
     }
