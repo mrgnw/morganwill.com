@@ -1,4 +1,5 @@
 <script>
+
   // Constants for rate calculations
   const hoursPerDay = 8;
   const daysPerWeek = 5;
@@ -70,130 +71,169 @@
   }
 </script>
 
-<div class="salary-calculator">
-  <h2>Salary Calculator</h2>
+<div class="calculator-container">
+  <h1 class="calculator-title">Salary Calculator</h1>
 
-  <div class="input-group">
-    <label for="hourly">Hourly Rate:</label>
-    <input 
-      type="number" 
-      id="hourly" 
+  <div class="calculator-grid">
+    <!-- Hourly Rate -->
+    <input
+      type="number"
+      id="hourly"
       value={hourlyInput}
       onfocus={() => startEditing('hourly')}
       onblur={(e) => finishEditing('hourly', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
-    >
-  </div>
+      class="calculator-input calculator-input-number"
+    />
+    <label for="hourly" class="calculator-label">Hourly Rate</label>
 
-  <div class="input-group">
-    <label for="daily">Daily Rate:</label>
-    <input 
-      type="number" 
-      id="daily" 
+    <!-- Daily Rate -->
+    <input
+      type="number"
+      id="daily"
       value={dailyInput}
       onfocus={() => startEditing('daily')}
       onblur={(e) => finishEditing('daily', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
-    >
-  </div>
+      class="calculator-input calculator-input-number"
+    />
+    <label for="daily" class="calculator-label">Daily Rate</label>
 
-  <div class="input-group">
-    <label for="weekly">Weekly Rate:</label>
-    <input 
-      type="number" 
-      id="weekly" 
+    <!-- Weekly Rate -->
+    <input
+      type="number"
+      id="weekly"
       value={weeklyInput}
       onfocus={() => startEditing('weekly')}
       onblur={(e) => finishEditing('weekly', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
-    >
-  </div>
-  
-  <div class="input-group">
-    <label for="bi-weekly">Bi-Weekly Rate:</label>
-    <input 
-      type="number" 
-      id="bi-weekly" 
+      class="calculator-input calculator-input-number"
+    />
+    <label for="weekly" class="calculator-label">Weekly Rate</label>
+    
+    <!-- Bi-Weekly Rate -->
+    <input
+      type="number"
+      id="bi-weekly"
       value={biWeeklyInput}
       onfocus={() => startEditing('biWeekly')}
       onblur={(e) => finishEditing('biWeekly', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
-    >
-  </div>
+      class="calculator-input calculator-input-number"
+    />
+    <label for="bi-weekly" class="calculator-label">Bi-Weekly Rate</label>
 
-  <div class="input-group">
-    <label for="monthly">Monthly Rate:</label>
-    <input 
-      type="number" 
-      id="monthly" 
+    <!-- Monthly Rate -->
+    <input
+      type="number"
+      id="monthly"
       value={monthlyInput}
       onfocus={() => startEditing('monthly')}
       onblur={(e) => finishEditing('monthly', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
-    >
-  </div>
+      class="calculator-input calculator-input-number"
+    />
+    <label for="monthly" class="calculator-label">Monthly Rate</label>
 
-  <div class="input-group">
-    <label for="annual">Annual Rate:</label>
-    <input 
-      type="number" 
-      id="annual" 
+    <!-- Annual Rate -->
+    <input
+      type="number"
+      id="annual"
       value={annualInput}
       onfocus={() => startEditing('annual')}
       onblur={(e) => finishEditing('annual', e.target.value)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
-    >
+      class="calculator-input calculator-input-number"
+    />
+    <label for="annual" class="calculator-label">Annual Rate</label>
   </div>
 </div>
 
 <style>
-  .salary-calculator {
-    padding: 20px;
-    font-family: sans-serif;
-    max-width: 500px;
+  .calculator-container {
+    max-width: 600px;
     margin: 0 auto;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
   }
 
-  h2 {
-    margin-top: 0;
-    color: #333;
-    margin-bottom: 1rem;
+  .calculator-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
     text-align: center;
   }
 
-  .input-group {
-    margin-bottom: 15px;
-    display: flex;
+  .calculator-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
     align-items: center;
   }
 
-  label {
-    display: inline-block;
-    width: 150px;
+  .calculator-input {
+    font-family: 'JetBrains Mono', 'Roboto Mono', 'SF Mono', 'Fira Code', 'Fira Mono', 'Menlo', monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 0.75rem 0; /* Reduced padding */
     text-align: right;
-    margin-right: 10px;
+    background: transparent; /* Transparent background */
+    border: none; /* Remove border */
+    border-bottom: 2px solid #e5e7eb; /* Add underline */
+    transition: all 0.2s ease;
+    width: 100%;
+    border-radius: 0; /* Remove border radius */
   }
 
-  input[type="number"] {
-    width: 150px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
+  .calculator-input-number {
+    text-align: right;
   }
 
-  input:focus {
-    border-color: #4a6dff;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(74, 109, 255, 0.2);
+  .calculator-input:focus {
+    outline: none; /* Remove outline */
+    border-color: #2563eb; /* Focused underline color */
+    box-shadow: none; /* Remove box shadow */
+    background: transparent; /* Keep background transparent */
+  }
+
+  .calculator-label {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #4b5563;
+    padding-left: 1rem;
+  }
+
+  /* Remove browser styling for number inputs */
+  :global(input[type="number"]) {
+    -moz-appearance: textfield;
+  }
+  
+  :global(input[type="number"]::-webkit-outer-spin-button),
+  :global(input[type="number"]::-webkit-inner-spin-button) {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 640px) {
+    .calculator-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .calculator-input {
+      font-size: 1.25rem;
+      padding: 0.5rem 0; /* Reduced padding */
+    }
+    
+    .calculator-label {
+      padding-left: 0;
+      text-align: center;
+    }
   }
 </style>
