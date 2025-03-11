@@ -13,7 +13,7 @@
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
   
   // Multiplier thresholds for automatic value scaling
-  const thresholds = { week: 20, year: 1000 };
+  const thresholds = { month: 20, year: 1000 };
 
   // Enhanced salary object with input handling and auto-scaling built in
   const salary = Object.fromEntries(
