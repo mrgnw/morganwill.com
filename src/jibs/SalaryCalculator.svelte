@@ -1,5 +1,6 @@
 <script>
   let hourlyRate = $state(70);
+//   let currencySymbol = $state('$'); // Default to USD
 
   const timeUnits = {
     hour: 1,
@@ -11,6 +12,19 @@
   };
   const thresholds = { week: 10, month: 20, year: 1000 };
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
+
+  // Exchange rate: 1 USD = 0.93 EUR (approximate)
+  const exchangeRate = 0.93;
+
+  function convertToEUR() {
+    hourlyRate = hourlyRate * exchangeRate;
+    // currencySymbol = '€';
+  }
+
+  function convertToUSD() {
+    hourlyRate = hourlyRate / exchangeRate;
+    // currencySymbol = '$';
+  }
 
   // Enhanced salary object with input handling and auto-scaling built in
   const salary = Object.fromEntries(
@@ -42,6 +56,7 @@
   <div class="grid">
     {#each Object.entries(salary) as [unit, handlers]}
       <div class="input-group">
+
         <div class="input-container">
           <input
             type="number"
@@ -59,6 +74,11 @@
         </label>
       </div>
     {/each}
+  </div>
+
+  <div class="currency-converter">
+    <button class="currency-button" onclick={convertToUSD}> ▸ $</button>
+    <button class="currency-button" onclick={convertToEUR}> ▸ €</button>
   </div>
 </div>
 
@@ -88,6 +108,13 @@
     width: 100%;
     max-width: 220px;
     margin: 0 auto;
+  }
+
+  .currency-symbol {
+    font-size: 1.25rem;
+    margin-right: 0.25rem;
+    width: 1em;
+    text-align: center;
   }
 
   .input-container {
@@ -135,6 +162,31 @@
     text-overflow: ellipsis;
   }
 
+  .currency-converter {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    gap: 0.75rem;
+  }
+
+  .currency-button {
+    flex: 0 0 auto;
+    padding: 0.6rem 1.25rem;
+    background-color: #f9f9f9;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1.25rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+  }
+
   :global(input[type="number"]) {
     -moz-appearance: textfield;
     -webkit-appearance: textfield;
@@ -151,6 +203,11 @@
   @media (max-width: 640px) {
     .input-group {
       justify-content: flex-end;
+    }
+    
+    .currency-converter {
+      flex-direction: row;
+      justify-content: center;
     }
   }
 </style>
