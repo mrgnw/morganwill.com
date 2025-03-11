@@ -9,21 +9,13 @@
     monthly: 8 * 5 * (52 / 12),
     annual: 8 * 5 * 52,
   };
+  
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
   
-  const createMultiplier = (unit, threshold) => (e) => {
-    const value = parseFloat(e.target.value) || 0;
-    if (value > 0 && value < threshold) {
-      const adjustedValue = value * 1000;
-      hourlyRate = adjustedValue / timeUnits[unit];
-      e.target.value = Math.round(adjustedValue);
-    }
-  };
-  
-  const onAnnualBlur = createMultiplier('annual', 1000);
-  const onMonthlyBlur = createMultiplier('monthly', 20);
+  // Multiplier thresholds for automatic value scaling
+  const thresholds = { monthly: 20, annual: 1000 };
 
-  // Enhanced salary object with input handling built into the setters
+  // Enhanced salary object with input handling and auto-scaling built in
   const salary = Object.fromEntries(
     Object.entries(timeUnits).map(([unit, multiplier]) => [
       unit,
@@ -33,6 +25,15 @@
           const inputValue = parseFloat(value?.target?.value ?? value) || 0;
           hourlyRate = inputValue / multiplier;
         },
+        onblur: (e) => {
+          if (!thresholds[unit]) return;
+          
+          const value = parseFloat(e.target.value) || 0;
+          if (value > 0 && value < thresholds[unit]) {
+            hourlyRate = (value * 1000) / multiplier;
+            e.target.value = Math.round(value * 1000);
+          }
+        }
       },
     ])
   );
@@ -42,103 +43,25 @@
   <h1 class="title">Salary Calculator</h1>
 
   <div class="grid">
-    <!-- Hourly Rate -->
-    <div class="input-group">
-      <div class="input-container">
-        <input
-          type="number"
-          id="hourly"
-          value={Math.round(salary.hourly.get())}
-          oninput={salary.hourly.set}
-          {onkeydown}
-          step="1"
-          class="input input-number"
-        />
+    {#each Object.entries(salary) as [unit, handlers]}
+      <div class="input-group">
+        <div class="input-container">
+          <input
+            type="number"
+            id={unit}
+            value={Math.round(handlers.get())}
+            oninput={handlers.set}
+            onblur={handlers.onblur}
+            {onkeydown}
+            step="1"
+            class="input input-number"
+          />
+        </div>
+        <label for={unit} class="label">
+          / {unit === 'biweekly' ? '2 weeks' : unit.replace('ly', '')}
+        </label>
       </div>
-      <label for="hourly" class="label">/ hr</label>
-    </div>
-
-    <!-- Daily Rate -->
-    <div class="input-group">
-      <div class="input-container">
-        <input
-          type="number"
-          id="daily"
-          value={Math.round(salary.daily.get())}
-          oninput={salary.daily.set}
-          {onkeydown}
-          step="1"
-          class="input input-number"
-        />
-      </div>
-      <label for="daily" class="label">/ day</label>
-    </div>
-
-    <!-- Weekly Rate -->
-    <div class="input-group">
-      <div class="input-container">
-        <input
-          type="number"
-          id="weekly"
-          value={Math.round(salary.weekly.get())}
-          oninput={salary.weekly.set}
-          {onkeydown}
-          step="1"
-          class="input input-number"
-        />
-      </div>
-      <label for="weekly" class="label">/ week</label>
-    </div>
-
-    <!-- Bi-Weekly Rate -->
-    <div class="input-group">
-      <div class="input-container">
-        <input
-          type="number"
-          id="bi-weekly"
-          value={Math.round(salary.biweekly.get())}
-          oninput={salary.biweekly.set}
-          {onkeydown}
-          step="1"
-          class="input input-number"
-        />
-      </div>
-      <label for="bi-weekly" class="label">/ 2 weeks</label>
-    </div>
-
-    <!-- Monthly Rate -->
-    <div class="input-group">
-      <div class="input-container">
-        <input
-          type="number"
-          id="monthly"
-          value={Math.round(salary.monthly.get())}
-          oninput={salary.monthly.set}
-          onblur={onMonthlyBlur}
-          {onkeydown}
-          step="1"
-          class="input input-number"
-        />
-      </div>
-      <label for="monthly" class="label">/ month</label>
-    </div>
-
-    <!-- Annual Rate -->
-    <div class="input-group">
-      <div class="input-container">
-        <input
-          type="number"
-          id="annual"
-          value={Math.round(salary.annual.get())}
-          oninput={salary.annual.set}
-          onblur={onAnnualBlur}
-          {onkeydown}
-          step="1"
-          class="input input-number"
-        />
-      </div>
-      <label for="annual" class="label">/ year</label>
-    </div>
+    {/each}
   </div>
 </div>
 
