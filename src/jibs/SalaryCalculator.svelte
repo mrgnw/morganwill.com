@@ -13,10 +13,23 @@
   const thresholds = { week: 10, month: 20, year: 1000 };
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
 
-  // Exchange rate: 1 EUR = 1.08 USD (approximate)
-  const exchangeRate = 1.08;
-  const eur_to_usd = 1.08;
-  const usd_to_eur = 1 / 1.08;
+  let exchangeRate = $state(1.08);
+  let eur_to_usd = $state(1.08);
+  let usd_to_eur = $state(1 / 1.08);
+
+  // Fetch exchange rate on component mount
+  $effect(async () => {
+    try {
+      const response = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');
+      const data = await response.json();
+      eur_to_usd = data.rates.USD;
+      usd_to_eur = 1 / data.rates.USD;
+      exchangeRate = data.rates.USD;
+    } catch (error) {
+      console.error('Failed to fetch exchange rate', error);
+      // Handle error appropriately, e.g., display a message to the user
+    }
+  });
 
   function convertToEUR() {
     hourlyRate = hourlyRate * usd_to_eur;
