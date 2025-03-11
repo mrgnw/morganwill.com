@@ -17,34 +17,25 @@
     monthlyRate = $derived(this.weeklyRate * SalaryCalculator.weeksPerMonth);
     annualRate = $derived(this.weeklyRate * SalaryCalculator.weeksPerYear);
     
+    // Conversion factors to calculate hourly rate from each field
+    conversions = {
+      hourly: value => value,
+      daily: value => value / SalaryCalculator.hoursPerDay,
+      weekly: value => value / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek),
+      biWeekly: value => value / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.biWeeklyWeeks),
+      monthly: value => value / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.weeksPerMonth),
+      annual: value => value / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.weeksPerYear)
+    };
+    
     constructor(initialHourlyRate = 20) {
       this.hourlyRate = initialHourlyRate;
     }
     
     updateFromField(field, value) {
       const numValue = parseFloat(value);
-      if (isNaN(numValue)) return;
+      if (isNaN(numValue) || !this.conversions[field]) return;
       
-      switch(field) {
-        case 'hourly':
-          this.hourlyRate = numValue;
-          break;
-        case 'daily':
-          this.hourlyRate = numValue / SalaryCalculator.hoursPerDay;
-          break;
-        case 'weekly':
-          this.hourlyRate = numValue / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek);
-          break;
-        case 'biWeekly':
-          this.hourlyRate = numValue / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.biWeeklyWeeks);
-          break;
-        case 'monthly':
-          this.hourlyRate = numValue / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.weeksPerMonth);
-          break;
-        case 'annual':
-          this.hourlyRate = numValue / (SalaryCalculator.hoursPerDay * SalaryCalculator.daysPerWeek * SalaryCalculator.weeksPerYear);
-          break;
-      }
+      this.hourlyRate = this.conversions[field](numValue);
     }
   }
   
