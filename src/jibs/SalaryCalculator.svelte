@@ -58,93 +58,105 @@
   <div class="calculator-grid">
     <!-- Hourly Rate -->
     <div class="input-group">
-      <label for="hourly" class="calculator-label">/hr</label>
-      <input
-        type="number"
-        id="hourly"
-        value={Math.round(salary.hourly)}
-        oninput={(e) => (salary.hourly = parseFloat(e.target.value) || 0)}
-        onkeydown={(e) => e.key === "Enter" && e.target.blur()}
-        step="1"
-        class="calculator-input calculator-input-number"
-      />
+      <div class="input-container">
+        <input
+          type="number"
+          id="hourly"
+          value={Math.round(salary.hourly)}
+          oninput={(e) => (salary.hourly = parseFloat(e.target.value) || 0)}
+          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          step="1"
+          class="calculator-input calculator-input-number"
+        />
+      </div>
+      <label for="hourly" class="calculator-label">/ hr</label>
     </div>
 
     <!-- Daily Rate -->
     <div class="input-group">
-      <label for="daily" class="calculator-label">/day</label>
-      <input
-        type="number"
-        id="daily"
-        value={Math.round(salary.daily)}
-        oninput={(e) => (salary.daily = parseFloat(e.target.value) || 0)}
-        onkeydown={(e) => e.key === "Enter" && e.target.blur()}
-        step="1"
-        class="calculator-input calculator-input-number"
-      />
+      <div class="input-container">
+        <input
+          type="number"
+          id="daily"
+          value={Math.round(salary.daily)}
+          oninput={(e) => (salary.daily = parseFloat(e.target.value) || 0)}
+          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          step="1"
+          class="calculator-input calculator-input-number"
+        />
+      </div>
+      <label for="daily" class="calculator-label">/ day</label>
     </div>
 
     <!-- Weekly Rate -->
     <div class="input-group">
-      <label for="weekly" class="calculator-label">/week</label>
-      <input
-        type="number"
-        id="weekly"
-        value={Math.round(salary.weekly)}
-        oninput={(e) => (salary.weekly = parseFloat(e.target.value) || 0)}
-        onkeydown={(e) => e.key === "Enter" && e.target.blur()}
-        step="1"
-        class="calculator-input calculator-input-number"
-      />
+      <div class="input-container">
+        <input
+          type="number"
+          id="weekly"
+          value={Math.round(salary.weekly)}
+          oninput={(e) => (salary.weekly = parseFloat(e.target.value) || 0)}
+          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          step="1"
+          class="calculator-input calculator-input-number"
+        />
+      </div>
+      <label for="weekly" class="calculator-label">/ week</label>
     </div>
-
+    
     <!-- Bi-Weekly Rate -->
     <div class="input-group">
-      <label for="bi-weekly" class="calculator-label">/2 weeks</label>
-      <input
-        type="number"
-        id="bi-weekly"
-        value={Math.round(salary.biWeekly)}
-        oninput={(e) => (salary.biWeekly = parseFloat(e.target.value) || 0)}
-        onkeydown={(e) => e.key === "Enter" && e.target.blur()}
-        step="1"
-        class="calculator-input calculator-input-number"
-      />
+      <div class="input-container">
+        <input
+          type="number"
+          id="bi-weekly"
+          value={Math.round(salary.biWeekly)}
+          oninput={(e) => (salary.biWeekly = parseFloat(e.target.value) || 0)}
+          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          step="1"
+          class="calculator-input calculator-input-number"
+        />
+      </div>
+      <label for="bi-weekly" class="calculator-label">/ 2 weeks</label>
     </div>
 
     <!-- Monthly Rate -->
     <div class="input-group">
-      <label for="monthly" class="calculator-label">/month</label>
-      <input
-        type="number"
-        id="monthly"
-        value={Math.round(salary.monthly)}
-        oninput={(e) => (salary.monthly = parseFloat(e.target.value) || 0)}
-        onkeydown={(e) => e.key === "Enter" && e.target.blur()}
-        step="1"
-        class="calculator-input calculator-input-number"
-      />
+      <div class="input-container">
+        <input
+          type="number"
+          id="monthly"
+          value={Math.round(salary.monthly)}
+          oninput={(e) => (salary.monthly = parseFloat(e.target.value) || 0)}
+          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          step="1"
+          class="calculator-input calculator-input-number"
+        />
+      </div>
+      <label for="monthly" class="calculator-label">/ month</label>
     </div>
 
     <!-- Annual Rate -->
     <div class="input-group">
-      <label for="annual" class="calculator-label">/year</label>
-      <input
-        type="number"
-        id="annual"
-        value={Math.round(salary.annual)}
-        oninput={(e) => (salary.annual = parseFloat(e.target.value) || 0)}
-        onkeydown={(e) => e.key === "Enter" && e.target.blur()}
-        step="1"
-        class="calculator-input calculator-input-number"
-      />
+      <div class="input-container">
+        <input
+          type="number"
+          id="annual"
+          value={Math.round(salary.annual)}
+          oninput={(e) => (salary.annual = parseFloat(e.target.value) || 0)}
+          onkeydown={(e) => e.key === "Enter" && e.target.blur()}
+          step="1"
+          class="calculator-input calculator-input-number"
+        />
+      </div>
+      <label for="annual" class="calculator-label">/ year</label>
     </div>
   </div>
 </div>
 
 <style>
   .calculator-container {
-    max-width: 600px;
+    max-width: 400px;
     margin: 0 auto;
     padding: 2rem;
   }
@@ -157,16 +169,26 @@
   }
 
   .calculator-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 1.25rem;
+    width: 100%;
   }
 
   .input-group {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.75rem;
+    width: 100%;
+    justify-content: flex-end;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  .input-container {
+    width: 150px;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .calculator-input {
@@ -181,9 +203,7 @@
     border-bottom: 2px solid #e5e7eb;
     transition: all 0.2s ease;
     width: 100%;
-    max-width: 140px;
     border-radius: 0;
-    order: 1;
   }
 
   .calculator-input-number {
@@ -202,7 +222,10 @@
     font-weight: 500;
     color: #4b5563;
     white-space: nowrap;
-    order: 2;
+    margin-left: 4px;
+    text-align: left;
+    min-width: 80px; /* Increased min-width to accommodate longer labels */
+    display: inline-block; /* Ensures the min-width is respected */
   }
 
   /* Remove browser styling for number inputs */
@@ -216,23 +239,19 @@
     margin: 0;
   }
 
-  /* Mobile responsive */
+  /* Mobile responsive adjustments */
   @media (max-width: 640px) {
-    .calculator-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+    .calculator-container {
+      padding: 1rem;
     }
-
+    
     .input-group {
-      justify-content: space-between;
-      gap: 1rem;
+      justify-content: flex-end;
     }
-
+    
     .calculator-input {
       font-size: 1.25rem;
       padding: 0.5rem 0;
-      max-width: 140px;
-      margin-left: auto;
     }
   }
 </style>
