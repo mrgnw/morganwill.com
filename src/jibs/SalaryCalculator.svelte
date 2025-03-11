@@ -17,14 +17,6 @@
     monthlyRate = $derived(this.weeklyRate * SalaryCalculator.weeksPerMonth);
     annualRate = $derived(this.weeklyRate * SalaryCalculator.weeksPerYear);
     
-    // Formatted values for display
-    hourlyFormatted = $derived(Math.round(this.hourlyRate).toString());
-    dailyFormatted = $derived(Math.round(this.dailyRate).toString());
-    weeklyFormatted = $derived(Math.round(this.weeklyRate).toString());
-    biWeeklyFormatted = $derived(Math.round(this.biWeeklyRate).toString());
-    monthlyFormatted = $derived(Math.round(this.monthlyRate).toString());
-    annualFormatted = $derived(Math.round(this.annualRate).toString());
-    
     constructor(initialHourlyRate = 20) {
       this.hourlyRate = initialHourlyRate;
     }
@@ -59,17 +51,9 @@
   // Create a calculator instance
   const calculator = new SalaryCalculator();
   
-  // Track which field is currently being edited
-  let editingField = $state(null);
-  
-  // Handle input events
-  function startEditing(field) {
-    editingField = field;
-  }
-  
-  function finishEditing(field, value) {
-    calculator.updateFromField(field, value);
-    editingField = null;
+  // Handle input events - simplified since we update in real-time
+  function handleInput(field, e) {
+    calculator.updateFromField(field, e.target.value);
   }
 </script>
 
@@ -81,9 +65,8 @@
     <input
       type="number"
       id="hourly"
-      value={calculator.hourlyFormatted}
-      onfocus={() => startEditing('hourly')}
-      onblur={(e) => finishEditing('hourly', e.target.value)}
+      value={Math.round(calculator.hourlyRate)}
+      oninput={(e) => handleInput('hourly', e)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -94,9 +77,8 @@
     <input
       type="number"
       id="daily"
-      value={calculator.dailyFormatted}
-      onfocus={() => startEditing('daily')}
-      onblur={(e) => finishEditing('daily', e.target.value)}
+      value={Math.round(calculator.dailyRate)}
+      oninput={(e) => handleInput('daily', e)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -107,9 +89,8 @@
     <input
       type="number"
       id="weekly"
-      value={calculator.weeklyFormatted}
-      onfocus={() => startEditing('weekly')}
-      onblur={(e) => finishEditing('weekly', e.target.value)}
+      value={Math.round(calculator.weeklyRate)}
+      oninput={(e) => handleInput('weekly', e)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -120,9 +101,8 @@
     <input
       type="number"
       id="bi-weekly"
-      value={calculator.biWeeklyFormatted}
-      onfocus={() => startEditing('biWeekly')}
-      onblur={(e) => finishEditing('biWeekly', e.target.value)}
+      value={Math.round(calculator.biWeeklyRate)}
+      oninput={(e) => handleInput('biWeekly', e)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -133,9 +113,8 @@
     <input
       type="number"
       id="monthly"
-      value={calculator.monthlyFormatted}
-      onfocus={() => startEditing('monthly')}
-      onblur={(e) => finishEditing('monthly', e.target.value)}
+      value={Math.round(calculator.monthlyRate)}
+      oninput={(e) => handleInput('monthly', e)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
@@ -146,9 +125,8 @@
     <input
       type="number"
       id="annual"
-      value={calculator.annualFormatted}
-      onfocus={() => startEditing('annual')}
-      onblur={(e) => finishEditing('annual', e.target.value)}
+      value={Math.round(calculator.annualRate)}
+      oninput={(e) => handleInput('annual', e)}
       onkeydown={(e) => e.key === 'Enter' && e.target.blur()}
       step="1"
       class="calculator-input calculator-input-number"
