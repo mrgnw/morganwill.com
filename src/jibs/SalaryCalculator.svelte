@@ -17,8 +17,8 @@
   let eur_to_usd = $state(1.08);
   let usd_to_eur = $state(1 / 1.08);
 
-  // Fetch exchange rate on component mount
-  $effect(async () => {
+  // Fetch exchange rate
+  const fetchExchangeRates = async () => {
     try {
       const response = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');
       const data = await response.json();
@@ -28,8 +28,11 @@
     } catch (error) {
       console.error('Failed to fetch exchange rate', error);
       // Handle error appropriately, e.g., display a message to the user
+      return null; // Indicate failure
     }
-  });
+  };
+
+  let exchangeRatesPromise = fetchExchangeRates();
 
   function convertToEUR() {
     hourlyRate = hourlyRate * usd_to_eur;
@@ -89,10 +92,19 @@
     {/each}
   </div>
 
+  {#await exchangeRatesPromise}
   <div class="currency-converter">
-    <button class="currency-button" onclick={convertToUSD}>&times; {eur_to_usd.toFixed(2)} to $</button>
-    <button class="currency-button" onclick={convertToEUR}>&times; {usd_to_eur.toFixed(2)} to €</button>
+    <button class="currency-button" disabled>&times; $</button>
+    <button class="currency-button" disabled>&times; €</button>
   </div>
+  {:then _}
+    <div class="currency-converter">
+      <button class="currency-button" onclick={convertToUSD}>&times; {eur_to_usd.toFixed(2)} to $</button>
+      <button class="currency-button" onclick={convertToEUR}>&times; {usd_to_eur.toFixed(2)} to €</button>
+    </div>
+  {:catch error}
+    
+  {/await}
 </div>
 
 <style>
@@ -225,6 +237,11 @@
     color: inherit;
     opacity: 1;
     margin-left: 0.4rem;
+  }
+
+  .currency-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .exchange-rates {
