@@ -5,7 +5,7 @@
   const WEEKS_PER_YEAR = 52;
   const BI_WEEKLY_WEEKS = 2;
 
-  let hourlyRate = $state(20);
+  let hourlyRate = $state(70);
 
   let salary = {
     get hourly() {
