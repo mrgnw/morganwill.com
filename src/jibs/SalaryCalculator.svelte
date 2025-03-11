@@ -13,15 +13,17 @@
   const thresholds = { week: 10, month: 20, year: 1000 };
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
 
-  // Exchange rate: 1 USD = 0.93 EUR (approximate)
-  const exchangeRate = 0.93;
+  // Exchange rate: 1 EUR = 1.08 USD (approximate)
+  const exchangeRate = 1.08;
+  const eur_to_usd = 1.08;
+  const usd_to_eur = 1 / 1.08;
 
   function convertToEUR() {
-    hourlyRate = hourlyRate * exchangeRate;
+    hourlyRate = hourlyRate * usd_to_eur;
   }
 
   function convertToUSD() {
-    hourlyRate = hourlyRate / exchangeRate;
+    hourlyRate = hourlyRate * eur_to_usd;
   }
 
   // Enhanced salary object with input handling and auto-scaling built in
@@ -75,12 +77,8 @@
   </div>
 
   <div class="currency-converter">
-    <button class="currency-button" onclick={convertToUSD}>
-      <span class="currency-symbol">$</span><span class="rate">{(1 / exchangeRate).toFixed(2)}</span>
-    </button>
-    <button class="currency-button" onclick={convertToEUR}>
-      <span class="currency-symbol">€</span><span class="rate">{exchangeRate.toFixed(2)}</span>
-    </button>
+    <button class="currency-button" onclick={convertToUSD}>&times; {eur_to_usd.toFixed(2)} to $</button>
+    <button class="currency-button" onclick={convertToEUR}>&times; {usd_to_eur.toFixed(2)} to €</button>
   </div>
 </div>
 
@@ -175,7 +173,7 @@
     flex: 0 0 auto;
     padding: 0.6rem 1.25rem;
     background-color: #f0fdfa; /* Use a very light green */
-    color: #064e3b; /* Use a dark green */
+    color: #333; /* Use a dark gray */
     border: 1px solid #b2f2bb; /* Use a light green border */
     border-radius: 6px;
     font-size: 1.1rem;
@@ -203,21 +201,17 @@
   }
 
   .currency-button .currency-symbol {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-right: 0.4rem;
-    position: relative;
-    z-index: 1; /* Ensure symbol is above the rate */
+    display: none;
   }
 
   .currency-button .rate {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: #064e3b; /* Dark green for the rate */
-    position: absolute;
-    bottom: 4px;
-    right: 6px;
-    opacity: 0.8;
+    position: static;
+    transform: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: inherit;
+    opacity: 1;
+    margin-left: 0.4rem;
   }
 
   .exchange-rates {
