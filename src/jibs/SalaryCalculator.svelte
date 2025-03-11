@@ -28,16 +28,6 @@
   let monthlyRate = $derived(weeklyRate * weeksPerMonth);
   let annualRate = $derived(weeklyRate * weeksPerYear);
 
-  // Update displayed input values when not being edited
-  $effect(() => {
-    if (editingField !== 'hourly') hourlyInput = Math.round(hourlyRate).toString();
-    if (editingField !== 'daily') dailyInput = Math.round(dailyRate).toString();
-    if (editingField !== 'weekly') weeklyInput = Math.round(weeklyRate).toString();
-    if (editingField !== 'biWeekly') biWeeklyInput = Math.round(biWeeklyRate).toString();
-    if (editingField !== 'monthly') monthlyInput = Math.round(monthlyRate).toString();
-    if (editingField !== 'annual') annualInput = Math.round(annualRate).toString();
-  });
-
   // Handle input events
   function startEditing(field) {
     editingField = field;
@@ -66,6 +56,14 @@
           hourlyRate = parsedValue / (hoursPerDay * daysPerWeek * weeksPerYear);
           break;
       }
+
+      // Update input values directly
+      hourlyInput = Math.round(hourlyRate).toString();
+      dailyInput = Math.round(dailyRate).toString();
+      weeklyInput = Math.round(weeklyRate).toString();
+      biWeeklyInput = Math.round(biWeeklyRate).toString();
+      monthlyInput = Math.round(monthlyRate).toString();
+      annualInput = Math.round(annualRate).toString();
     }
     editingField = null;
   }
