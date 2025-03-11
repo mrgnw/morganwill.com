@@ -18,12 +18,10 @@
 
   function convertToEUR() {
     hourlyRate = hourlyRate * exchangeRate;
-    // currencySymbol = '€';
   }
 
   function convertToUSD() {
     hourlyRate = hourlyRate / exchangeRate;
-    // currencySymbol = '$';
   }
 
   // Enhanced salary object with input handling and auto-scaling built in
@@ -77,8 +75,12 @@
   </div>
 
   <div class="currency-converter">
-    <button class="currency-button" onclick={convertToUSD}> ▸ $</button>
-    <button class="currency-button" onclick={convertToEUR}> ▸ €</button>
+    <button class="currency-button" onclick={convertToUSD}>
+      $ <span class="rate">{(1 / exchangeRate).toFixed(2)}x</span>
+    </button>
+    <button class="currency-button" onclick={convertToEUR}>
+      € <span class="rate">{exchangeRate.toFixed(2)}x</span>
+    </button>
   </div>
 </div>
 
@@ -185,6 +187,23 @@
     align-items: center;
     justify-content: center;
     min-width: 80px;
+    position: relative; /* Add relative positioning */
+  }
+
+  .currency-button .rate {
+    font-size: 0.7rem;
+    font-weight: normal;
+    color: #777;
+    position: absolute;
+    top: 2px;
+    right: 6px;
+  }
+
+  .exchange-rates {
+    font-size: 0.75rem;
+    color: #777;
+    text-align: center;
+    margin-top: 0.5rem;
   }
 
   :global(input[type="number"]) {
