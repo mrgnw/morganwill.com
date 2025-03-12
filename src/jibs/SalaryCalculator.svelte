@@ -1,7 +1,7 @@
 <script>
-  import { fade } from 'svelte/transition';
+  import { fade } from "svelte/transition";
   let hourlyRate = $state(70);
-//   let currencySymbol = $state('$'); // Default to USD
+  //   let currencySymbol = $state('$'); // Default to USD
 
   const timeUnits = {
     hour: 1,
@@ -21,13 +21,15 @@
   // Fetch exchange rate
   const fetchExchangeRates = async () => {
     try {
-      const response = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');
+      const response = await fetch(
+        "https://api.frankfurter.app/latest?from=EUR&to=USD"
+      );
       const data = await response.json();
       eur_to_usd = data.rates.USD;
       usd_to_eur = 1 / data.rates.USD;
       exchangeRate = data.rates.USD;
     } catch (error) {
-      console.error('Failed to fetch exchange rate', error);
+      console.error("Failed to fetch exchange rate", error);
       // Handle error appropriately, e.g., display a message to the user
       return null; // Indicate failure
     }
@@ -35,13 +37,8 @@
 
   let exchangeRatesPromise = fetchExchangeRates();
 
-  function convertToEUR() {
-    hourlyRate = hourlyRate * usd_to_eur;
-  }
-
-  function convertToUSD() {
-    hourlyRate = hourlyRate * eur_to_usd;
-  }
+  function convertToEUR() { hourlyRate = hourlyRate * usd_to_eur; }
+  function convertToUSD() { hourlyRate = hourlyRate * eur_to_usd; }
 
   // Enhanced salary object with input handling and auto-scaling built in
   const salary = Object.fromEntries(
@@ -73,7 +70,6 @@
   <div class="grid">
     {#each Object.entries(salary) as [unit, handlers]}
       <div class="input-group">
-
         <div class="input-container">
           <input
             type="number"
@@ -94,17 +90,19 @@
   </div>
 
   {#await exchangeRatesPromise}
-  <div class="currency-converter">
-    <button class="currency-button" disabled>&times; $</button>
-    <button class="currency-button" disabled>&times; €</button>
-  </div>
+    <div class="currency-converter">
+      <button class="currency-button" disabled>&times; $</button>
+      <button class="currency-button" disabled>&times; €</button>
+    </div>
   {:then _}
     <div class="currency-converter" transition:fade>
-      <button class="currency-button" onclick={convertToUSD}>&times; {eur_to_usd.toFixed(2)} to $</button>
-      <button class="currency-button" onclick={convertToEUR}>&times; {usd_to_eur.toFixed(2)} to €</button>
+      <button class="currency-button" onclick={convertToUSD}
+        >&times; {eur_to_usd.toFixed(2)} to $</button
+      >
+      <button class="currency-button" onclick={convertToEUR}
+        >&times; {usd_to_eur.toFixed(2)} to €</button
+      >
     </div>
-  {:catch error}
-    
   {/await}
 </div>
 
@@ -269,7 +267,7 @@
     .input-group {
       justify-content: flex-end;
     }
-    
+
     .currency-converter {
       flex-direction: row;
       justify-content: center;
