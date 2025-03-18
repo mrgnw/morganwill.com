@@ -272,19 +272,13 @@
   .content-layout {
     display: flex;
     gap: 2rem;
-    align-items: stretch;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    background-color: white;
+    align-items: flex-start;
   }
 
   .sidebar {
-    width: 180px;
+    width: 170px;
     flex-shrink: 0;
-    background-color: #f8fafc;
-    padding: 1rem;
-    border-right: 1px solid #e5e7eb;
+    padding: 0;
   }
 
   .main-content {
@@ -293,11 +287,14 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .sidebar h2 {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
     text-align: center;
     color: #1e40af;
     font-weight: 600;
@@ -315,12 +312,12 @@
   }
 
   .unit-item {
-    padding: 14px 16px;
+    padding: 12px;
     border-bottom: 1px solid #e5e7eb;
     cursor: pointer;
     transition: all 0.25s ease;
     user-select: none;
-    font-size: 1rem;
+    font-size: 0.95rem;
     position: relative;
     display: flex;
     align-items: center;
@@ -354,8 +351,8 @@
   }
 
   .checkmark {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     fill: white;
     opacity: 0;
     transform: scale(0);
@@ -500,13 +497,11 @@
   @media (max-width: 640px) {
     .content-layout {
       flex-direction: column;
-      border-radius: 8px;
+      gap: 1rem;
     }
     
     .sidebar {
       width: 100%;
-      border-right: none;
-      border-bottom: 1px solid #e5e7eb;
     }
     
     .unit-selector-sidebar {
