@@ -3,9 +3,12 @@
   let hourlyRate = $state(70);
   let selected_units = $state(['hour', 'day', 'week', 'month', 'year']); // Default selection
 
+  // Define units in order from smallest to largest for range selection
+  const orderedUnitKeys = ['second', 'minute', 'hour', 'day', 'week', 'biweekly', 'month', 'year'];
+  
   const timeUnits = {
-    second: 1 / 3600, // 1/3600 of an hour
-    minute: 1 / 60,   // 1/60 of an hour
+    second: 1 / 3600,
+    minute: 1 / 60,
     hour: 1,
     day: 8,
     week: 8 * 5,
@@ -16,6 +19,13 @@
   const thresholds = { week: 10, month: 20, year: 1000 };
   const onkeydown = (e) => e.key === "Enter" && e.target.blur();
 
+  // Unit selection state
+  let isDragging = $state(false);
+  let dragStart = $state(null);
+  let dragEnd = $state(null);
+  let hasMoved = $state(false);  // Track if mouse has moved during drag
+  let shiftClickAnchor = $state(null);
+
   function toggleUnit(unit) {
     if (selected_units.includes(unit)) {
       // Remove the unit if it's already selected, but prevent removing all units
@@ -25,6 +35,100 @@
     } else {
       // Add the unit if it's not selected
       selected_units = [...selected_units, unit];
+    }
+  }
+
+  function toggleRange(startIndex, endIndex) {
+    const start = Math.min(startIndex, endIndex);
+    const end = Math.max(startIndex, endIndex);
+    const unitsInRange = orderedUnitKeys.slice(start, end + 1);
+    
+    // Check if all units in range are already selected
+    const allSelected = unitsInRange.every(unit => selected_units.includes(unit));
+    
+    if (allSelected) {
+      // If all selected, deselect them (but prevent removing all units)
+      const remainingUnits = selected_units.filter(unit => !unitsInRange.includes(unit));
+      if (remainingUnits.length > 0) {
+        selected_units = remainingUnits;
+      }
+    } else {
+      // If not all selected, select all in range
+      const newSelected = [...new Set([...selected_units, ...unitsInRange])];
+      selected_units = newSelected;
+    }
+  }
+
+  function handleUnitClick(e, index) {
+    // Only handle click if we weren't dragging
+    if (!hasMoved) {
+      if (e.shiftKey && shiftClickAnchor !== null) {
+        // Shift+click functionality
+        toggleRange(shiftClickAnchor, index);
+        shiftClickAnchor = null;
+      } else {
+        // Normal click functionality
+        toggleUnit(orderedUnitKeys[index]);
+        shiftClickAnchor = index;
+      }
+    }
+  }
+
+  function handleMouseDown(e, index) {
+    if (e.button === 0) { // Only for left clicks
+      isDragging = true;
+      hasMoved = false; // Reset movement tracking
+      dragStart = index;
+      dragEnd = index;
+    }
+  }
+
+  function handleMouseMove(index) {
+    if (isDragging && dragEnd !== index) {
+      hasMoved = true;
+      dragEnd = index;
+    }
+  }
+
+  function handleMouseUp() {
+    if (isDragging) {
+      if (hasMoved) {
+        toggleRange(dragStart, dragEnd);
+      }
+      isDragging = false;
+      hasMoved = false;
+    }
+  }
+
+  function handleTouchStart(e, index) {
+    isDragging = true;
+    hasMoved = false;
+    dragStart = index;
+    dragEnd = index;
+  }
+
+  function handleTouchMove(e) {
+    if (isDragging) {
+      const touch = e.touches[0];
+      const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+      const unitItem = elements.find(el => el.classList.contains('unit-item'));
+      if (unitItem) {
+        const index = Array.from(unitItem.parentElement.children).indexOf(unitItem);
+        if (index !== -1 && dragEnd !== index) {
+          hasMoved = true;
+          dragEnd = index;
+        }
+      }
+    }
+  }
+
+  function handleTouchEnd() {
+    if (isDragging) {
+      if (hasMoved) {
+        toggleRange(dragStart, dragEnd);
+      }
+      isDragging = false;
+      hasMoved = false;
     }
   }
 
@@ -81,114 +185,169 @@
 <div class="container">
   <h1 class="title">Rate Converter</h1>
 
-  <div class="unit-selector">
-    <h2>Select Units</h2>
-    <div class="unit-buttons">
-      {#each Object.keys(timeUnits) as unit}
-        <button 
-          class="unit-button" 
-          class:active={selected_units.includes(unit)} 
-          onclick={() => toggleUnit(unit)}
-        >
-          {unit === "biweekly" ? "2 weeks" : unit}
-        </button>
-      {/each}
-    </div>
-  </div>
-
-  <div class="grid">
-    {#each Object.entries(salary).filter(([unit, _]) => selected_units.includes(unit)) as [unit, handlers]}
-      <div class="input-group">
-        <div class="input-container">
-          <input
-            type="number"
-            id={unit}
-            value={Math.round(handlers.get())}
-            oninput={handlers.set}
-            onblur={handlers.onblur}
-            {onkeydown}
-            step="1"
-            class="input input-number"
-          />
-        </div>
-        <label for={unit} class="label">
-          / {unit === "biweekly" ? "2 weeks" : unit}
-        </label>
+  <div class="content-layout">
+    <!-- Vertical Unit Selector Sidebar -->
+    <div class="sidebar">
+      <h2>Select Units</h2>
+      <div class="unit-selector-sidebar">
+        {#each orderedUnitKeys as unit, i}
+          <div 
+            class="unit-item {selected_units.includes(unit) ? 'active' : ''} {isDragging && i >= Math.min(dragStart, dragEnd) && i <= Math.max(dragStart, dragEnd) ? 'dragging' : ''}"
+            onmousedown={(e) => handleMouseDown(e, i)}
+            onmousemove={() => handleMouseMove(i)}
+            onmouseup={() => handleMouseUp()}
+            onclick={(e) => handleUnitClick(e, i)}
+            ontouchstart={(e) => handleTouchStart(e, i)}
+            ontouchmove={(e) => handleTouchMove(e)}
+            ontouchend={() => handleTouchEnd()}
+          >
+            {unit === "biweekly" ? "2 weeks" : unit}
+          </div>
+        {/each}
       </div>
-    {/each}
-  </div>
+      
+      <div class="selection-help">
+        <p>Click to toggle units, or:</p>
+        <ul>
+          <li>Click and drag to select multiple units</li>
+          <li>Click one unit, then Shift+click another to select a range</li>
+        </ul>
+      </div>
+    </div>
 
-  {#await exchangeRatesPromise}
-    <div class="currency-converter">
-      <button class="currency-button" disabled>&times; $</button>
-      <button class="currency-button" disabled>&times; €</button>
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <div class="grid">
+        {#each Object.entries(salary).filter(([unit, _]) => selected_units.includes(unit)) as [unit, handlers]}
+          <div class="input-group">
+            <div class="input-container">
+              <input
+                type="number"
+                id={unit}
+                value={Math.round(handlers.get())}
+                oninput={handlers.set}
+                onblur={handlers.onblur}
+                {onkeydown}
+                step="1"
+                class="input input-number"
+              />
+            </div>
+            <label for={unit} class="label">
+              / {unit === "biweekly" ? "2 weeks" : unit}
+            </label>
+          </div>
+        {/each}
+      </div>
+
+      {#await exchangeRatesPromise}
+        <div class="currency-converter">
+          <button class="currency-button" disabled>&times; $</button>
+          <button class="currency-button" disabled>&times; €</button>
+        </div>
+      {:then _}
+        <div class="currency-converter" transition:fade>
+          <button class="currency-button" onclick={convertToUSD}
+            >&times; {eur_to_usd.toFixed(2)} to $</button
+          >
+          <button class="currency-button" onclick={convertToEUR}
+            >&times; {usd_to_eur.toFixed(2)} to €</button
+          >
+        </div>
+      {/await}
     </div>
-  {:then _}
-    <div class="currency-converter" transition:fade>
-      <button class="currency-button" onclick={convertToUSD}
-        >&times; {eur_to_usd.toFixed(2)} to $</button
-      >
-      <button class="currency-button" onclick={convertToEUR}
-        >&times; {usd_to_eur.toFixed(2)} to €</button
-      >
-    </div>
-  {/await}
+  </div>
 </div>
 
 <style>
   .container {
-    max-width: 400px;
+    max-width: 650px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1.5rem;
   }
 
   .title {
     font-size: 2rem;
     font-weight: 700;
     text-align: center;
+    margin-bottom: 1.5rem;
   }
 
-  .unit-selector {
-    margin: 1rem 0 2rem;
+  .content-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
   }
 
-  .unit-selector h2 {
+  .sidebar {
+    width: 180px;
+    flex-shrink: 0;
+  }
+
+  .main-content {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  .sidebar h2 {
     font-size: 1.25rem;
     margin-bottom: 0.5rem;
     text-align: center;
   }
 
-  .unit-buttons {
+  /* Vertical Unit Selector Sidebar */
+  .unit-selector-sidebar {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-  }
-
-  .unit-button {
-    padding: 0.4rem 0.75rem;
-    border-radius: 4px;
-    background-color: #f3f4f6;
+    flex-direction: column;
+    background-color: #f9fafb;
+    border-radius: 8px;
     border: 1px solid #e5e7eb;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
   }
 
-  .unit-button.active {
+  .unit-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    font-size: 1rem;
+  }
+
+  .unit-item:last-child {
+    border-bottom: none;
+  }
+
+  .unit-item.active {
     background-color: #2563eb;
     color: white;
-    border-color: #2563eb;
   }
 
-  .unit-button:hover {
-    background-color: #e5e7eb;
-    border-color: #d1d5db;
+  .unit-item.dragging:not(.active) {
+    background-color: #dbeafe;
   }
 
-  .unit-button.active:hover {
-    background-color: #1d4ed8;
-    border-color: #1d4ed8;
+  .unit-item:hover:not(.active):not(.dragging) {
+    background-color: #f3f4f6;
+  }
+
+  .selection-help {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: left;
+  }
+
+  .selection-help p {
+    margin-bottom: 0.25rem;
+  }
+
+  .selection-help ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .selection-help li {
+    margin-bottom: 0.25rem;
   }
 
   .grid {
@@ -203,14 +362,7 @@
     align-items: center;
     width: 100%;
     max-width: 220px;
-    margin: 0 auto;
-  }
-
-  .currency-symbol {
-    font-size: 1.25rem;
-    margin-right: 0.25rem;
-    width: 1em;
-    text-align: center;
+    margin: 0 auto 0.5rem;
   }
 
   .input-container {
@@ -261,7 +413,7 @@
   .currency-converter {
     display: flex;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     gap: 0.75rem;
   }
 
@@ -296,30 +448,9 @@
     background-color: #a7f3d0; /* Even darker green on active */
   }
 
-  .currency-button .currency-symbol {
-    display: none;
-  }
-
-  .currency-button .rate {
-    position: static;
-    transform: none;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: inherit;
-    opacity: 1;
-    margin-left: 0.4rem;
-  }
-
   .currency-button:disabled {
     opacity: 0;
     cursor: not-allowed;
-  }
-
-  .exchange-rates {
-    font-size: 0.75rem;
-    color: #777;
-    text-align: center;
-    margin-top: 0.5rem;
   }
 
   :global(input[type="number"]) {
@@ -336,6 +467,19 @@
 
   /* Mobile responsive adjustments */
   @media (max-width: 640px) {
+    .content-layout {
+      flex-direction: column;
+    }
+    
+    .sidebar {
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    
+    .unit-selector-sidebar {
+      max-width: none;
+    }
+    
     .input-group {
       justify-content: flex-end;
     }
