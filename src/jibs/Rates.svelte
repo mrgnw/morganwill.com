@@ -201,17 +201,14 @@
             ontouchmove={(e) => handleTouchMove(e)}
             ontouchend={() => handleTouchEnd()}
           >
-            {unit === "biweekly" ? "2 weeks" : unit}
+            <span>{unit === "biweekly" ? "2 weeks" : unit}</span>
+            {#if selected_units.includes(unit)}
+              <svg class="checkmark" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+              </svg>
+            {/if}
           </div>
         {/each}
-      </div>
-      
-      <div class="selection-help">
-        <p>Click to toggle units, or:</p>
-        <ul>
-          <li>Click and drag to select multiple units</li>
-          <li>Click one unit, then Shift+click another to select a range</li>
-        </ul>
       </div>
     </div>
 
@@ -274,44 +271,66 @@
 
   .content-layout {
     display: flex;
-    gap: 1.5rem;
-    align-items: flex-start;
+    gap: 2rem;
+    align-items: stretch;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: white;
   }
 
   .sidebar {
     width: 180px;
     flex-shrink: 0;
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-right: 1px solid #e5e7eb;
   }
 
   .main-content {
     flex-grow: 1;
     min-width: 0;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
   }
 
   .sidebar h2 {
     font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     text-align: center;
+    color: #1e40af;
+    font-weight: 600;
   }
 
   /* Vertical Unit Selector Sidebar */
   .unit-selector-sidebar {
     display: flex;
     flex-direction: column;
-    background-color: #f9fafb;
-    border-radius: 8px;
+    background-color: white;
+    border-radius: 10px;
     border: 1px solid #e5e7eb;
-    margin-bottom: 0.5rem;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
   .unit-item {
-    padding: 12px 16px;
+    padding: 14px 16px;
     border-bottom: 1px solid #e5e7eb;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     user-select: none;
     font-size: 1rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .unit-item span {
+    flex-grow: 1;
+    text-align: center;
   }
 
   .unit-item:last-child {
@@ -319,41 +338,41 @@
   }
 
   .unit-item.active {
-    background-color: #2563eb;
+    background-color: #3b82f6;
     color: white;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .unit-item.dragging:not(.active) {
-    background-color: #dbeafe;
+    background-color: #eff6ff;
+    border-left: 3px solid #3b82f6;
   }
 
   .unit-item:hover:not(.active):not(.dragging) {
-    background-color: #f3f4f6;
+    background-color: #f8fafc;
+    transform: translateX(2px);
   }
 
-  .selection-help {
-    font-size: 0.875rem;
-    color: #6b7280;
-    text-align: left;
+  .checkmark {
+    width: 18px;
+    height: 18px;
+    fill: white;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s ease;
   }
 
-  .selection-help p {
-    margin-bottom: 0.25rem;
-  }
-
-  .selection-help ul {
-    margin: 0;
-    padding-left: 1.25rem;
-  }
-
-  .selection-help li {
-    margin-bottom: 0.25rem;
+  .unit-item.active .checkmark {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .grid {
     display: flex;
     flex-direction: column;
     width: 100%;
+    flex-grow: 1;
+    margin-bottom: 1rem;
   }
 
   .input-group {
@@ -361,12 +380,21 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
-    max-width: 220px;
-    margin: 0 auto 0.5rem;
+    max-width: 280px;
+    margin: 0 auto 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .input-group:hover {
+    background-color: #f1f5f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
   .input-container {
-    width: 6em;
+    width: 7em;
     display: flex;
     justify-content: flex-end;
   }
@@ -376,33 +404,34 @@
       monospace;
     font-size: 1.5rem;
     font-weight: 300;
-    padding: 0.4rem 0;
+    padding: 0.5rem 0;
     text-align: right;
     background: transparent;
     border: none;
     border-bottom: 2px solid #e5e7eb;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     width: 100%;
     border-radius: 0;
   }
 
   .input-number {
     text-align: right;
+    color: #1e40af;
   }
 
   .input:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: none;
+    border-color: #3b82f6;
+    box-shadow: 0 2px 0 rgba(59, 130, 246, 0.2);
     background: transparent;
   }
 
   .label {
     font-size: 1.125rem;
-    font-weight: 300;
+    font-weight: 400;
     color: #4b5563;
     white-space: nowrap;
-    margin-left: 4px;
+    margin-left: 8px;
     text-align: left;
     width: 80px;
     display: inline-block;
@@ -413,39 +442,41 @@
   .currency-converter {
     display: flex;
     justify-content: center;
-    margin-top: 1.5rem;
-    gap: 0.75rem;
+    margin-top: 1rem;
+    gap: 1rem;
   }
 
   .currency-button {
     flex: 0 0 auto;
-    padding: 0.6rem 1.25rem;
+    padding: 0.75rem 1.5rem;
     background-color: #f0fdfa; /* Use a very light green */
-    color: #333; /* Use a dark gray */
-    border: 1px solid #b2f2bb; /* Use a light green border */
-    border-radius: 6px;
+    color: #0f766e; /* Darker teal color */
+    border: 1px solid #99f6e4; /* Use a light teal border */
+    border-radius: 8px;
     font-size: 1.1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 80px;
+    min-width: 120px;
     position: relative;
     overflow: hidden; /* Ensure content stays within the button */
   }
 
   .currency-button:hover {
-    background-color: #d1fae5; /* Slightly darker green on hover */
-    border-color: #6ee7b7;
-    transform: translateY(-1px);
+    background-color: #ccfbf1; /* Slightly darker green on hover */
+    border-color: #5eead4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
   .currency-button:active {
     transform: translateY(0);
-    background-color: #a7f3d0; /* Even darker green on active */
+    background-color: #99f6e4; /* Even darker green on active */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   .currency-button:disabled {
@@ -469,21 +500,23 @@
   @media (max-width: 640px) {
     .content-layout {
       flex-direction: column;
+      border-radius: 8px;
     }
     
     .sidebar {
       width: 100%;
-      margin-bottom: 1.5rem;
+      border-right: none;
+      border-bottom: 1px solid #e5e7eb;
     }
     
     .unit-selector-sidebar {
       max-width: none;
     }
-    
-    .input-group {
-      justify-content: flex-end;
-    }
 
+    .input-group {
+      max-width: 100%;
+    }
+    
     .currency-converter {
       flex-direction: row;
       justify-content: center;
