@@ -64,6 +64,7 @@
 		"postico",
 		"postman",
 		"sublime-text",
+		"git-delta",
 
 		// File management
 		"cyberduck",
@@ -128,15 +129,15 @@
 			installer: "bun",
 			install: "curl -fsSL https://bun.sh/install | bash"
 		})),
-		...uv_tools.map((name) => ({ 
-			name, 
+		...uv_tools.map((name) => ({
+			name,
 			installer: "uv",
 			install: "curl -LsSf https://astral.sh/uv/install.sh | sh"
 		})),
-		...brews.map((name) => ({ 
-			name, 
+		...brews.map((name) => ({
+			name,
 			installer: "homebrew",
-			install: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` 
+			install: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 		})),
 		...appstore_packages.map((pkg) => ({
 			name: pkg.name,
