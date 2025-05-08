@@ -11,6 +11,7 @@
 	import TablerFileCv from '~icons/tabler/file-cv'
 	import IconoirBookStack from "~icons/iconoir/book-stack";
 	import PhBookmarkSimpleBold from "~icons/ph/bookmark-simple-bold";
+	import RiInstagramLine from "~icons/ri/instagram-line"; // <-- add this line
 
 	let hostname = $state("");
 	let links = $state([]);
@@ -18,7 +19,7 @@
 	let { data } = $props();
 	let all_links = data.all_links;
 	let link_icons = {
-		photos: PhPanorama,
+		photos: RiInstagramLine, // <-- update to use Instagram icon
 		LinkedIn: JamLinkedinCircle,
 		github: IconoirGithubCircle,
 		bluesky: RiBlueskyLine,
