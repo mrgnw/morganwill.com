@@ -4,7 +4,7 @@ const all_links = [
 	{
 		title: 'photos',
 		alias: 'photo',
-		url: 'https://instagram.com/morganw',
+		url: 'https://instagram.com/zenfo.co',
 		shortUrl: 'https://a.xcc.es/photos',
 		blurb: 'Instagram photo portfolio',
 	},
