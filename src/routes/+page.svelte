@@ -92,7 +92,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta
 		name="description"
-		content="Contact Morgan or view his other work on 500px, LinkedIn, or Github"
+		content="Contact Morgan or view his other work on instagram, LinkedIn, or Github"
 	/>
 </svelte:head>
 

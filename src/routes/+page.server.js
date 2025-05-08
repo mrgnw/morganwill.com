@@ -4,9 +4,9 @@ const all_links = [
 	{
 		title: 'photos',
 		alias: 'photo',
-		url: 'https://500px.com/p/morganw?view=licensing',
+		url: 'https://instagram.com/morganw',
 		shortUrl: 'https://a.xcc.es/photos',
-		blurb: '500px photo portfolio',
+		blurb: 'Instagram photo portfolio',
 	},
 	{
 		title: 'LinkedIn',
