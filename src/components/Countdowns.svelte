@@ -61,8 +61,8 @@
 			<span class="label">{timer.label ?? ""}</span>
 			<span class="days {timer.countingUp ? 'up' : 'down'}">{timer.days}</span>
 			<span class="time">{pad(timer.hours)}</span>
-			<span class="seconds">{pad(timer.minutes)}</span>
-			<span class="seconds">{pad(timer.seconds)}</span>
+			<span class="time-sm">{pad(timer.minutes)}</span>
+			<span class="time-sm">{pad(timer.seconds)}</span>
 		</div>
 	{/each}
 </div>
@@ -142,7 +142,7 @@
 		min-width: 2.1em;
 		text-align: right;
 	}
-	.seconds {
+	.time-sm {
 		font-size: 1em;
 		color: #bbb;
 		font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
