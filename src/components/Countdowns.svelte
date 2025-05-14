@@ -1,88 +1,153 @@
 <script>
-	let { countdowns } = $props();
-	
-	let timeStates = $state(countdowns.map(() => ({ days: 0, hours: 0, minutes: 0, seconds: 0 })));
+	let { dates = [] } = $props();
 
-	let uniqueValues = $derived({
-		hours: new Set(timeStates.map(s => s.hours)).size === 1 ? timeStates[0].hours : null,
-		minutes: new Set(timeStates.map(s => s.minutes)).size === 1 ? timeStates[0].minutes : null,
-		seconds: new Set(timeStates.map(s => s.seconds)).size === 1 ? timeStates[0].seconds : null
-	});
+	// Normalize input to [{ date: Date, label?: string }]
+	function normalizeDate(item) {
+		if (typeof item === "string" || item instanceof Date) {
+			return { date: new Date(item) };
+		}
+		if (item && item.date) {
+			return { date: new Date(item.date), label: item.label };
+		}
+		return null;
+	}
 
-	function updateCountdown() {
+	let normalized = $derived.by(() => Array.isArray(dates) ? dates.map(normalizeDate).filter(Boolean) : []);
+
+	function getTimeParts(targetDate) {
 		const now = new Date().getTime();
-		timeStates = countdowns.map(({ date }) => {
-			const distance = date - now;
-			
-			if (distance < 0) {
-				return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-			}
+		const countingUp = now > targetDate.getTime();
+		const distance = Math.abs(targetDate.getTime() - now);
 
-			return {
-				days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-				hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-				minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-				seconds: Math.floor((distance % (1000 * 60)) / 1000)
-			};
+		const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+		const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+		const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+		// Add formatted date string for tooltip
+		const dateString = targetDate.toLocaleDateString(undefined, {
+			month: "long",
+			day: "numeric",
+			year: "numeric"
+		});
+
+		return { days, hours, minutes, seconds, countingUp, dateString };
+	}
+
+	let timers = $state([]);
+
+	function updateTimers() {
+		timers = normalized.map(({ date, label }) => {
+			const t = getTimeParts(date);
+			return { ...t, label };
 		});
 	}
 
 	let intervalId;
-
 	$effect(() => {
-		updateCountdown();
-		intervalId = setInterval(updateCountdown, 1000);
+		updateTimers();
+		intervalId = setInterval(updateTimers, 1000);
 		return () => clearInterval(intervalId);
 	});
 
-	function padNumber(num) {
-		return num.toString().padStart(2, '0');
+	function pad(num) {
+		return num.toString().padStart(2, "0");
 	}
 </script>
 
+<div class="countdowns-list">
+	{#each timers as timer}
+		<div class="countdown-row" title={timer.dateString}>
+			<span class="label">{timer.label ?? ""}</span>
+			<span class="days {timer.countingUp ? 'up' : 'down'}">{timer.days}</span>
+			<span class="time">{pad(timer.hours)}</span>
+			<span class="time">{pad(timer.minutes)}</span>
+			<span class="seconds">{pad(timer.seconds)}</span>
+		</div>
+	{/each}
+</div>
+
 <style>
-	.text-primary {
-		color: #FF3E00;
+	.countdowns-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.1em; /* reduced vertical gap */
+		font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
+		font-size: 1.25em; /* bigger font */
+	}
+
+	.countdown-header {
+		display: flex;
+		align-items: baseline;
+		gap: 0.7em;
+		padding: 0.3em 0.5em;
+		font-size: 1em;
+		font-weight: 600;
+		color: #aaa;
+		letter-spacing: 0.04em;
+	}
+
+	.label-header {
+		min-width: 6em;
+		text-align: right;
+		margin-right: 0.5em;
+	}
+
+	.days-header, .time-header {
+		min-width: 3.2em;
+		text-align: right;
+	}
+
+	.countdown-row {
+		display: flex;
+		align-items: baseline;
+		gap: 0.05em; /* much smaller horizontal gap */
+		padding: 0.15em 0.5em; /* reduced vertical padding */
+		border-radius: 0.5em;
+		transition: background 0.2s;
+	}
+
+	.label {
+		min-width: 6em;
+		color: #888;
+		font-size: 1em;
+		font-weight: 500;
+		letter-spacing: 0.02em;
+		margin-right: 0.05em; /* minimal margin */
+		text-align: right;
+	}
+
+	.days {
+		font-size: 2.7em; /* bigger font */
+		font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace; /* ensure monospace */
+		font-weight: bold;
+		letter-spacing: 0.03em;
+		width: 3.2em; /* fixed width for alignment */
+		min-width: 3.2em;
+		max-width: 3.2em;
+		text-align: right;
+		transition: color 0.2s;
+		box-sizing: border-box;
+	}
+	.days.down {
+		color: #ff3e00;
+	}
+	.days.up {
+		color: #007aff;
+	}
+	.time {
+		font-size: 1.4em;
+		font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
+		font-weight: 500;
+		min-width: 2.1em;
+		text-align: right;
+	}
+	.seconds {
+		font-size: 1em;
+		color: #bbb;
+		font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
+		font-weight: 400;
+		min-width: 2.1em;
+		text-align: right;
 	}
 </style>
-
-<div class="bg-white p-8 rounded-2xl shadow-md border border-gray-200 max-w-2xl">
-	<div class="grid grid-cols-[auto_repeat(4,1fr)] gap-x-8 gap-y-4">
-		<!-- Days column -->
-		<div class="grid grid-rows-2 gap-4">
-			{#each countdowns as countdown, i}
-				<div class="font-medium text-gray-700">
-					{countdown.label}
-				</div>
-			{/each}
-		</div>
-		<div class="grid grid-rows-2 gap-4">
-			{#each countdowns as countdown, i}
-				<div class="text-center text-7xl {timeStates[i].days === 0 ? 'font-thin' : 'font-bold'} text-primary{timeStates[i].days === 0 ? '/40' : ''}">
-					{timeStates[i].days === 0 ? '⋅' : timeStates[i].days}
-				</div>
-			{/each}
-		</div>
-
-		<!-- Hours -->
-		<div class="grid items-center h-full">
-			<div class="text-center text-6xl {uniqueValues.hours === 0 ? 'font-thin' : 'font-semibold'} text-primary{uniqueValues.hours === 0 ? '/40' : '/80'}">
-				{uniqueValues.hours === 0 ? '⋅' : padNumber(uniqueValues.hours)}
-			</div>
-		</div>
-
-		<!-- Minutes -->
-		<div class="grid items-center h-full">
-			<div class="text-center text-5xl {uniqueValues.minutes === 0 ? 'font-thin' : 'font-medium'} text-primary{uniqueValues.minutes === 0 ? '/40' : '/60'}">
-				{uniqueValues.minutes === 0 ? '⋅' : padNumber(uniqueValues.minutes)}
-			</div>
-		</div>
-
-		<!-- Seconds -->
-		<div class="grid items-center h-full">
-			<div class="text-center text-4xl font-thin text-primary/40">
-				{uniqueValues.seconds === 0 ? '⋅' : padNumber(uniqueValues.seconds)}
-			</div>
-		</div>
-	</div>
-</div>
