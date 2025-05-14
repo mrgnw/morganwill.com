@@ -61,7 +61,7 @@
 			<span class="label">{timer.label ?? ""}</span>
 			<span class="days {timer.countingUp ? 'up' : 'down'}">{timer.days}</span>
 			<span class="time">{pad(timer.hours)}</span>
-			<span class="time">{pad(timer.minutes)}</span>
+			<span class="seconds">{pad(timer.minutes)}</span>
 			<span class="seconds">{pad(timer.seconds)}</span>
 		</div>
 	{/each}
