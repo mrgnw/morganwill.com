@@ -43,42 +43,65 @@
     })
   );
 
-  // List of timestamps (each: { unixTime, ms, date })
-  let times = $state([]);
+  // DateRow class encapsulates all formatting and logic for a timestamp row
+  class DateRow {
+    constructor(raw) {
+      this.raw = raw;
+      this.num = Number(raw);
+      // Accept ms or s: if > 1e12 treat as ms, else s
+      this.ms = this.num > 1e12 || (this.num > 1e10 && this.num < 1e13) ? this.num : this.num * 1000;
+      this.unixTime = Math.floor(this.ms / 1000);
+      this.date = new Date(this.ms);
+      this.twelveHour = false;
+    }
+    get headAndZeros() {
+      const str = this.ms > 1e12 ? String(this.ms) : String(this.unixTime);
+      let match = str.match(/^(.*?)(0{3,})$/);
+      if (match) return [match[1], match[2]];
+      return [str, ""];
+    }
+    get year() { return this.date.getFullYear(); }
+    get month() { return String(this.date.getMonth() + 1).padStart(2, '0'); }
+    get day() { return String(this.date.getDate()).padStart(2, '0'); }
+    get hour24() { return String(this.date.getHours()).padStart(2, '0'); }
+    get minute() { return String(this.date.getMinutes()).padStart(2, '0'); }
+    get second() { return String(this.date.getSeconds()).padStart(2, '0'); }
+    get hour12() {
+      let h = this.date.getHours();
+      return String((h % 12) || 12).padStart(2, '0');
+    }
+    get ampm() { return this.date.getHours() < 12 ? "AM" : "PM"; }
+    get weekdayShort() { return this.date.toLocaleString('en-US', { weekday: 'short' }); }
+  }
 
-  // Track which timestamp is selected for the big display
-  let selectedIdx = $state(0);
+  // List of DateRow objects
+  let times = $state([]);
 
   // Add a new timestamp to the list, dedup by ms
   function addTime(raw) {
-    let num = Number(raw);
-    if (!Number.isFinite(num)) return;
-    // Accept ms or s: if > 1e12 treat as ms, else s
-    let ms = num > 1e12 || (num > 1e10 && num < 1e13) ? num : num * 1000;
-    // Only add if not already present
-    if (!times.some(t => t.ms === ms)) {
-      times = [{ unixTime: Math.floor(ms / 1000), ms, date: new Date(ms) }, ...times];
+    let row = new DateRow(raw);
+    if (!Number.isFinite(row.num)) return;
+    if (!times.some(t => t.ms === row.ms)) {
+      times = [row, ...times];
     }
-    // Always update the main input to the latest
-    unixTime = Math.floor(ms / 1000);
+    unixTime = row.unixTime;
   }
 
   function setCurrentTime() {
     addTime(Math.floor(Date.now() / 1000));
   }
 
-  // When a row is clicked, set selectedIdx and update unixTime
-  function selectTime(idx) {
-    selectedIdx = idx;
-    unixTime = times[idx]?.unixTime ?? unixTime;
+  // Toggle 12h/24h for a row
+  function toggleHourMode(row) {
+    row.twelveHour = !row.twelveHour;
+    // force reactivity
+    times = [...times];
   }
 
-  // When a new time is added, always select it
-  $effect(() => {
-    if (times.length && selectedIdx !== 0) {
-      selectedIdx = 0;
-    }
-  });
+  // Copy timestamp to clipboard
+  function copyTimestamp(ts) {
+    navigator.clipboard.writeText(ts + "");
+  }
 
   // Handle paste anywhere: extract all numbers and add each
   function handlePaste(e) {
@@ -98,9 +121,8 @@
     if (matches && matches.length) {
       matches.forEach(addTime);
       // Use ms/s logic for last match
-      let last = Number(matches[matches.length - 1]);
-      let ms = last > 1e12 || (last > 1e10 && last < 1e13) ? last : last * 1000;
-      unixTime = Math.floor(ms / 1000);
+      let last = new DateRow(matches[matches.length - 1]);
+      unixTime = last.unixTime;
       e.preventDefault();
     }
   }
@@ -111,9 +133,8 @@
     let matches = text.match(/\d{6,}/g);
     if (matches && matches.length) {
       matches.forEach(addTime);
-      let last = Number(matches[matches.length - 1]);
-      let ms = last > 1e12 || (last > 1e10 && last < 1e13) ? last : last * 1000;
-      unixTime = Math.floor(ms / 1000);
+      let last = new DateRow(matches[matches.length - 1]);
+      unixTime = last.unixTime;
       e.preventDefault();
     }
   }
@@ -184,6 +205,38 @@
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
     );
   }
+
+  // Track which timestamps are in 12h mode (by ms)
+  let twelveHour = $state({});
+
+  function toggleHourMode(ms) {
+    twelveHour[ms] = !twelveHour[ms];
+    // force reactivity
+    twelveHour = { ...twelveHour };
+  }
+
+  // Copy timestamp to clipboard
+  function copyTimestamp(ts) {
+    navigator.clipboard.writeText(ts + "");
+  }
+
+  // --- Add derived values for each row ---
+  function getHour24(date) {
+    return String(date.getHours()).padStart(2, '0');
+  }
+  function getMinute(date) {
+    return String(date.getMinutes()).padStart(2, '0');
+  }
+  function getSecond(date) {
+    return String(date.getSeconds()).padStart(2, '0');
+  }
+  function getHour12(date) {
+    let h = date.getHours();
+    return String((h % 12) || 12).padStart(2, '0');
+  }
+  function getAmPm(date) {
+    return date.getHours() < 12 ? "AM" : "PM";
+  }
 </script>
 
 <div class="container">
@@ -216,71 +269,60 @@
   {#if times.length > 0}
     <div class="list-table">
       <div class="list-header">
-        <span class="list-col list-circle"></span>
         <span class="list-col list-ts">Timestamp</span>
         <span class="list-col list-date">Date</span>
       </div>
-      {#each times as t, i}
-        <div class="list-row {i === selectedIdx ? 'latest' : ''}">
-          <span class="list-col list-circle">
-            <span
-              class="circle {i === selectedIdx ? 'selected' : ''}"
-              onclick={() => selectTime(i)}
-              tabindex="0"
-              aria-label="Select timestamp"
-              role="button"
-            ></span>
-          </span>
-          <span class="list-col list-ts">
-            {#key t.ms}
-              {#if splitTrailingZeros(t.ms > 1e12 ? String(t.ms) : String(t.unixTime))[1]}
+      {#each times as row}
+        <div class="list-row">
+          <span class="list-col list-ts ts-cell" onclick={() => toggleHourMode(row)}>
+            {#key row.ms}
+              {#if row.headAndZeros[1]}
                 <span style="letter-spacing:0">
-                  {splitTrailingZeros(t.ms > 1e12 ? String(t.ms) : String(t.unixTime))[0]}<span class="grey0 thin0">{splitTrailingZeros(t.ms > 1e12 ? String(t.ms) : String(t.unixTime))[1]}</span>
+                  {row.headAndZeros[0]}<span class="grey0 thin0">{row.headAndZeros[1]}</span>
                 </span>
               {:else}
-                {splitTrailingZeros(t.ms > 1e12 ? String(t.ms) : String(t.unixTime))[0]}
+                {row.headAndZeros[0]}
               {/if}
             {/key}
+            <span class="copy-icon" onclick={e => { e.stopPropagation(); copyTimestamp(row.ms > 1e12 ? row.ms : row.unixTime); }} title="Copy timestamp">
+              <svg width="1.1em" height="1.1em" viewBox="0 0 20 20" fill="none" style="vertical-align:middle;">
+                <rect x="6" y="6" width="9" height="9" rx="2" fill="#bdbdbd"/>
+                <rect x="3" y="3" width="9" height="9" rx="2" stroke="#bdbdbd" stroke-width="2" fill="none"/>
+              </svg>
+            </span>
           </span>
           <span class="list-col list-date-sep"></span>
           <span class="list-col list-date">
-            <span class="date-part">{getYear(t.date)}<span class="grey0 thin0">-</span></span>
-            <span class="date-part">{getMonth(t.date)}<span class="grey0 thin0">-</span></span>
-            <span class="date-part">{getDay(t.date)}</span>
+            <span class="date-part">{row.year}<span class="grey0 thin0">-</span></span>
+            <span class="date-part">{row.month}<span class="grey0 thin0">-</span></span>
+            <span class="date-part">{row.day}</span>
             <span class="date-part">&nbsp;</span>
-            <span class="time-part compact-time">
-              {getHour(t.date)}
-              <span class="compact-space"></span>
-              {getMinute(t.date)}
-              <span class="compact-space"></span>
-              <span class="grey0 thin0">{getSecond(t.date)}</span>
-            </span>
+            {#if row.twelveHour}
+              <span class="time-part compact-time">
+                {row.hour12}
+                <span class="compact-space"></span>
+                {row.minute}
+                <span class="compact-space"></span>
+                <span class="grey0 thin0">{row.second}</span>
+                <span class="compact-space"></span>
+                <span class="ampm">{row.ampm}</span>
+              </span>
+            {:else}
+              <span class="time-part compact-time">
+                {row.hour24}
+                <span class="compact-space"></span>
+                {row.minute}
+                <span class="compact-space"></span>
+                <span class="grey0 thin0">{row.second}</span>
+              </span>
+            {/if}
             <span class="date-part">&nbsp;</span>
-            <span class="weekday-part">{getWeekdayShort(t.date)}</span>
+            <span class="weekday-part">{row.weekdayShort}</span>
           </span>
         </div>
       {/each}
     </div>
   {/if}
-
-  <div class="main-display">
-    <div>
-      <span class="iso">{isoDate}</span>
-    </div>
-    <div>
-      <span class="time24">{hour24}:{minute}</span>
-      <span class="sec">:{second}</span>
-    </div>
-    <div>
-      <span class="time12">{hour12}</span>
-    </div>
-    <div>
-      <span class="monthday">{monthDayWeek}</span>
-    </div>
-    <div>
-      <span class="fulldate">{fullDate}</span>
-    </div>
-  </div>
 </div>
 
 <style>
@@ -366,72 +408,6 @@
     box-shadow: 0 2px 8px 0 rgba(0,0,0,0.07);
   }
 
-  .main-display {
-    width: 100vw;
-    max-width: 100vw;
-    min-height: 40vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.5em;
-    margin-top: 2.5rem;
-  }
-
-  .iso {
-    font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
-    font-size: 4.2rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    color: #18181b;
-    display: block;
-    margin-bottom: 0.1em;
-    text-align: center;
-  }
-
-  .time24 {
-    font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
-    font-size: 3.2rem;
-    font-weight: 600;
-    color: #007aff;
-    letter-spacing: 0.01em;
-    text-align: center;
-  }
-  .sec {
-    font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
-    font-size: 2rem;
-    color: #bdbdbd;
-    vertical-align: super;
-    margin-left: 0.1em;
-  }
-
-  .time12 {
-    font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
-    font-size: 2rem;
-    color: #444;
-    margin-top: 0.1em;
-    display: block;
-    text-align: center;
-  }
-
-  .monthday {
-    font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
-    font-size: 2rem;
-    color: #666;
-    margin-top: 0.1em;
-    display: block;
-    text-align: center;
-  }
-
-  .fulldate {
-    font-size: 1.2rem;
-    color: #bdbdbd;
-    margin-top: 0.2em;
-    display: block;
-    font-family: inherit;
-    text-align: center;
-  }
-
   .list-table {
     width: 100%;
     max-width: 600px;
@@ -449,13 +425,54 @@
     font-size: 1.05em;
     letter-spacing: 0.01em;
   }
-  .list-col.list-circle {
+  .list-col.list-ts {
+    position: relative;
+    cursor: pointer;
+    user-select: text;
+    transition: background 0.12s;
+  }
+  .list-col.list-ts:hover {
+    background: #f6faff;
+  }
+  .ts-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    position: relative;
+  }
+  .copy-icon {
+    display: none;
+    margin-left: 0.2em;
+    cursor: pointer;
+    vertical-align: middle;
+    opacity: 0.7;
+    transition: opacity 0.12s;
+  }
+  .list-col.list-ts:hover .copy-icon {
+    display: inline-block;
+    opacity: 1;
+  }
+  .copy-icon:active {
+    opacity: 0.5;
+  }
+  .list-col.list-date-sep {
     width: 2.2em;
     min-width: 2.2em;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-right: 0.1em;
+    border-left: 1.5px solid #eee;
+    height: 1.5em;
+    margin: 0 0.2em;
+    content: "";
+  }
+  .ampm {
+    font-size: 0.93em;
+    color: #888;
+    font-family: inherit;
+    margin-left: 0.1em;
+    letter-spacing: 0.01em;
+    font-weight: 400;
   }
   .list-row {
     display: flex;
@@ -463,38 +480,6 @@
     padding: 0.2em 0;
     align-items: center;
     transition: background 0.15s;
-  }
-  .list-row.latest {
-    background: #f0f8ff;
-    font-weight: 700;
-  }
-  .circle {
-    display: inline-block;
-    width: 1.2em;
-    height: 1.2em;
-    border-radius: 50%;
-    border: 2px solid #bbb;
-    background: #fff;
-    margin-right: 0.2em;
-    cursor: pointer;
-    transition: border 0.15s, box-shadow 0.15s, background 0.15s;
-    box-sizing: border-box;
-    vertical-align: middle;
-  }
-  .circle.selected {
-    border: 2.5px solid #007aff;
-    background: #007aff;
-    box-shadow: 0 0 0 2px #e6f0ff;
-  }
-  .circle:focus {
-    outline: 2px solid #007aff;
-    outline-offset: 1px;
-  }
-  .list-ts {
-    min-width: 120px;
-    color: #007aff;
-    font-weight: 600;
-    font-size: 1.08em;
   }
   .list-date {
     flex: 1;
@@ -526,18 +511,6 @@
     font-weight: 350;
     vertical-align: baseline;
   }
-  .list-col.list-date-sep {
-    width: 2.2em;
-    min-width: 2.2em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* vertical separator */
-    border-left: 1.5px solid #eee;
-    height: 1.5em;
-    margin: 0 0.2em;
-    content: "";
-  }
   .date-part {
     font-family: inherit;
     color: #444;
@@ -567,18 +540,6 @@
   @media (max-width: 640px) {
     .container {
       padding: 1.2rem 0.5rem 1rem 0.5rem;
-    }
-    .iso {
-      font-size: 2.1rem;
-    }
-    .main-display {
-      margin-top: 1.2rem;
-    }
-    .time24 {
-      font-size: 1.5rem;
-    }
-    .monthday, .time12 {
-      font-size: 1.1rem;
     }
   }
 </style>
