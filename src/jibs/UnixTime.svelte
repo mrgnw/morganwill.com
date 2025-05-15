@@ -43,17 +43,41 @@
     })
   );
 
-  function setCurrentTime() {
-    unixTime = Math.floor(Date.now() / 1000);
+  // List of timestamps (each: { unixTime, ms, date })
+  let times = $state([]);
+
+  // Add a new timestamp to the list, dedup by ms
+  function addTime(raw) {
+    let num = Number(raw);
+    if (!Number.isFinite(num)) return;
+    // Accept ms or s: if > 1e12 treat as ms, else s
+    let ms = num > 1e12 ? num : num * 1000;
+    // Only add if not already present
+    if (!times.some(t => t.ms === ms)) {
+      times = [{ unixTime: Math.floor(ms / 1000), ms, date: new Date(ms) }, ...times];
+    }
+    // Always update the main input to the latest
+    unixTime = Math.floor(ms / 1000);
   }
 
-  // Handle paste anywhere: extract first number and set as unixTime
+  function setCurrentTime() {
+    addTime(Math.floor(Date.now() / 1000));
+  }
+
+  // Handle paste anywhere: extract all numbers and add each
   function handlePaste(e) {
     let text = (e.clipboardData || window.clipboardData).getData('text');
-    let match = text.match(/\d{9,}/); // look for at least 9 digits
-    if (match) {
-      unixTime = parseInt(match[0], 10);
+    let matches = text.match(/\d{9,}/g); // all 9+ digit numbers
+    if (matches) {
+      matches.forEach(addTime);
     }
+    // Prevent default paste into input
+    e.preventDefault();
+  }
+
+  // Add from input (on blur or enter)
+  function handleInputAdd() {
+    addTime(unixTime);
   }
 
   // Attach paste handler on mount
@@ -61,6 +85,26 @@
     window.addEventListener('paste', handlePaste);
     return () => window.removeEventListener('paste', handlePaste);
   });
+
+  // Format for list row: "2025-05-15 15:36:36 (Thursday)"
+  function formatRow(d) {
+    return (
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(d.getDate()).padStart(2, '0') +
+      ' ' +
+      String(d.getHours()).padStart(2, '0') +
+      ':' +
+      String(d.getMinutes()).padStart(2, '0') +
+      ':' +
+      String(d.getSeconds()).padStart(2, '0') +
+      ' (' +
+      d.toLocaleString('en-US', { weekday: 'short' }) +
+      ')'
+    );
+  }
 </script>
 
 <div class="container">
@@ -76,6 +120,8 @@
       inputmode="numeric"
       spellcheck="false"
       placeholder="Enter unix timestamp"
+      onblur={handleInputAdd}
+      onkeydown={e => { if (e.key === 'Enter') handleInputAdd(); }}
     />
     <div class="btn-row">
       <button 
@@ -87,6 +133,22 @@
       </button>
     </div>
   </div>
+
+  {#if times.length > 0}
+    <div class="list-table">
+      <div class="list-header">
+        <span class="list-col list-ts">Timestamp</span>
+        <span class="list-col list-date">Date</span>
+      </div>
+      {#each times as t, i}
+        <div class="list-row {i === 0 ? 'latest' : ''}">
+          <span class="list-col list-ts">{t.ms > 1e12 ? t.ms : t.unixTime}</span>
+          <span class="list-col list-date">{formatRow(t.date)}</span>
+        </div>
+      {/each}
+    </div>
+  {/if}
+
   <div class="main-display">
     <div>
       <span class="iso">{isoDate}</span>
@@ -254,6 +316,54 @@
     display: block;
     font-family: inherit;
     text-align: center;
+  }
+
+  .list-table {
+    width: 100%;
+    max-width: 600px;
+    margin: 2rem auto 1.5rem auto;
+    font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
+    font-size: 1.1rem;
+    border-collapse: collapse;
+  }
+  .list-header {
+    display: flex;
+    font-weight: 700;
+    color: #888;
+    border-bottom: 1.5px solid #eee;
+    margin-bottom: 0.2em;
+    font-size: 1.05em;
+    letter-spacing: 0.01em;
+  }
+  .list-row {
+    display: flex;
+    border-bottom: 1px solid #f2f2f2;
+    padding: 0.2em 0;
+    align-items: center;
+    transition: background 0.15s;
+  }
+  .list-row.latest {
+    background: #f0f8ff;
+    font-weight: 700;
+  }
+  .list-col {
+    padding: 0.2em 0.7em 0.2em 0;
+    white-space: nowrap;
+    overflow-x: auto;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
+  .list-ts {
+    min-width: 120px;
+    color: #007aff;
+    font-weight: 600;
+    font-size: 1.08em;
+  }
+  .list-date {
+    flex: 1;
+    color: #222;
+    font-size: 1.08em;
+    font-family: inherit;
   }
 
   @media (max-width: 640px) {
