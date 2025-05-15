@@ -248,11 +248,11 @@
             <span class="date-part">{getMonth(t.date)}<span class="grey0 thin0">-</span></span>
             <span class="date-part">{getDay(t.date)}</span>
             <span class="date-part">&nbsp;</span>
-            <span class="time-part">
+            <span class="time-part compact-time">
               {getHour(t.date)}
-              <span class="grey0 thin0">:</span>
+              <span class="compact-space"></span>
               {getMinute(t.date)}
-              <span class="grey0 thin0">:</span>
+              <span class="compact-space"></span>
               <span class="grey0 thin0">{getSecond(t.date)}</span>
             </span>
             <span class="date-part">&nbsp;</span>
@@ -547,6 +547,15 @@
     color: #007aff;
     font-weight: 600;
     font-size: 1em;
+  }
+  .time-part.compact-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.18em;
+  }
+  .compact-space {
+    display: inline-block;
+    width: 0.18em;
   }
   .weekday-part {
     color: #888;
