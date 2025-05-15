@@ -46,12 +46,15 @@
   // List of timestamps (each: { unixTime, ms, date })
   let times = $state([]);
 
+  // Track which timestamp is selected for the big display
+  let selectedIdx = $state(0);
+
   // Add a new timestamp to the list, dedup by ms
   function addTime(raw) {
     let num = Number(raw);
     if (!Number.isFinite(num)) return;
     // Accept ms or s: if > 1e12 treat as ms, else s
-    let ms = num > 1e12 ? num : num * 1000;
+    let ms = num > 1e12 || (num > 1e10 && num < 1e13) ? num : num * 1000;
     // Only add if not already present
     if (!times.some(t => t.ms === ms)) {
       times = [{ unixTime: Math.floor(ms / 1000), ms, date: new Date(ms) }, ...times];
@@ -64,15 +67,55 @@
     addTime(Math.floor(Date.now() / 1000));
   }
 
+  // When a row is clicked, set selectedIdx and update unixTime
+  function selectTime(idx) {
+    selectedIdx = idx;
+    unixTime = times[idx]?.unixTime ?? unixTime;
+  }
+
+  // When a new time is added, always select it
+  $effect(() => {
+    if (times.length && selectedIdx !== 0) {
+      selectedIdx = 0;
+    }
+  });
+
   // Handle paste anywhere: extract all numbers and add each
   function handlePaste(e) {
     let text = (e.clipboardData || window.clipboardData).getData('text');
-    let matches = text.match(/\d{9,}/g); // all 9+ digit numbers
+    let matches = text.match(/\d{6,}/g); // all 6+ digit numbers
     if (matches) {
       matches.forEach(addTime);
     }
     // Prevent default paste into input
     e.preventDefault();
+  }
+
+  // Handle paste on the input: extract all numbers and add each, set input to last match
+  function handleInputPaste(e) {
+    let text = (e.clipboardData || window.clipboardData).getData('text');
+    let matches = text.match(/\d{6,}/g);
+    if (matches && matches.length) {
+      matches.forEach(addTime);
+      // Use ms/s logic for last match
+      let last = Number(matches[matches.length - 1]);
+      let ms = last > 1e12 || (last > 1e10 && last < 1e13) ? last : last * 1000;
+      unixTime = Math.floor(ms / 1000);
+      e.preventDefault();
+    }
+  }
+
+  // Handle paste anywhere: extract all numbers and add each, set input to last match
+  function handleAnyPaste(e) {
+    let text = (e.clipboardData || window.clipboardData).getData('text');
+    let matches = text.match(/\d{6,}/g);
+    if (matches && matches.length) {
+      matches.forEach(addTime);
+      let last = Number(matches[matches.length - 1]);
+      let ms = last > 1e12 || (last > 1e10 && last < 1e13) ? last : last * 1000;
+      unixTime = Math.floor(ms / 1000);
+      e.preventDefault();
+    }
   }
 
   // Add from input (on blur or enter)
@@ -86,23 +129,59 @@
     return () => window.removeEventListener('paste', handlePaste);
   });
 
-  // Format for list row: "2025-05-15 15:36:36 (Thursday)"
-  function formatRow(d) {
-    return (
-      d.getFullYear() +
-      '-' +
-      String(d.getMonth() + 1).padStart(2, '0') +
-      '-' +
-      String(d.getDate()).padStart(2, '0') +
-      ' ' +
-      String(d.getHours()).padStart(2, '0') +
-      ':' +
-      String(d.getMinutes()).padStart(2, '0') +
-      ':' +
-      String(d.getSeconds()).padStart(2, '0') +
-      ' (' +
-      d.toLocaleString('en-US', { weekday: 'short' }) +
-      ')'
+  // Attach global paste handler on mount
+  $effect(() => {
+    window.addEventListener('paste', handleAnyPaste);
+    return () => window.removeEventListener('paste', handleAnyPaste);
+  });
+
+  // Remove formatRow, add helpers for each part of the date/time
+  function getYear(d) { return d.getFullYear(); }
+  function getMonth(d) { return String(d.getMonth() + 1).padStart(2, '0'); }
+  function getDay(d) { return String(d.getDate()).padStart(2, '0'); }
+  function getHour(d) { return String(d.getHours()).padStart(2, '0'); }
+  function getMinute(d) { return String(d.getMinutes()).padStart(2, '0'); }
+  function getSecond(d) { return String(d.getSeconds()).padStart(2, '0'); }
+  function getWeekdayShort(d) { return d.toLocaleString('en-US', { weekday: 'short' }); }
+
+  /**
+   * Wrap trailing zeros in a <span class="grey0">...</span>
+   * Only for numbers with at least one trailing zero.
+   */
+  function highlightTrailingZeros(str) {
+    // Find trailing zeros (after a digit)
+    // e.g. 1716500000 -> 17165<span class="grey0">00000</span>
+    //      1716500000123 -> 1716500000123 (no highlight)
+    //      1716500000 -> 17165<span class="grey0">00000</span>
+    //      171650000 -> 17165<span class="grey0">0000</span>
+    //      1716501234 -> 1716501234
+    // Only highlight if at least 3 trailing zeros
+    let match = str.match(/^(.*?)(0{3,})$/);
+    if (match) {
+      return (
+        escapeHtml(match[1]) +
+        `<span class="grey0">${escapeHtml(match[2])}</span>`
+      );
+    }
+    return escapeHtml(str);
+  }
+
+  /**
+   * Splits a string into [head, trailingZeros] where trailingZeros is a run of 3+ zeros at the end.
+   * Returns [head, zeros] (zeros may be empty string).
+   */
+  function splitTrailingZeros(str) {
+    let match = str.match(/^(.*?)(0{3,})$/);
+    if (match) {
+      return [match[1], match[2]];
+    }
+    return [str, ""];
+  }
+
+  // Escape HTML for safety
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
     );
   }
 </script>
@@ -137,13 +216,48 @@
   {#if times.length > 0}
     <div class="list-table">
       <div class="list-header">
+        <span class="list-col list-circle"></span>
         <span class="list-col list-ts">Timestamp</span>
         <span class="list-col list-date">Date</span>
       </div>
       {#each times as t, i}
-        <div class="list-row {i === 0 ? 'latest' : ''}">
-          <span class="list-col list-ts">{t.ms > 1e12 ? t.ms : t.unixTime}</span>
-          <span class="list-col list-date">{formatRow(t.date)}</span>
+        <div class="list-row {i === selectedIdx ? 'latest' : ''}">
+          <span class="list-col list-circle">
+            <span
+              class="circle {i === selectedIdx ? 'selected' : ''}"
+              onclick={() => selectTime(i)}
+              tabindex="0"
+              aria-label="Select timestamp"
+              role="button"
+            ></span>
+          </span>
+          <span class="list-col list-ts">
+            {#key t.ms}
+              {#if splitTrailingZeros(t.ms > 1e12 ? String(t.ms) : String(t.unixTime))[1]}
+                <span style="letter-spacing:0">
+                  {splitTrailingZeros(t.ms > 1e12 ? String(t.ms) : String(t.unixTime))[0]}<span class="grey0 thin0">{splitTrailingZeros(t.ms > 1e12 ? String(t.ms) : String(t.unixTime))[1]}</span>
+                </span>
+              {:else}
+                {splitTrailingZeros(t.ms > 1e12 ? String(t.ms) : String(t.unixTime))[0]}
+              {/if}
+            {/key}
+          </span>
+          <span class="list-col list-date-sep"></span>
+          <span class="list-col list-date">
+            <span class="date-part">{getYear(t.date)}<span class="grey0 thin0">-</span></span>
+            <span class="date-part">{getMonth(t.date)}<span class="grey0 thin0">-</span></span>
+            <span class="date-part">{getDay(t.date)}</span>
+            <span class="date-part">&nbsp;</span>
+            <span class="time-part">
+              {getHour(t.date)}
+              <span class="grey0 thin0">:</span>
+              {getMinute(t.date)}
+              <span class="grey0 thin0">:</span>
+              <span class="grey0 thin0">{getSecond(t.date)}</span>
+            </span>
+            <span class="date-part">&nbsp;</span>
+            <span class="weekday-part">{getWeekdayShort(t.date)}</span>
+          </span>
         </div>
       {/each}
     </div>
@@ -335,6 +449,14 @@
     font-size: 1.05em;
     letter-spacing: 0.01em;
   }
+  .list-col.list-circle {
+    width: 2.2em;
+    min-width: 2.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 0.1em;
+  }
   .list-row {
     display: flex;
     border-bottom: 1px solid #f2f2f2;
@@ -346,12 +468,27 @@
     background: #f0f8ff;
     font-weight: 700;
   }
-  .list-col {
-    padding: 0.2em 0.7em 0.2em 0;
-    white-space: nowrap;
-    overflow-x: auto;
-    text-overflow: ellipsis;
+  .circle {
     display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 50%;
+    border: 2px solid #bbb;
+    background: #fff;
+    margin-right: 0.2em;
+    cursor: pointer;
+    transition: border 0.15s, box-shadow 0.15s, background 0.15s;
+    box-sizing: border-box;
+    vertical-align: middle;
+  }
+  .circle.selected {
+    border: 2.5px solid #007aff;
+    background: #007aff;
+    box-shadow: 0 0 0 2px #e6f0ff;
+  }
+  .circle:focus {
+    outline: 2px solid #007aff;
+    outline-offset: 1px;
   }
   .list-ts {
     min-width: 120px;
@@ -364,6 +501,58 @@
     color: #222;
     font-size: 1.08em;
     font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 0.1em;
+    white-space: nowrap;
+  }
+  .list-col.list-ts span[style] {
+    letter-spacing: 0;
+    word-spacing: 0;
+  }
+  .grey0 {
+    color: #bdbdbd;
+    letter-spacing: 0;
+    word-spacing: 0;
+  }
+  .thin0 {
+    font-variation-settings: "wght" 300;
+    font-weight: 300;
+    font-stretch: 90%;
+    font-size: 0.95em;
+  }
+  .time-part .grey0.thin0 {
+    font-size: 0.97em;
+    font-weight: 350;
+    vertical-align: baseline;
+  }
+  .list-col.list-date-sep {
+    width: 2.2em;
+    min-width: 2.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* vertical separator */
+    border-left: 1.5px solid #eee;
+    height: 1.5em;
+    margin: 0 0.2em;
+    content: "";
+  }
+  .date-part {
+    font-family: inherit;
+    color: #444;
+  }
+  .time-part {
+    font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
+    color: #007aff;
+    font-weight: 600;
+    font-size: 1em;
+  }
+  .weekday-part {
+    color: #888;
+    font-family: inherit;
+    font-size: 0.98em;
+    margin-left: 0.2em;
   }
 
   @media (max-width: 640px) {
