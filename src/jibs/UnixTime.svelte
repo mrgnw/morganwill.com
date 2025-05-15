@@ -46,6 +46,21 @@
   function setCurrentTime() {
     unixTime = Math.floor(Date.now() / 1000);
   }
+
+  // Handle paste anywhere: extract first number and set as unixTime
+  function handlePaste(e) {
+    let text = (e.clipboardData || window.clipboardData).getData('text');
+    let match = text.match(/\d{9,}/); // look for at least 9 digits
+    if (match) {
+      unixTime = parseInt(match[0], 10);
+    }
+  }
+
+  // Attach paste handler on mount
+  $effect(() => {
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  });
 </script>
 
 <div class="container">
@@ -57,13 +72,20 @@
       type="number"
       bind:value={unixTime}
       class="timestamp-input"
+      autocomplete="off"
+      inputmode="numeric"
+      spellcheck="false"
+      placeholder="Enter unix timestamp"
     />
-    <button 
-      onclick={setCurrentTime}
-      class="set-btn"
-    >
-      Set Current Time
-    </button>
+    <div class="btn-row">
+      <button 
+        onclick={setCurrentTime}
+        class="set-btn"
+        type="button"
+      >
+        Set Current Time
+      </button>
+    </div>
   </div>
   <div class="main-display">
     <div>
@@ -104,11 +126,12 @@
   }
 
   .title {
-    font-size: 2.2rem;
-    font-weight: 700;
+    font-size: 2.3rem;
+    font-weight: 800;
     letter-spacing: -0.01em;
     margin-bottom: 2.2rem;
     text-align: center;
+    color: #222;
   }
 
   .label {
@@ -117,10 +140,12 @@
     display: block;
     font-weight: 500;
     color: #444;
+    text-align: center;
   }
 
   .timestamp-input {
     width: 100%;
+    max-width: 420px;
     font-size: 2.2rem;
     padding: 0.7em 0.7em;
     border: 1.5px solid #e5e7eb;
@@ -130,27 +155,39 @@
     margin-bottom: 0.5em;
     background: #fafbfc;
     transition: border 0.15s;
+    text-align: center;
+    box-sizing: border-box;
   }
   .timestamp-input:focus {
     border-color: #007aff;
     background: #fff;
   }
 
+  .btn-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 0.7em;
+  }
+
   .set-btn {
-    margin-top: 0.5em;
     background: #007aff;
     color: #fff;
     border: none;
     border-radius: 0.5em;
     padding: 0.55em 1.3em;
     font-size: 1.1rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.15s, box-shadow 0.15s;
     box-shadow: 0 1px 4px 0 rgba(0,0,0,0.03);
+    outline: none;
+    margin: 0 auto;
+    display: block;
   }
   .set-btn:hover, .set-btn:focus {
     background: #005fcc;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.07);
   }
 
   .main-display {
@@ -163,7 +200,6 @@
     justify-content: flex-start;
     gap: 0.5em;
     margin-top: 2.5rem;
-    /* No card, no border, no background, just big text */
   }
 
   .iso {
@@ -174,6 +210,7 @@
     color: #18181b;
     display: block;
     margin-bottom: 0.1em;
+    text-align: center;
   }
 
   .time24 {
@@ -182,6 +219,7 @@
     font-weight: 600;
     color: #007aff;
     letter-spacing: 0.01em;
+    text-align: center;
   }
   .sec {
     font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', 'Consolas', monospace;
@@ -197,6 +235,7 @@
     color: #444;
     margin-top: 0.1em;
     display: block;
+    text-align: center;
   }
 
   .monthday {
@@ -205,6 +244,7 @@
     color: #666;
     margin-top: 0.1em;
     display: block;
+    text-align: center;
   }
 
   .fulldate {
@@ -213,6 +253,7 @@
     margin-top: 0.2em;
     display: block;
     font-family: inherit;
+    text-align: center;
   }
 
   @media (max-width: 640px) {
