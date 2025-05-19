@@ -91,7 +91,7 @@
     addTime(Math.floor(Date.now() / 1000));
   }
 
-  // Toggle 12h/24h for a row
+  // Toggle 12h/24h for a row (class-based)
   function toggleHourMode(row) {
     row.twelveHour = !row.twelveHour;
     // force reactivity
@@ -209,27 +209,13 @@
   // Track which timestamps are in 12h mode (by ms)
   let twelveHour = $state({});
 
-  function toggleHourMode(ms) {
-    twelveHour[ms] = !twelveHour[ms];
-    // force reactivity
-    twelveHour = { ...twelveHour };
-  }
-
-  // Copy timestamp to clipboard
-  function copyTimestamp(ts) {
-    navigator.clipboard.writeText(ts + "");
-  }
+  
 
   // --- Add derived values for each row ---
   function getHour24(date) {
     return String(date.getHours()).padStart(2, '0');
   }
-  function getMinute(date) {
-    return String(date.getMinutes()).padStart(2, '0');
-  }
-  function getSecond(date) {
-    return String(date.getSeconds()).padStart(2, '0');
-  }
+  
   function getHour12(date) {
     let h = date.getHours();
     return String((h % 12) || 12).padStart(2, '0');
