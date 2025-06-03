@@ -1,7 +1,24 @@
 <script>
-  let ratings = $state({});
+  import { browser } from '$app/environment';
+  
+  function loadRatings() {
+    if (browser) {
+      const stored = localStorage.getItem('techstack-ratings');
+      return stored ? JSON.parse(stored) : {};
+    }
+    return {};
+  }
+
+  let ratings = $state(loadRatings());
   let tapCounts = {};
   let tapTimers = {};
+
+  // Save to localStorage whenever ratings change
+  $effect(() => {
+    if (browser) {
+      localStorage.setItem('techstack-ratings', JSON.stringify(ratings));
+    }
+  });
 
   const allTechs = {
     fullStack: [
@@ -99,6 +116,10 @@
     if (rating === 0) return ' (0)';
     return ` (${rating > 0 ? '+' : ''}${rating})`;
   }
+
+  function clearAllRatings() {
+    ratings = {};
+  }
 </script>
 
 {#snippet techButton(tech)}
@@ -175,4 +196,13 @@
       </div>
     </section>
   </div>
+
+  {#if sortedRatedTechs.length > 0}
+    <button
+      class="fixed bottom-6 right-6 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full shadow-lg transition-colors"
+      onclick={clearAllRatings}
+    >
+      Clear All
+    </button>
+  {/if}
 </div>
