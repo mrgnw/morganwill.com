@@ -46,28 +46,10 @@
     ]
   };
 
-  const sortedRatedTechs = $derived(() => {
+  const sortedRatedTechs = $derived.by(() => {
     return Object.entries(ratings)
       .filter(([tech, rating]) => rating !== null && rating !== undefined)
       .sort((a, b) => b[1] - a[1]);
-  });
-
-  const allTechsList = $derived(() => {
-    const allTechsFlat = [
-      ...allTechs.fullStack,
-      ...allTechs.backend,
-      ...allTechs.dataEngineering,
-      ...allTechs.databases,
-      ...allTechs.cloud
-    ];
-    
-    return [...new Set(allTechsFlat)]
-      .map(tech => [tech, ratings[tech] ?? null])
-      .sort((a, b) => {
-        const aRating = a[1] ?? 0;
-        const bRating = b[1] ?? 0;
-        return bRating - aRating;
-      });
   });
 
   function incrementRating(tech) {
@@ -136,14 +118,16 @@
     <br>Positive = like, Negative = dislike, 0 = neutral, blank = don't use
   </p>
   
-  <section class="mb-8">
-    <h2 class="text-2xl font-semibold mb-4">All Technologies (Sorted by Rating)</h2>
-    <div class="flex flex-wrap gap-2">
-      {#each allTechsList as [tech, rating]}
-        {@render techButton(tech)}
-      {/each}
-    </div>
-  </section>
+  {#if sortedRatedTechs.length > 0}
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">Your Ratings</h2>
+      <div class="flex flex-wrap gap-2">
+        {#each sortedRatedTechs as [tech, rating]}
+          {@render techButton(tech)}
+        {/each}
+      </div>
+    </section>
+  {/if}
   
   <div class="space-y-8">
     <section>
