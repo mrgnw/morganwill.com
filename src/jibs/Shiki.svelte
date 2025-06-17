@@ -86,6 +86,104 @@ console.log(msg);`;
     }
   }
 
+  function detectLanguage(code) {
+    const trimmed = code.trim();
+    if (!trimmed) return 'javascript';
+
+    // JavaScript/TypeScript patterns
+    if (/(?:function|const|let|var|=>|import|export|require\()/i.test(trimmed)) {
+      if (/(?:interface|type\s+\w+\s*=|as\s+\w+|:\s*\w+\[\])/i.test(trimmed)) {
+        return 'typescript';
+      }
+      return 'javascript';
+    }
+
+    // Python patterns
+    if (/(?:def\s+\w+|import\s+\w+|from\s+\w+\s+import|if\s+__name__\s*==|print\()/i.test(trimmed)) {
+      return 'python';
+    }
+
+    // HTML patterns
+    if (/^<[!?]?[a-z]/i.test(trimmed) || /<\/?\w+[^>]*>/i.test(trimmed)) {
+      return 'html';
+    }
+
+    // CSS patterns
+    if (/[.#]?\w+\s*\{[^}]*\}/i.test(trimmed) || /@media|@import|@keyframes/i.test(trimmed)) {
+      return 'css';
+    }
+
+    // JSON patterns
+    if (/^\s*[\[\{]/.test(trimmed) && /[\]\}]\s*$/.test(trimmed)) {
+      try {
+        JSON.parse(trimmed);
+        return 'json';
+      } catch {}
+    }
+
+    // Java patterns
+    if (/(?:public\s+class|private\s+\w+|System\.out\.println)/i.test(trimmed)) {
+      return 'java';
+    }
+
+    // C/C++ patterns
+    if (/(?:#include|int\s+main|printf\(|std::)/i.test(trimmed)) {
+      return trimmed.includes('std::') || trimmed.includes('iostream') ? 'cpp' : 'c';
+    }
+
+    // Rust patterns
+    if (/(?:fn\s+\w+|let\s+mut|println!|use\s+std::)/i.test(trimmed)) {
+      return 'rust';
+    }
+
+    // Go patterns
+    if (/(?:package\s+\w+|func\s+\w+|fmt\.Print)/i.test(trimmed)) {
+      return 'go';
+    }
+
+    // PHP patterns
+    if (/^<\?php|echo\s+/i.test(trimmed)) {
+      return 'php';
+    }
+
+    // Ruby patterns
+    if (/(?:def\s+\w+|puts\s+|require\s+['"])/i.test(trimmed)) {
+      return 'ruby';
+    }
+
+    // Shell/Bash patterns
+    if (/^#!/.test(trimmed) || /(?:echo|ls|cd|mkdir|chmod)\s+/i.test(trimmed)) {
+      return 'bash';
+    }
+
+    // YAML patterns
+    if (/^\w+:\s*$|^\s*-\s+\w+:/m.test(trimmed)) {
+      return 'yaml';
+    }
+
+    // XML patterns
+    if (/^<\?xml|<!DOCTYPE/i.test(trimmed)) {
+      return 'xml';
+    }
+
+    // Markdown patterns
+    if (/^#{1,6}\s+|^\*{1,2}\w+\*{1,2}|^\[.+\]\(.+\)/m.test(trimmed)) {
+      return 'markdown';
+    }
+
+    return 'javascript'; // default fallback
+  }
+
+  function handlePaste(event) {
+    const pastedText = event.clipboardData?.getData('text');
+    if (pastedText && pastedText.trim()) {
+      const detectedLang = detectLanguage(pastedText);
+      if (languages.includes(detectedLang)) {
+        selectedLanguage = detectedLang;
+      }
+    }
+  }
+
   async function generateThemePreviews() {
     const previews = {};
     for (const theme of themes) {
@@ -118,30 +216,7 @@ console.log(msg);`;
   <!-- Sidebar for theme selection -->
   <div class="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
     <div class="p-4 border-b border-gray-200">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">Settings</h2>
-      
-      <div class="space-y-3">
-        <div>
-          <label for="language" class="block text-sm font-medium text-gray-700 mb-1">
-            Language
-          </label>
-          <select 
-            id="language"
-            bind:value={selectedLanguage}
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          >
-            {#each languages as lang}
-              <option value={lang}>{lang}</option>
-            {/each}
-          </select>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Current Theme: <span class="capitalize">{selectedTheme.replace(/-/g, ' ')}</span>
-          </label>
-        </div>
-      </div>
+      <h2 class="text-lg font-semibold text-gray-900">Themes</h2>
     </div>
 
     <!-- Scrollable theme list -->
@@ -174,13 +249,38 @@ console.log(msg);`;
     <div class="p-6 border-b border-gray-200 bg-white">
       <h1 class="text-3xl font-bold text-gray-900">Shiki Live Preview</h1>
       <p class="text-gray-600 mt-2">
-        Type or paste code below to see it highlighted in real-time. Select themes from the sidebar.
+        Type or paste code below to see it highlighted in real-time. Language is auto-detected on paste.
       </p>
     </div>
 
     <!-- Code editor -->
     <div class="flex-1 p-6 overflow-hidden">
       <div class="h-full flex flex-col">
+        <!-- Controls above editor -->
+        <div class="flex items-center gap-6 mb-4">
+          <div>
+            <label for="language" class="block text-sm font-medium text-gray-700 mb-1">
+              Language
+            </label>
+            <select 
+              id="language"
+              bind:value={selectedLanguage}
+              class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              {#each languages as lang}
+                <option value={lang}>{lang}</option>
+              {/each}
+            </select>
+          </div>
+          
+          <div>
+            <span class="block text-sm font-medium text-gray-700 mb-1">Current Theme</span>
+            <span class="px-3 py-2 bg-gray-100 rounded-md text-sm capitalize text-gray-700">
+              {selectedTheme.replace(/-/g, ' ')}
+            </span>
+          </div>
+        </div>
+
         <label for="code-input" class="block text-sm font-medium text-gray-700 mb-2">
           Live Syntax Highlighted Editor
         </label>
@@ -207,6 +307,7 @@ console.log(msg);`;
             class="absolute inset-0 w-full h-full px-4 py-3 bg-transparent text-transparent resize-none outline-none font-mono text-sm leading-relaxed"
             style="color: transparent; background: transparent; caret-color: {themeBackgroundColors[selectedTheme] === '#ffffff' || themeBackgroundColors[selectedTheme] === '#fdf6e3' ? 'black' : 'white'};"
             onscroll={syncScroll}
+            onpaste={handlePaste}
             spellcheck="false"
           ></textarea>
         </div>
