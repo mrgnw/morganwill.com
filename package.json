@@ -24,7 +24,7 @@
 		"svelte": "^5.2.3",
 		"svelte-adapter-bun": "^0.5.2",
 		"svelte-check": "^4.0.0",
-		"svelte-preprocess": "next",
+		"svelte-preprocess": "^6.0.3",
 		"tailwindcss": "^3.4.15",
 		"vite": "^5.4.11"
 	},
