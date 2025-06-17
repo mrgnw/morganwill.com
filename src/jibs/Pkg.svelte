@@ -43,6 +43,11 @@
 		"zoxide",
 		"choose-rust",
 		"ripgrep",
+		"mprocs",
+		"mask",
+		"zellij",
+		"fd",
+		
 
 		// System utilities
 		"bartender",
@@ -268,7 +273,7 @@
 		</Card.Header>
 		<Card.Content>
 			<div class="flex justify-between items-center mb-4">
-				<Button variant="outline" size="sm" on:click={toggleSelectAll}>
+				<Button variant="outline" size="sm" onclick={toggleSelectAll}>
 					{selectedPackages.size === packages.length
 						? "Deselect All"
 						: "Select All"}
@@ -310,7 +315,7 @@
 			<Card.Content>
 				<div class="terminal-output">
 					<div class="copy-all-section">
-						<Button class="copy-all-button" on:click={copyToClipboard}>
+						<Button class="copy-all-button" onclick={copyToClipboard}>
 							Copy All Commands
 						</Button>
 					</div>
@@ -322,7 +327,7 @@
 									variant="outline"
 									size="sm"
 									class="section-copy-button"
-									on:click={copyInstallers}
+									onclick={copyInstallers}
 								>
 									Copy
 								</Button>
@@ -338,7 +343,7 @@
 									variant="outline"
 									size="sm"
 									class="section-copy-button"
-									on:click={copyPackages}
+									onclick={copyPackages}
 								>
 									Copy
 								</Button>
