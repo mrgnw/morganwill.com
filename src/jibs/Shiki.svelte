@@ -588,13 +588,13 @@ console.log(msg);`;
   }
   
   .text-overlay::selection {
-    background: rgba(59, 130, 246, 0.6) !important;
-    color: rgba(255, 255, 255, 0.9) !important;
+    background: rgba(59, 130, 246, 0.4) !important;
+    color: transparent !important;
   }
 
   .text-overlay::-moz-selection {
-    background: rgba(59, 130, 246, 0.6) !important;
-    color: rgba(255, 255, 255, 0.9) !important;
+    background: rgba(59, 130, 246, 0.4) !important;
+    color: transparent !important;
   }
 
   /* Placeholder styling for dark themes */
