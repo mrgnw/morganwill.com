@@ -26,48 +26,127 @@ const result = hello();`);
     'html', 'css', 'json', 'yaml', 'xml', 'markdown', 'bash'
   ];
 
-  // Using correct Shiki v3 theme names with background colors
-  const themes = [
-    'github-dark', 'github-light', 'dracula', 'nord', 'monokai',
-    'one-dark-pro', 'material-theme-palenight', 'solarized-dark',
-    'solarized-light', 'vs-dark', 'tokyo-night', 'vitesse-dark',
-    'vitesse-light', 'material-theme', 'material-theme-darker',
-    'houston', 'min-dark', 'min-light'
+  // Complete Shiki v3 theme list with names and IDs
+  const allThemes = [
+    { name: 'Andromeeda', id: 'andromeeda' },
+    { name: 'Aurora X', id: 'aurora-x' },
+    { name: 'Ayu Dark', id: 'ayu-dark' },
+    { name: 'Catppuccin Frappé', id: 'catppuccin-frappe' },
+    { name: 'Catppuccin Latte', id: 'catppuccin-latte' },
+    { name: 'Catppuccin Macchiato', id: 'catppuccin-macchiato' },
+    { name: 'Catppuccin Mocha', id: 'catppuccin-mocha' },
+    { name: 'Dark Plus', id: 'dark-plus' },
+    { name: 'Dracula Theme', id: 'dracula' },
+    { name: 'Dracula Theme Soft', id: 'dracula-soft' },
+    { name: 'Everforest Dark', id: 'everforest-dark' },
+    { name: 'Everforest Light', id: 'everforest-light' },
+    { name: 'GitHub Dark', id: 'github-dark' },
+    { name: 'GitHub Dark Default', id: 'github-dark-default' },
+    { name: 'GitHub Dark Dimmed', id: 'github-dark-dimmed' },
+    { name: 'GitHub Dark High Contrast', id: 'github-dark-high-contrast' },
+    { name: 'GitHub Light', id: 'github-light' },
+    { name: 'GitHub Light Default', id: 'github-light-default' },
+    { name: 'GitHub Light High Contrast', id: 'github-light-high-contrast' },
+    { name: 'Gruvbox Dark Hard', id: 'gruvbox-dark-hard' },
+    { name: 'Gruvbox Dark Medium', id: 'gruvbox-dark-medium' },
+    { name: 'Gruvbox Dark Soft', id: 'gruvbox-dark-soft' },
+    { name: 'Gruvbox Light Hard', id: 'gruvbox-light-hard' },
+    { name: 'Gruvbox Light Medium', id: 'gruvbox-light-medium' },
+    { name: 'Gruvbox Light Soft', id: 'gruvbox-light-soft' },
+    { name: 'Houston', id: 'houston' },
+    { name: 'Kanagawa Dragon', id: 'kanagawa-dragon' },
+    { name: 'Kanagawa Lotus', id: 'kanagawa-lotus' },
+    { name: 'Kanagawa Wave', id: 'kanagawa-wave' },
+    { name: 'LaserWave', id: 'laserwave' },
+    { name: 'Light Plus', id: 'light-plus' },
+    { name: 'Material Theme', id: 'material-theme' },
+    { name: 'Material Theme Darker', id: 'material-theme-darker' },
+    { name: 'Material Theme Lighter', id: 'material-theme-lighter' },
+    { name: 'Material Theme Ocean', id: 'material-theme-ocean' },
+    { name: 'Material Theme Palenight', id: 'material-theme-palenight' },
+    { name: 'Min Dark', id: 'min-dark' },
+    { name: 'Min Light', id: 'min-light' },
+    { name: 'Monokai', id: 'monokai' },
+    { name: 'Night Owl', id: 'night-owl' },
+    { name: 'Nord', id: 'nord' },
+    { name: 'One Dark Pro', id: 'one-dark-pro' },
+    { name: 'One Light', id: 'one-light' },
+    { name: 'Plastic', id: 'plastic' },
+    { name: 'Poimandres', id: 'poimandres' },
+    { name: 'Red', id: 'red' },
+    { name: 'Rosé Pine', id: 'rose-pine' },
+    { name: 'Rosé Pine Dawn', id: 'rose-pine-dawn' },
+    { name: 'Rosé Pine Moon', id: 'rose-pine-moon' },
+    { name: 'Slack Dark', id: 'slack-dark' },
+    { name: 'Slack Ochin', id: 'slack-ochin' },
+    { name: 'Snazzy Light', id: 'snazzy-light' },
+    { name: 'Solarized Dark', id: 'solarized-dark' },
+    { name: 'Solarized Light', id: 'solarized-light' },
+    { name: 'Synthwave \'84', id: 'synthwave-84' },
+    { name: 'Tokyo Night', id: 'tokyo-night' },
+    { name: 'Vesper', id: 'vesper' },
+    { name: 'Vitesse Black', id: 'vitesse-black' },
+    { name: 'Vitesse Dark', id: 'vitesse-dark' },
+    { name: 'Vitesse Light', id: 'vitesse-light' }
   ];
 
-  // Categorize themes
-  const lightThemes = [
-    'github-light', 'solarized-light', 'vitesse-light', 'min-light'
-  ];
-  
-  const darkThemes = [
-    'github-dark', 'dracula', 'nord', 'monokai', 'one-dark-pro', 
-    'material-theme-palenight', 'solarized-dark', 'vs-dark', 
-    'tokyo-night', 'vitesse-dark', 'material-theme', 
-    'material-theme-darker', 'houston', 'min-dark'
+  const themes = allThemes.map(t => t.id);
+
+  // Categorize themes (light vs dark based on naming patterns)
+  const lightThemeIds = [
+    'catppuccin-latte', 'everforest-light', 'github-light', 'github-light-default', 
+    'github-light-high-contrast', 'gruvbox-light-hard', 'gruvbox-light-medium', 
+    'gruvbox-light-soft', 'kanagawa-lotus', 'light-plus', 'material-theme-lighter', 
+    'min-light', 'one-light', 'rose-pine-dawn', 'snazzy-light', 'solarized-light', 
+    'vitesse-light'
   ];
 
-  // Map theme names to their background colors
-  const themeBackgroundColors = {
-    'github-dark': '#0d1117',
-    'github-light': '#ffffff',
-    'dracula': '#282a36',
-    'nord': '#2e3440',
-    'monokai': '#272822',
-    'one-dark-pro': '#282c34',
-    'material-theme-palenight': '#292d3e',
-    'solarized-dark': '#002b36',
-    'solarized-light': '#fdf6e3',
-    'vs-dark': '#1e1e1e',
-    'tokyo-night': '#1a1b26',
-    'vitesse-dark': '#121212',
-    'vitesse-light': '#ffffff',
-    'material-theme': '#263238',
-    'material-theme-darker': '#212121',
-    'houston': '#0c0c0c',
-    'min-dark': '#1f2937',
-    'min-light': '#ffffff'
-  };
+  const darkThemeIds = allThemes.map(t => t.id).filter(id => !lightThemeIds.includes(id));
+
+  // Function to get theme background color
+  function getThemeBackground(themeId) {
+    // Known specific colors
+    const knownColors = {
+      'github-dark': '#0d1117',
+      'github-light': '#ffffff',
+      'dracula': '#282a36',
+      'nord': '#2e3440',
+      'monokai': '#272822',
+      'one-dark-pro': '#282c34',
+      'material-theme-palenight': '#292d3e',
+      'solarized-dark': '#002b36',
+      'solarized-light': '#fdf6e3',
+      'tokyo-night': '#1a1b26',
+      'vitesse-dark': '#121212',
+      'vitesse-light': '#ffffff',
+      'material-theme': '#263238',
+      'material-theme-darker': '#212121',
+      'houston': '#0c0c0c',
+      'min-dark': '#1f2937',
+      'min-light': '#ffffff',
+      'catppuccin-mocha': '#1e1e2e',
+      'catppuccin-macchiato': '#24273a',
+      'catppuccin-frappe': '#303446',
+      'catppuccin-latte': '#eff1f5',
+      'rose-pine': '#191724',
+      'rose-pine-moon': '#232136',
+      'rose-pine-dawn': '#faf4ed',
+      'gruvbox-dark-hard': '#1d2021',
+      'gruvbox-light-hard': '#f9f5d7',
+      'synthwave-84': '#2a2139'
+    };
+
+    if (knownColors[themeId]) {
+      return knownColors[themeId];
+    }
+
+    // Fallback based on theme name patterns
+    if (lightThemeIds.includes(themeId)) {
+      return '#ffffff'; // Default light background
+    } else {
+      return '#1a1a1a'; // Default dark background
+    }
+  }
 
   const previewCode = `const msg = "Hello";
 console.log(msg);`;
@@ -75,9 +154,9 @@ console.log(msg);`;
   const filteredThemes = $derived.by(() => {
     switch (themeFilter) {
       case 'light':
-        return lightThemes;
+        return lightThemeIds;
       case 'dark':
-        return darkThemes;
+        return darkThemeIds;
       default:
         return themes;
     }
@@ -219,6 +298,7 @@ console.log(msg);`;
     // Only handle keyboard navigation when textarea is not focused
     if (document.activeElement === textareaRef) return;
     
+    // Theme navigation (j/k)
     if (event.key === 'j' || event.key === 'k') {
       event.preventDefault();
       
@@ -234,6 +314,19 @@ console.log(msg);`;
       }
       
       selectedTheme = filteredThemes[newIndex];
+    }
+    
+    // Theme filter shortcuts (l/d/a)
+    if (event.key === 'l' || event.key === 'd' || event.key === 'a') {
+      event.preventDefault();
+      
+      if (event.key === 'l') {
+        themeFilter = 'light';
+      } else if (event.key === 'd') {
+        themeFilter = 'dark';
+      } else if (event.key === 'a') {
+        themeFilter = 'all';
+      }
     }
   }
 
@@ -291,35 +384,39 @@ console.log(msg);`;
           class="flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors {themeFilter === 'light' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
           onclick={() => themeFilter = 'light'}
         >
-          Light ({lightThemes.length})
+          Light ({lightThemeIds.length})
         </button>
         <button
           class="flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors {themeFilter === 'dark' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
           onclick={() => themeFilter = 'dark'}
         >
-          Dark ({darkThemes.length})
+          Dark ({darkThemeIds.length})
         </button>
       </div>
       
       <p class="text-xs text-gray-500 mt-2">
-        Use J/K keys to navigate themes
+        Keys: J/K (navigate) • L/D/A (light/dark/all)
       </p>
     </div>
 
     <!-- Scrollable theme list -->
     <div class="flex-1 overflow-y-auto p-4">
       <div class="space-y-3">
-        {#each filteredThemes as theme}
+        {#each filteredThemes as themeId}
+          {@const themeData = allThemes.find(t => t.id === themeId)}
           <button
-            class="w-full p-3 border rounded-lg hover:shadow-sm transition-all duration-200 text-left bg-white {selectedTheme === theme ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-300 hover:border-gray-400'}"
-            onclick={() => selectedTheme = theme}
+            class="w-full p-3 border rounded-lg hover:shadow-sm transition-all duration-200 text-left bg-white {selectedTheme === themeId ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-300 hover:border-gray-400'}"
+            onclick={() => selectedTheme = themeId}
           >
-            <div class="text-sm font-medium text-gray-700 mb-2 capitalize">
-              {theme.replace(/-/g, ' ')}
+            <div class="text-sm font-medium text-gray-700 mb-1">
+              {themeData?.name || themeId}
+            </div>
+            <div class="text-xs text-gray-500 mb-2 font-mono">
+              {themeId}
             </div>
             <div class="theme-preview text-xs overflow-hidden">
-              {#if themePreviews[theme]}
-                {@html themePreviews[theme]}
+              {#if themePreviews[themeId]}
+                {@html themePreviews[themeId]}
               {:else}
                 <div class="bg-gray-100 p-2 rounded text-gray-500">Loading...</div>
               {/if}
@@ -362,9 +459,14 @@ console.log(msg);`;
           
           <div>
             <span class="block text-sm font-medium text-gray-700 mb-1">Current Theme</span>
-            <span class="px-3 py-2 bg-gray-100 rounded-md text-sm capitalize text-gray-700">
-              {selectedTheme.replace(/-/g, ' ')}
-            </span>
+            <div class="px-3 py-2 bg-gray-100 rounded-md text-sm text-gray-700">
+              <div class="font-medium">
+                {allThemes.find(t => t.id === selectedTheme)?.name || selectedTheme}
+              </div>
+              <div class="text-xs text-gray-500 font-mono">
+                {selectedTheme}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -373,7 +475,7 @@ console.log(msg);`;
         </label>
         <div 
           class="flex-1 relative border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500"
-          style="background-color: {themeBackgroundColors[selectedTheme] || '#ffffff'};"
+          style="background-color: {getThemeBackground(selectedTheme)};"
         >
           <!-- Syntax highlighted background -->
           <div 
@@ -392,7 +494,7 @@ console.log(msg);`;
             bind:value={code_sample}
             placeholder="Enter your code here..."
             class="absolute inset-0 w-full h-full px-4 py-3 bg-transparent text-transparent resize-none outline-none font-mono text-sm leading-relaxed"
-            style="color: transparent; background: transparent; caret-color: {themeBackgroundColors[selectedTheme] === '#ffffff' || themeBackgroundColors[selectedTheme] === '#fdf6e3' ? 'black' : 'white'};"
+            style="color: transparent; background: transparent; caret-color: {lightThemeIds.includes(selectedTheme) ? 'black' : 'white'};"
             onscroll={syncScroll}
             onpaste={handlePaste}
             spellcheck="false"
