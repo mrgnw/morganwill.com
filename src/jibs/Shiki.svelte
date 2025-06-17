@@ -18,6 +18,7 @@ const result = hello();`);
   let textareaRef = $state(null);
   let highlightRef = $state(null);
   let themeBackgrounds = $state({});
+  let themeFilter = $state('all'); // 'all', 'light', 'dark'
 
   const languages = [
     'javascript', 'typescript', 'python', 'java', 'cpp', 'c', 
@@ -32,6 +33,18 @@ const result = hello();`);
     'solarized-light', 'vs-dark', 'tokyo-night', 'vitesse-dark',
     'vitesse-light', 'material-theme', 'material-theme-darker',
     'houston', 'min-dark', 'min-light'
+  ];
+
+  // Categorize themes
+  const lightThemes = [
+    'github-light', 'solarized-light', 'vitesse-light', 'min-light'
+  ];
+  
+  const darkThemes = [
+    'github-dark', 'dracula', 'nord', 'monokai', 'one-dark-pro', 
+    'material-theme-palenight', 'solarized-dark', 'vs-dark', 
+    'tokyo-night', 'vitesse-dark', 'material-theme', 
+    'material-theme-darker', 'houston', 'min-dark'
   ];
 
   // Map theme names to their background colors
@@ -58,6 +71,24 @@ const result = hello();`);
 
   const previewCode = `const msg = "Hello";
 console.log(msg);`;
+
+  const filteredThemes = $derived.by(() => {
+    switch (themeFilter) {
+      case 'light':
+        return lightThemes;
+      case 'dark':
+        return darkThemes;
+      default:
+        return themes;
+    }
+  });
+
+  // Auto-switch to a valid theme when filter changes
+  $effect(() => {
+    if (!filteredThemes.includes(selectedTheme)) {
+      selectedTheme = filteredThemes[0];
+    }
+  });
 
   async function updateHighlight() {
     if (!code_sample.trim()) {
@@ -184,6 +215,28 @@ console.log(msg);`;
     }
   }
 
+  function handleKeydown(event) {
+    // Only handle keyboard navigation when textarea is not focused
+    if (document.activeElement === textareaRef) return;
+    
+    if (event.key === 'j' || event.key === 'k') {
+      event.preventDefault();
+      
+      const currentIndex = filteredThemes.indexOf(selectedTheme);
+      let newIndex;
+      
+      if (event.key === 'j') {
+        // Next theme (j = down)
+        newIndex = currentIndex < filteredThemes.length - 1 ? currentIndex + 1 : 0;
+      } else {
+        // Previous theme (k = up)  
+        newIndex = currentIndex > 0 ? currentIndex - 1 : filteredThemes.length - 1;
+      }
+      
+      selectedTheme = filteredThemes[newIndex];
+    }
+  }
+
   async function generateThemePreviews() {
     const previews = {};
     for (const theme of themes) {
@@ -209,6 +262,14 @@ console.log(msg);`;
   onMount(async () => {
     await generateThemePreviews();
     updateHighlight();
+    
+    // Add global keyboard listener
+    document.addEventListener('keydown', handleKeydown);
+    
+    // Cleanup on unmount
+    return () => {
+      document.removeEventListener('keydown', handleKeydown);
+    };
   });
 </script>
 
@@ -216,13 +277,39 @@ console.log(msg);`;
   <!-- Sidebar for theme selection -->
   <div class="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
     <div class="p-4 border-b border-gray-200">
-      <h2 class="text-lg font-semibold text-gray-900">Themes</h2>
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">Themes</h2>
+      
+      <!-- Theme filter buttons -->
+      <div class="flex rounded-lg bg-gray-200 p-1">
+        <button
+          class="flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors {themeFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
+          onclick={() => themeFilter = 'all'}
+        >
+          All ({themes.length})
+        </button>
+        <button
+          class="flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors {themeFilter === 'light' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
+          onclick={() => themeFilter = 'light'}
+        >
+          Light ({lightThemes.length})
+        </button>
+        <button
+          class="flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors {themeFilter === 'dark' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
+          onclick={() => themeFilter = 'dark'}
+        >
+          Dark ({darkThemes.length})
+        </button>
+      </div>
+      
+      <p class="text-xs text-gray-500 mt-2">
+        Use J/K keys to navigate themes
+      </p>
     </div>
 
     <!-- Scrollable theme list -->
     <div class="flex-1 overflow-y-auto p-4">
       <div class="space-y-3">
-        {#each themes as theme}
+        {#each filteredThemes as theme}
           <button
             class="w-full p-3 border rounded-lg hover:shadow-sm transition-all duration-200 text-left bg-white {selectedTheme === theme ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-300 hover:border-gray-400'}"
             onclick={() => selectedTheme = theme}
