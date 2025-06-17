@@ -512,14 +512,14 @@ console.log(msg);`;
             {/if}
           </div>
           
-          <!-- Transparent textarea overlay -->
+          <!-- Semi-transparent textarea overlay -->
           <textarea
             id="code-input"
             bind:this={textareaRef}
             bind:value={code_sample}
             placeholder="Enter your code here..."
-            class="relative w-full px-4 py-3 bg-transparent resize-none outline-none font-mono text-sm leading-relaxed border-none"
-            style="background: transparent; caret-color: {lightThemeIds.includes(selectedTheme) ? 'black' : 'white'}; min-height: 200px; position: relative; z-index: 1;"
+            class="relative w-full px-4 py-3 bg-transparent resize-none outline-none font-mono text-sm leading-relaxed border-none text-overlay"
+            style="background: transparent; caret-color: {lightThemeIds.includes(selectedTheme) ? 'black' : 'white'}; min-height: 200px; position: relative; z-index: 1; color: {lightThemeIds.includes(selectedTheme) ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'};"
             onscroll={syncScroll}
             onpaste={handlePaste}
             oninput={autoResizeTextarea}
@@ -581,32 +581,35 @@ console.log(msg);`;
     font-family: 'Fira Code', 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
   }
 
-  /* Fix text selection for transparent text */
-  textarea {
-    /* Make selection visible even with transparent text */
-    -webkit-text-fill-color: transparent;
+  /* Text overlay styling */
+  .text-overlay {
+    /* Very low opacity text that allows highlighting to show through */
+    opacity: 1;
   }
   
-  textarea::selection {
-    background: rgba(59, 130, 246, 0.4) !important;
-    -webkit-text-fill-color: rgba(59, 130, 246, 0.8) !important;
+  .text-overlay::selection {
+    background: rgba(59, 130, 246, 0.6) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
   }
 
-  textarea::-moz-selection {
-    background: rgba(59, 130, 246, 0.4) !important;
-    color: rgba(59, 130, 246, 0.8) !important;
+  .text-overlay::-moz-selection {
+    background: rgba(59, 130, 246, 0.6) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
   }
 
   /* Placeholder styling for dark themes */
-  textarea::placeholder {
+  .text-overlay::placeholder {
     color: rgba(156, 163, 175, 0.7);
-    -webkit-text-fill-color: rgba(156, 163, 175, 0.7);
   }
 
   /* Ensure placeholder is visible on dark backgrounds */
-  textarea[style*="caret-color: white"]::placeholder {
+  .text-overlay[style*="caret-color: white"]::placeholder {
     color: rgba(156, 163, 175, 0.8);
-    -webkit-text-fill-color: rgba(156, 163, 175, 0.8);
+  }
+
+  /* Focus state to make text more visible when editing */
+  .text-overlay:focus {
+    color: rgba(0, 0, 0, 0.15) !important;
   }
 
   /* Custom scrollbar for sidebar */
