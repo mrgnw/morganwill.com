@@ -19,7 +19,7 @@
 		"mdsvex": "^0.11.2",
 		"postcss": "^8.4.49",
 		"postcss-load-config": "^5.1.0",
-		"shiki": "^1.24.2",
+		"shiki": "^3.6.0",
 		"shiki-transformer-copy-button": "^0.0.3",
 		"svelte": "^5.2.3",
 		"svelte-adapter-bun": "^0.5.2",

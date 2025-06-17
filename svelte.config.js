@@ -3,7 +3,7 @@ import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import preprocess from "svelte-preprocess";
 import adapter from '@sveltejs/adapter-cloudflare';
 import { fileURLToPath } from 'url';
-import { codeToHtml, getHighlighter } from 'shiki/bundle/full';
+import { codeToHtml } from 'shiki';
 import { addCopyButton } from 'shiki-transformer-copy-button';
 
 
