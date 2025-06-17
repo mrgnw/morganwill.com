@@ -452,21 +452,20 @@ console.log(msg);`;
 
   <!-- Main content area -->
   <div class="flex-1 flex flex-col">
-    <!-- Header -->
+    <!-- Compact header with controls -->
     <div class="p-6 border-b border-gray-200 bg-white">
-      <h1 class="text-3xl font-bold text-gray-900">Shiki Live Preview</h1>
-      <p class="text-gray-600 mt-2">
-        Type or paste code below to see it highlighted in real-time. Language is auto-detected on paste.
-      </p>
-    </div>
-
-    <!-- Code editor -->
-    <div class="flex-1 p-6">
-      <div class="flex flex-col">
-        <!-- Controls above editor -->
-        <div class="flex items-center gap-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Shiki Live Preview</h1>
+          <p class="text-gray-600 text-sm mt-1">
+            Live syntax highlighting with auto language detection
+          </p>
+        </div>
+        
+        <!-- Controls on the right -->
+        <div class="flex items-center gap-6">
           <div>
-            <label for="language" class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="language" class="block text-xs font-medium text-gray-700 mb-1">
               Language
             </label>
             <select 
@@ -481,21 +480,23 @@ console.log(msg);`;
           </div>
           
           <div>
-            <span class="block text-sm font-medium text-gray-700 mb-1">Current Theme</span>
-            <div class="px-3 py-2 bg-gray-100 rounded-md text-sm text-gray-700">
-              <div class="font-medium">
+            <span class="block text-xs font-medium text-gray-700 mb-1">Current Theme</span>
+            <div class="px-3 py-2 bg-gray-100 rounded-md text-sm text-gray-700 min-w-0">
+              <div class="font-medium truncate">
                 {allThemes.find(t => t.id === selectedTheme)?.name || selectedTheme}
               </div>
-              <div class="text-xs text-gray-500 font-mono">
+              <div class="text-xs text-gray-500 font-mono truncate">
                 {selectedTheme}
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <label for="code-input" class="block text-sm font-medium text-gray-700 mb-2">
-          Live Syntax Highlighted Editor
-        </label>
+    <!-- Code editor -->
+    <div class="flex-1 p-6">
+      <div class="flex flex-col">
         <div 
           class="relative border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500"
           style="background-color: {getThemeBackground(selectedTheme)}; min-height: 200px;"
