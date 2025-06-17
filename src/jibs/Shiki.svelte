@@ -15,6 +15,9 @@ const result = hello();`);
   let highlightedHtml = $state('');
   let themePreviews = $state({});
   let isLoading = $state(false);
+  let textareaRef = $state(null);
+  let highlightRef = $state(null);
+  let themeBackgrounds = $state({});
 
   const languages = [
     'javascript', 'typescript', 'python', 'java', 'cpp', 'c', 
@@ -22,7 +25,7 @@ const result = hello();`);
     'html', 'css', 'json', 'yaml', 'xml', 'markdown', 'bash'
   ];
 
-  // Using correct Shiki v3 theme names
+  // Using correct Shiki v3 theme names with background colors
   const themes = [
     'github-dark', 'github-light', 'dracula', 'nord', 'monokai',
     'one-dark-pro', 'material-theme-palenight', 'solarized-dark',
@@ -30,6 +33,28 @@ const result = hello();`);
     'vitesse-light', 'material-theme', 'material-theme-darker',
     'houston', 'min-dark', 'min-light'
   ];
+
+  // Map theme names to their background colors
+  const themeBackgroundColors = {
+    'github-dark': '#0d1117',
+    'github-light': '#ffffff',
+    'dracula': '#282a36',
+    'nord': '#2e3440',
+    'monokai': '#272822',
+    'one-dark-pro': '#282c34',
+    'material-theme-palenight': '#292d3e',
+    'solarized-dark': '#002b36',
+    'solarized-light': '#fdf6e3',
+    'vs-dark': '#1e1e1e',
+    'tokyo-night': '#1a1b26',
+    'vitesse-dark': '#121212',
+    'vitesse-light': '#ffffff',
+    'material-theme': '#263238',
+    'material-theme-darker': '#212121',
+    'houston': '#0c0c0c',
+    'min-dark': '#1f2937',
+    'min-light': '#ffffff'
+  };
 
   const previewCode = `const msg = "Hello";
 console.log(msg);`;
@@ -52,6 +77,13 @@ console.log(msg);`;
       highlightedHtml = `<pre><code>${code_sample}</code></pre>`;
     }
     isLoading = false;
+  }
+
+  function syncScroll() {
+    if (textareaRef && highlightRef) {
+      highlightRef.scrollTop = textareaRef.scrollTop;
+      highlightRef.scrollLeft = textareaRef.scrollLeft;
+    }
   }
 
   async function generateThemePreviews() {
@@ -89,50 +121,52 @@ console.log(msg);`;
       Type or paste code in the textarea below to see it highlighted in real-time with Shiki.
     </p>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Input Section -->
-      <div class="space-y-4">
-        <div>
-          <label for="language" class="block text-sm font-medium text-gray-700 mb-1">
-            Language
-          </label>
-          <select 
-            id="language"
-            bind:value={selectedLanguage}
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {#each languages as lang}
-              <option value={lang}>{lang}</option>
-            {/each}
-          </select>
-        </div>
-
-        <div>
-          <label for="code-input" class="block text-sm font-medium text-gray-700 mb-1">
-            Code Input
-          </label>
-          <textarea
-            id="code-input"
-            bind:value={code_sample}
-            placeholder="Enter your code here..."
-            class="w-full h-96 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-          ></textarea>
-        </div>
+    <div class="max-w-4xl mx-auto mb-8 space-y-4">
+      <div>
+        <label for="language" class="block text-sm font-medium text-gray-700 mb-1">
+          Language
+        </label>
+        <select 
+          id="language"
+          bind:value={selectedLanguage}
+          class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {#each languages as lang}
+            <option value={lang}>{lang}</option>
+          {/each}
+        </select>
       </div>
 
-      <!-- Current Theme Preview -->
-      <div class="space-y-4">
-        <h2 class="text-xl font-semibold">Current Preview ({selectedTheme})</h2>
-        
-        {#if isLoading}
-          <div class="flex items-center justify-center h-32 bg-gray-100 rounded-md">
-            <div class="text-gray-500">Highlighting...</div>
+      <div>
+        <label for="code-input" class="block text-sm font-medium text-gray-700 mb-1">
+          Code Input with Live Syntax Highlighting ({selectedTheme})
+        </label>
+        <div 
+          class="relative w-full h-96 border border-gray-300 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-blue-500"
+          style="background-color: {themeBackgroundColors[selectedTheme] || '#ffffff'};"
+        >
+          <!-- Syntax highlighted background -->
+          <div 
+            bind:this={highlightRef}
+            class="absolute inset-0 overflow-auto pointer-events-none syntax-highlight-overlay"
+          >
+            {#if highlightedHtml}
+              {@html highlightedHtml}
+            {/if}
           </div>
-        {:else}
-          <div class="syntax-highlight">
-            {@html highlightedHtml}
-          </div>
-        {/if}
+          
+          <!-- Transparent textarea overlay -->
+          <textarea
+            id="code-input"
+            bind:this={textareaRef}
+            bind:value={code_sample}
+            placeholder="Enter your code here..."
+            class="absolute inset-0 w-full h-full px-3 py-2 bg-transparent text-transparent resize-none outline-none font-mono text-sm leading-normal"
+            style="color: transparent; background: transparent; caret-color: {themeBackgroundColors[selectedTheme] === '#ffffff' || themeBackgroundColors[selectedTheme] === '#fdf6e3' ? 'black' : 'white'};"
+            onscroll={syncScroll}
+            spellcheck="false"
+          ></textarea>
+        </div>
       </div>
     </div>
   </div>
@@ -163,19 +197,29 @@ console.log(msg);`;
 </div>
 
 <style>
-  :global(.syntax-highlight pre) {
+  /* Overlay syntax highlighting styles */
+  :global(.syntax-highlight-overlay pre) {
     margin: 0;
-    padding: 1rem;
-    overflow-x: auto;
-    border-radius: 0.5rem;
-  }
-  
-  :global(.syntax-highlight code) {
+    padding: 0.75rem;
+    overflow: visible;
+    background: transparent !important;
+    border: none;
+    border-radius: 0;
     font-family: 'Fira Code', 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
     font-size: 0.875rem;
     line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  :global(.syntax-highlight-overlay code) {
+    font-family: 'Fira Code', 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    background: transparent !important;
   }
 
+  /* Theme preview styles */
   :global(.theme-preview pre) {
     margin: 0;
     padding: 0.5rem;
@@ -200,5 +244,26 @@ console.log(msg);`;
 
   .theme-preview {
     pointer-events: none;
+  }
+
+  /* Ensure proper text alignment and cursor */
+  textarea {
+    line-height: 1.5;
+    font-family: 'Fira Code', 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+  }
+
+  /* Selection styling for transparency */
+  textarea::selection {
+    background: rgba(59, 130, 246, 0.3);
+  }
+
+  /* Placeholder styling for dark themes */
+  textarea::placeholder {
+    color: rgba(156, 163, 175, 0.7);
+  }
+
+  /* Ensure placeholder is visible on dark backgrounds */
+  textarea[style*="caret-color: white"]::placeholder {
+    color: rgba(156, 163, 175, 0.8);
   }
 </style>
