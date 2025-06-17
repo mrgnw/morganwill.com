@@ -196,6 +196,27 @@ console.log(msg);`;
     }
   }
 
+  function autoResizeTextarea() {
+    if (textareaRef) {
+      // Reset height to auto to get the scroll height
+      textareaRef.style.height = 'auto';
+      // Set height to scroll height with some minimum
+      const newHeight = Math.max(200, textareaRef.scrollHeight);
+      textareaRef.style.height = newHeight + 'px';
+      
+      // Also update the highlight layer to match
+      if (highlightRef) {
+        highlightRef.style.height = newHeight + 'px';
+      }
+      
+      // Update the container height to match
+      const container = textareaRef.parentElement;
+      if (container) {
+        container.style.height = newHeight + 'px';
+      }
+    }
+  }
+
   function detectLanguage(code) {
     const trimmed = code.trim();
     if (!trimmed) return 'javascript';
@@ -350,11 +371,13 @@ console.log(msg);`;
   // Update highlight when code, language, or theme changes  
   $effect(() => {
     updateHighlight();
+    autoResizeTextarea();
   });
 
   onMount(async () => {
     await generateThemePreviews();
     updateHighlight();
+    autoResizeTextarea();
     
     // Add global keyboard listener
     document.addEventListener('keydown', handleKeydown);
@@ -366,9 +389,9 @@ console.log(msg);`;
   });
 </script>
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex min-h-screen">
   <!-- Sidebar for theme selection -->
-  <div class="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
+  <div class="w-80 bg-gray-50 border-r border-gray-200 flex flex-col sticky top-0 h-screen">
     <div class="p-4 border-b border-gray-200">
       <h2 class="text-lg font-semibold text-gray-900 mb-3">Themes</h2>
       
@@ -428,7 +451,7 @@ console.log(msg);`;
   </div>
 
   <!-- Main content area -->
-  <div class="flex-1 flex flex-col overflow-hidden">
+  <div class="flex-1 flex flex-col">
     <!-- Header -->
     <div class="p-6 border-b border-gray-200 bg-white">
       <h1 class="text-3xl font-bold text-gray-900">Shiki Live Preview</h1>
@@ -438,8 +461,8 @@ console.log(msg);`;
     </div>
 
     <!-- Code editor -->
-    <div class="flex-1 p-6 overflow-hidden">
-      <div class="h-full flex flex-col">
+    <div class="flex-1 p-6">
+      <div class="flex flex-col">
         <!-- Controls above editor -->
         <div class="flex items-center gap-6 mb-4">
           <div>
@@ -474,13 +497,14 @@ console.log(msg);`;
           Live Syntax Highlighted Editor
         </label>
         <div 
-          class="flex-1 relative border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500"
-          style="background-color: {getThemeBackground(selectedTheme)};"
+          class="relative border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500"
+          style="background-color: {getThemeBackground(selectedTheme)}; min-height: 200px;"
         >
           <!-- Syntax highlighted background -->
           <div 
             bind:this={highlightRef}
-            class="absolute inset-0 overflow-auto pointer-events-none syntax-highlight-overlay"
+            class="absolute top-0 left-0 w-full pointer-events-none syntax-highlight-overlay"
+            style="min-height: 200px;"
           >
             {#if highlightedHtml}
               {@html highlightedHtml}
@@ -493,10 +517,11 @@ console.log(msg);`;
             bind:this={textareaRef}
             bind:value={code_sample}
             placeholder="Enter your code here..."
-            class="absolute inset-0 w-full h-full px-4 py-3 bg-transparent text-transparent resize-none outline-none font-mono text-sm leading-relaxed"
-            style="color: transparent; background: transparent; caret-color: {lightThemeIds.includes(selectedTheme) ? 'black' : 'white'};"
+            class="relative w-full px-4 py-3 bg-transparent text-transparent resize-none outline-none font-mono text-sm leading-relaxed border-none"
+            style="color: transparent; background: transparent; caret-color: {lightThemeIds.includes(selectedTheme) ? 'black' : 'white'}; min-height: 200px;"
             onscroll={syncScroll}
             onpaste={handlePaste}
+            oninput={autoResizeTextarea}
             spellcheck="false"
           ></textarea>
         </div>
