@@ -49,29 +49,117 @@
       this.raw = raw;
       this.num = Number(raw);
       // Accept ms or s: if > 1e12 treat as ms, else s
-      this.ms = this.num > 1e12 || (this.num > 1e10 && this.num < 1e13) ? this.num : this.num * 1000;
-      this.unixTime = Math.floor(this.ms / 1000);
-      this.date = new Date(this.ms);
+      const initialMs = this.num > 1e12 || (this.num > 1e10 && this.num < 1e13) ? this.num : this.num * 1000;
+      
+      // Make timestamp properties reactive
+      this._ms = $state(initialMs);
+      this._unixTime = $state(Math.floor(initialMs / 1000));
+      this._date = $state(new Date(initialMs));
       this.twelveHour = false;
+      
+      // Reactive editable state
+      this._editableDate = $state(this.dateString);
+      this._editableTime = $state(this.timeString);
     }
+    
+    get ms() {
+      return this._ms;
+    }
+    
+    set ms(value) {
+      this._ms = value;
+      this._unixTime = Math.floor(value / 1000);
+      this._date = new Date(value);
+    }
+    
+    get unixTime() {
+      return this._unixTime;
+    }
+    
+    get date() {
+      return this._date;
+    }
+    
+    get editableDate() {
+      return this._editableDate;
+    }
+    
+    set editableDate(value) {
+      this._editableDate = value;
+      this.updateFromEditable();
+    }
+    
+    get editableTime() {
+      return this._editableTime;
+    }
+    
+    set editableTime(value) {
+      this._editableTime = value;
+      this.updateFromEditable();
+    }
+    
+    get dateString() {
+      return `${this.year}-${this.month}-${this.day}`;
+    }
+    
+    get timeString() {
+      return `${this.hour24}:${this.minute}:${this.second}`;
+    }
+    
+    // Update the timestamp when editable values change
+    updateFromEditable() {
+      try {
+        const dateParts = this._editableDate.split('-');
+        const timeParts = this._editableTime.split(':');
+        
+        if (dateParts.length !== 3 || timeParts.length !== 3) return;
+        
+        const [year, month, day] = dateParts.map(n => parseInt(n));
+        const [hour, minute, second] = timeParts.map(n => parseInt(n));
+        
+        // Validate ranges
+        if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(hour) || isNaN(minute) || isNaN(second)) return;
+        if (month < 1 || month > 12 || day < 1 || day > 31) return;
+        if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) return;
+        
+        const newDate = new Date(year, month - 1, day, hour, minute, second);
+        
+        if (!isNaN(newDate.getTime())) {
+          const newMs = newDate.getTime();
+          if (newMs !== this._ms) {
+            // Use the setter to update all related values reactively
+            this.ms = newMs;
+          }
+        }
+      } catch (e) {
+        // Silently handle invalid input
+      }
+    }
+    
+    // Sync editable fields when the underlying date changes (e.g., from external updates)
+    syncEditableFields() {
+      this._editableDate = this.dateString;
+      this._editableTime = this.timeString;
+    }
+
     get headAndZeros() {
-      const str = this.ms > 1e12 ? String(this.ms) : String(this.unixTime);
+      const str = this._ms > 1e12 ? String(this._ms) : String(this._unixTime);
       let match = str.match(/^(.*?)(0{3,})$/);
       if (match) return [match[1], match[2]];
       return [str, ""];
     }
-    get year() { return this.date.getFullYear(); }
-    get month() { return String(this.date.getMonth() + 1).padStart(2, '0'); }
-    get day() { return String(this.date.getDate()).padStart(2, '0'); }
-    get hour24() { return String(this.date.getHours()).padStart(2, '0'); }
-    get minute() { return String(this.date.getMinutes()).padStart(2, '0'); }
-    get second() { return String(this.date.getSeconds()).padStart(2, '0'); }
+    get year() { return this._date.getFullYear(); }
+    get month() { return String(this._date.getMonth() + 1).padStart(2, '0'); }
+    get day() { return String(this._date.getDate()).padStart(2, '0'); }
+    get hour24() { return String(this._date.getHours()).padStart(2, '0'); }
+    get minute() { return String(this._date.getMinutes()).padStart(2, '0'); }
+    get second() { return String(this._date.getSeconds()).padStart(2, '0'); }
     get hour12() {
-      let h = this.date.getHours();
+      let h = this._date.getHours();
       return String((h % 12) || 12).padStart(2, '0');
     }
-    get ampm() { return this.date.getHours() < 12 ? "AM" : "PM"; }
-    get weekdayShort() { return this.date.toLocaleString('en-US', { weekday: 'short' }); }
+    get ampm() { return this._date.getHours() < 12 ? "AM" : "PM"; }
+    get weekdayShort() { return this._date.toLocaleString('en-US', { weekday: 'short' }); }
   }
 
   // List of DateRow objects
@@ -291,7 +379,7 @@
     <div class="list-table">
       <div class="list-header">
         <span class="list-col list-ts">Timestamp</span>
-        <span class="list-col list-date">Date</span>
+        <span class="list-col list-date">Date (editable)</span>
       </div>
       {#each times as row}
         <div class="list-row">
@@ -314,29 +402,17 @@
           </span>
           <span class="list-col list-date-sep"></span>
           <span class="list-col list-date">
-            <span class="date-part">{row.year}<span class="grey0 thin0">-</span></span>
-            <span class="date-part">{row.month}<span class="grey0 thin0">-</span></span>
-            <span class="date-part">{row.day}</span>
+            <input 
+              class="editable-field date-field" 
+              bind:value={row.editableDate} 
+              placeholder="YYYY-MM-DD"
+            />
             <span class="date-part">&nbsp;</span>
-            {#if row.twelveHour}
-              <span class="time-part compact-time">
-                {row.hour12}
-                <span class="compact-space"></span>
-                {row.minute}
-                <span class="compact-space"></span>
-                <span class="grey0 thin0">{row.second}</span>
-                <span class="compact-space"></span>
-                <span class="ampm">{row.ampm}</span>
-              </span>
-            {:else}
-              <span class="time-part compact-time">
-                {row.hour24}
-                <span class="compact-space"></span>
-                {row.minute}
-                <span class="compact-space"></span>
-                <span class="grey0 thin0">{row.second}</span>
-              </span>
-            {/if}
+            <input 
+              class="editable-field time-field" 
+              bind:value={row.editableTime} 
+              placeholder="HH:mm:ss"
+            />
             <span class="date-part">&nbsp;</span>
             <span class="weekday-part">{row.weekdayShort}</span>
           </span>
@@ -556,6 +632,41 @@
     font-family: inherit;
     font-size: 0.98em;
     margin-left: 0.2em;
+  }
+
+  .editable-field {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    padding: 0.1em 0.3em;
+    margin: 0;
+    text-align: center;
+    transition: background 0.15s, border-radius 0.15s;
+    border-radius: 3px;
+  }
+
+  .editable-field:hover {
+    background: rgba(0, 122, 255, 0.08);
+  }
+
+  .editable-field:focus {
+    background: rgba(0, 122, 255, 0.15);
+    outline: 1px solid rgba(0, 122, 255, 0.3);
+  }
+
+  .date-field {
+    width: 8em;
+    color: #444;
+  }
+
+  .time-field {
+    width: 6.5em;
+    color: #007aff;
+    font-weight: 600;
   }
 
   @media (max-width: 640px) {
