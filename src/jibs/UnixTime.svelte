@@ -165,6 +165,13 @@
   // List of DateRow objects
   let times = $state([]);
 
+  // Initialize with current time on load
+  $effect(() => {
+    if (times.length === 0) {
+      addTime(unixTime);
+    }
+  });
+
   // Add a new timestamp to the list, dedup by ms
   function addTime(raw) {
     let row = new DateRow(raw);
@@ -202,6 +209,12 @@
   // Copy timestamp to clipboard
   function copyTimestamp(ts) {
     navigator.clipboard.writeText(ts + "");
+  }
+
+  // Copy date/time string to clipboard
+  function copyDateTime(row) {
+    const dateTimeString = `${row.editableDate} ${row.editableTime}`;
+    navigator.clipboard.writeText(dateTimeString);
   }
 
   // Handle paste anywhere: extract all numbers and add each
@@ -400,7 +413,7 @@
               </svg>
             </span>
           </span>
-          <span class="list-col list-col-date">
+          <span class="list-col list-col-date date-cell">
             <input 
               class="editable-field date-field" 
               bind:value={row.editableDate} 
@@ -414,6 +427,12 @@
             />
             <span class="date-part">&nbsp;</span>
             <span class="weekday-part">{row.weekdayShort}</span>
+            <span class="copy-icon date-copy-icon" onclick={e => { e.stopPropagation(); copyDateTime(row); }} title="Copy date/time">
+              <svg width="1.1em" height="1.1em" viewBox="0 0 20 20" fill="none" style="vertical-align:middle;">
+                <rect x="6" y="6" width="9" height="9" rx="2" fill="#bdbdbd"/>
+                <rect x="3" y="3" width="9" height="9" rx="2" stroke="#bdbdbd" stroke-width="2" fill="none"/>
+              </svg>
+            </span>
           </span>
         </div>
       {/each}
@@ -552,11 +571,13 @@
     font-family: inherit;
     gap: 0.1em;
     white-space: nowrap;
+    position: relative;
+    /* Reserve space for copy icon */
+    padding-right: 1.5em;
   }
 
-  .ts-cell {
-    position: relative;
-    width: 100%;
+  .date-cell:hover {
+    background: #f6faff;
   }
 
   .copy-icon {
@@ -577,6 +598,26 @@
   }
 
   .copy-icon:active {
+    opacity: 0.5;
+  }
+
+  .date-copy-icon {
+    position: absolute;
+    right: 0.2em;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.12s;
+    pointer-events: none;
+  }
+
+  .list-col-date:hover .date-copy-icon {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .date-copy-icon:active {
     opacity: 0.5;
   }
 
