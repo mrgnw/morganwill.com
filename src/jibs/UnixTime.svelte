@@ -378,12 +378,12 @@
   {#if times.length > 0}
     <div class="list-table">
       <div class="list-header">
-        <span class="list-col list-ts">Timestamp</span>
-        <span class="list-col list-date">Date</span>
+        <span class="list-col list-col-ts">Timestamp</span>
+        <span class="list-col list-col-date">Date</span>
       </div>
       {#each times as row}
         <div class="list-row">
-          <span class="list-col list-ts ts-cell" onclick={() => toggleHourMode(row)}>
+          <span class="list-col list-col-ts ts-cell" onclick={() => toggleHourMode(row)}>
             {#key row.ms}
               {#if row.headAndZeros[1]}
                 <span style="letter-spacing:0">
@@ -400,8 +400,7 @@
               </svg>
             </span>
           </span>
-          <span class="list-col list-date-sep"></span>
-          <span class="list-col list-date">
+          <span class="list-col list-col-date">
             <input 
               class="editable-field date-field" 
               bind:value={row.editableDate} 
@@ -522,35 +521,79 @@
     font-size: 1.05em;
     letter-spacing: 0.01em;
   }
-  .list-col.list-ts {
+
+  .list-col {
+    display: flex;
+    align-items: center;
+  }
+
+  .list-col-ts {
+    width: 10em;
+    max-width: 10em;
+    min-width: 10em;
     position: relative;
     cursor: pointer;
     user-select: text;
     transition: background 0.12s;
+    /* Reduce space for copy icon */
+    padding-right: 1.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .list-col.list-ts:hover {
+
+  .list-col-ts:hover {
     background: #f6faff;
   }
+
+  .list-col-date {
+    flex: 1;
+    color: #222;
+    font-size: 1.08em;
+    font-family: inherit;
+    gap: 0.1em;
+    white-space: nowrap;
+  }
+
   .ts-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
     position: relative;
+    width: 100%;
   }
+
   .copy-icon {
-    display: none;
-    margin-left: 0.2em;
+    position: absolute;
+    right: 0.2em;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
     cursor: pointer;
-    vertical-align: middle;
-    opacity: 0.7;
     transition: opacity 0.12s;
+    /* Prevent the icon from affecting layout */
+    pointer-events: none;
   }
-  .list-col.list-ts:hover .copy-icon {
-    display: inline-block;
+
+  .list-col-ts:hover .copy-icon {
     opacity: 1;
+    pointer-events: auto;
   }
+
   .copy-icon:active {
     opacity: 0.5;
+  }
+
+  .list-row {
+    display: flex;
+    border-bottom: 1px solid #f2f2f2;
+    padding: 0.2em 0;
+    align-items: center;
+    transition: background 0.15s;
+  }
+  .ampm {
+    font-size: 0.93em;
+    color: #888;
+    font-family: inherit;
+    margin-left: 0.1em;
+    letter-spacing: 0.01em;
+    font-weight: 400;
   }
   .list-col.list-date-sep {
     width: 2.2em;
@@ -562,21 +605,6 @@
     height: 1.5em;
     margin: 0 0.2em;
     content: "";
-  }
-  .ampm {
-    font-size: 0.93em;
-    color: #888;
-    font-family: inherit;
-    margin-left: 0.1em;
-    letter-spacing: 0.01em;
-    font-weight: 400;
-  }
-  .list-row {
-    display: flex;
-    border-bottom: 1px solid #f2f2f2;
-    padding: 0.2em 0;
-    align-items: center;
-    transition: background 0.15s;
   }
   .list-date {
     flex: 1;
