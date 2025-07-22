@@ -379,7 +379,7 @@
     <div class="list-table">
       <div class="list-header">
         <span class="list-col list-ts">Timestamp</span>
-        <span class="list-col list-date">Date (editable)</span>
+        <span class="list-col list-date">Date</span>
       </div>
       {#each times as row}
         <div class="list-row">
