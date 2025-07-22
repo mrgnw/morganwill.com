@@ -87,6 +87,19 @@
     unixTime = row.unixTime;
   }
 
+  // Try to parse a date string and return Unix timestamp if successful
+  function tryParseDateString(str) {
+    try {
+      const date = new Date(str.trim());
+      if (!isNaN(date.getTime())) {
+        return Math.floor(date.getTime() / 1000);
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+    return null;
+  }
+
   function setCurrentTime() {
     addTime(Math.floor(Date.now() / 1000));
   }
@@ -109,6 +122,12 @@
     let matches = text.match(/\d{6,}/g); // all 6+ digit numbers
     if (matches) {
       matches.forEach(addTime);
+    } else {
+      // Try parsing as date string if no Unix timestamps found
+      const timestamp = tryParseDateString(text);
+      if (timestamp) {
+        addTime(timestamp);
+      }
     }
     // Prevent default paste into input
     e.preventDefault();
@@ -124,6 +143,14 @@
       let last = new DateRow(matches[matches.length - 1]);
       unixTime = last.unixTime;
       e.preventDefault();
+    } else {
+      // Try parsing as date string if no Unix timestamps found
+      const timestamp = tryParseDateString(text);
+      if (timestamp) {
+        addTime(timestamp);
+        unixTime = timestamp;
+        e.preventDefault();
+      }
     }
   }
 
@@ -136,6 +163,14 @@
       let last = new DateRow(matches[matches.length - 1]);
       unixTime = last.unixTime;
       e.preventDefault();
+    } else {
+      // Try parsing as date string if no Unix timestamps found
+      const timestamp = tryParseDateString(text);
+      if (timestamp) {
+        addTime(timestamp);
+        unixTime = timestamp;
+        e.preventDefault();
+      }
     }
   }
 
