@@ -419,13 +419,11 @@
               bind:value={row.editableDate} 
               placeholder="YYYY-MM-DD"
             />
-            <span class="date-part">&nbsp;</span>
             <input 
               class="editable-field time-field" 
               bind:value={row.editableTime} 
               placeholder="HH:mm:ss"
             />
-            <span class="date-part">&nbsp;</span>
             <span class="weekday-part">{row.weekdayShort}</span>
             <span class="copy-icon date-copy-icon" onclick={e => { e.stopPropagation(); copyDateTime(row); }} title="Copy date/time">
               <svg width="1.1em" height="1.1em" viewBox="0 0 20 20" fill="none" style="vertical-align:middle;">
@@ -569,11 +567,13 @@
     color: #222;
     font-size: 1.08em;
     font-family: inherit;
-    gap: 0.1em;
+    gap: 0.05em;
     white-space: nowrap;
     position: relative;
     /* Reserve space for copy icon */
     padding-right: 1.5em;
+    display: flex;
+    align-items: center;
   }
 
   .date-cell:hover {
@@ -700,7 +700,7 @@
     color: #888;
     font-family: inherit;
     font-size: 0.98em;
-    margin-left: 0.2em;
+    margin-left: 0.05em;
   }
 
   .editable-field {
@@ -711,7 +711,7 @@
     font-size: inherit;
     font-weight: inherit;
     color: inherit;
-    padding: 0.1em 0.3em;
+    padding: 0.05em 0.2em;
     margin: 0;
     text-align: center;
     transition: background 0.15s, border-radius 0.15s;
