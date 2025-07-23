@@ -364,7 +364,6 @@
 <div class="container">
   <h1 class="title">Unix Timestamp Converter</h1>
   <div class="mb-6">
-    <label for="unix-time" class="label">Unix Timestamp:</label>
     <input
       id="unix-time"
       type="number"
