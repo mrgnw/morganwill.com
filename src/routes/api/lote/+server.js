@@ -10,25 +10,38 @@ const FORM_DATA = {
 	"officine_id": "56"
 };
 
-const headers = {
-	"User-Agent": FORM_DATA.usr_agent,
-	"Referer": SELECT_URL,
-	"Origin": "https://form24.es",
-	"Accept": "*/*",
-};
-
 /** @type {import('./$types').RequestHandler} */
 export async function GET() {
 	try {
-		// Step 1: Get the page to extract CSRF token
-		const selectResponse = await fetch(SELECT_URL, { headers });
+		// Step 1: Get the page to extract CSRF token and cookies
+		const selectResponse = await fetch(SELECT_URL, { 
+			headers: {
+				'User-Agent': FORM_DATA.usr_agent,
+				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+				'Accept-Language': 'en-US,en;q=0.5',
+				'Accept-Encoding': 'gzip, deflate, br',
+				'DNT': '1',
+				'Connection': 'keep-alive',
+				'Upgrade-Insecure-Requests': '1',
+			}
+		});
+		
 		if (!selectResponse.ok) {
 			throw new Error(`Failed to fetch select page: ${selectResponse.status}`);
 		}
 		
 		const html = await selectResponse.text();
 		
-		// Extract CSRF token using regex (since we can't use BeautifulSoup)
+		// Extract cookies from the response headers
+		const setCookieHeaders = selectResponse.headers.getSetCookie?.() || 
+			(selectResponse.headers.get('set-cookie') ? [selectResponse.headers.get('set-cookie')] : []);
+		
+		// Parse cookies into a single Cookie header value
+		const cookies = setCookieHeaders
+			.map(cookie => cookie.split(';')[0]) // Take only the name=value part
+			.join('; ');
+		
+		// Extract CSRF token using regex
 		const tokenMatch = html.match(/<input[^>]*name="_token"[^>]*value="([^"]*)"[^>]*>/);
 		if (!tokenMatch) {
 			throw new Error("CSRF token not found");
@@ -43,12 +56,16 @@ export async function GET() {
 		});
 		formData.append("_token", csrfToken);
 		
-		// Step 3: Make POST request
+		// Step 3: Make POST request with cookies
 		const postResponse = await fetch(POST_URL, {
 			method: 'POST',
 			headers: {
-				...headers,
-				// Don't set Content-Type when using FormData
+				'User-Agent': FORM_DATA.usr_agent,
+				'Referer': SELECT_URL,
+				'Origin': 'https://form24.es',
+				'Accept': 'application/json, text/plain, */*',
+				'Cookie': cookies,
+				'X-Requested-With': 'XMLHttpRequest',
 			},
 			body: formData
 		});
@@ -67,7 +84,7 @@ export async function GET() {
 		
 	} catch (error) {
 		return json({ 
-			error: error.message 
+			error: error instanceof Error ? error.message : 'Unknown error'
 		}, { 
 			status: 500 
 		});
