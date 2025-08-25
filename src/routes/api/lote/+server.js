@@ -78,7 +78,8 @@ export async function GET() {
 		
 		return json(result, {
 			headers: {
-				'Cache-Control': 'max-age=300' // Cache for 5 minutes
+				'Cache-Control': 'max-age=1800', // Cache for 30 minutes
+				'ETag': `"${result.lote}-${result.acutalizacao}"` // ETag based on lote and date
 			}
 		});
 		

@@ -51,7 +51,7 @@
 			<button on:click={fetchLote}>Try Again</button>
 		</div>
 	{:else if loteData}
-		<div class="results">
+		<div class="results" class:refreshing={loading}>
 			<div class="lote-number">
 				<h2>Current Lote:</h2>
 				<div class="lote-value">{loteData.lote.replace(/\//g, '/')}</div>
@@ -65,9 +65,24 @@
 					<p><small>Thanks to: {loteData.thanks_to}</small></p>
 				{/if}
 			</div>
+			
+			{#if loading}
+				<div class="refresh-overlay">
+					<div class="refresh-indicator">
+						<div class="spinner"></div>
+						<p>Checking for updates...</p>
+					</div>
+				</div>
+			{/if}
 		</div>
 		
-		<button on:click={fetchLote} class="refresh-btn">🔄 Refresh</button>
+		<button on:click={fetchLote} class="refresh-btn" disabled={loading}>
+			{#if loading}
+				<span class="refresh-spinner">🔄</span> Refreshing...
+			{:else}
+				🔄 Refresh
+			{/if}
+		</button>
 	{/if}
 </div>
 
@@ -127,6 +142,36 @@
 
 	.results {
 		text-align: center;
+		position: relative;
+	}
+
+	.results.refreshing {
+		opacity: 0.7;
+		pointer-events: none;
+	}
+
+	.refresh-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(255, 255, 255, 0.9);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+	}
+
+	.refresh-indicator {
+		text-align: center;
+		color: #3498db;
+	}
+
+	.refresh-indicator p {
+		margin: 0.5rem 0 0 0;
+		font-size: 0.9rem;
+		font-weight: 500;
 	}
 
 	.lote-number {
@@ -178,10 +223,25 @@
 		cursor: pointer;
 		font-size: 1rem;
 		transition: background-color 0.2s;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		justify-content: center;
+		min-width: 120px;
 	}
 
-	.refresh-btn:hover {
+	.refresh-btn:hover:not(:disabled) {
 		background: #2980b9;
+	}
+
+	.refresh-btn:disabled {
+		background: #95a5a6;
+		cursor: not-allowed;
+	}
+
+	.refresh-spinner {
+		animation: spin 1s linear infinite;
+		display: inline-block;
 	}
 
 	@media (max-width: 600px) {
