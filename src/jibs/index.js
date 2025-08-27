@@ -14,7 +14,6 @@ export function getJibComponents() {
 
   const localJibs = Object.keys(components)
     .filter((path) => {
-      if (path.includes("+page")) return false;
       const name = path.split("/").pop()?.replace(".svelte", "") || "";
       return !unlistJibs.includes(name);
     })
