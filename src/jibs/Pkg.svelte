@@ -47,6 +47,8 @@
 		"mask",
 		"zellij",
 		"fd",
+		"terminal-notifier",
+
 		
 
 		// System utilities
@@ -70,6 +72,7 @@
 		"postman",
 		"sublime-text",
 		"git-delta",
+
 
 		// File management
 		"cyberduck",
