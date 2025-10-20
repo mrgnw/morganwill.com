@@ -1,5 +1,5 @@
 # Node + Bun
-FROM node:23 AS bun-base
+FROM node:25-slim AS bun-base
 RUN npm install -g bun
 WORKDIR /app
 
