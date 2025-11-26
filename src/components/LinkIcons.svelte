@@ -277,22 +277,22 @@
 	/* Desktop: Use CSS custom properties for sizing based on count */
 	/* Hero items (first 1-2) get --hero-size, others get --item-size */
 	
-	.qrs-grid[data-count="1"] { --hero-size: min(80vh, 80vw); }
+	.qrs-grid[data-count="1"] { --hero-size: min(85vh, 85vw); }
 	.qrs-grid[data-count="1"] .qr-card { --qr-size: var(--hero-size); }
 
-	.qrs-grid[data-count="2"] { --hero-size: min(70vh, 40vw); }
+	.qrs-grid[data-count="2"] { --hero-size: min(80vh, 45vw); }
 	.qrs-grid[data-count="2"] .qr-card { --qr-size: var(--hero-size); }
 
-	.qrs-grid[data-count="3"] { --hero-size: min(70vh, 35vw); --item-size: min(35vh, 25vw); }
-	.qrs-grid[data-count="4"] { --hero-size: min(70vh, 30vw); --item-size: min(35vh, 20vw); }
-	.qrs-grid[data-count="5"] { --hero-size: min(70vh, 30vw); --item-size: min(35vh, 20vw); }
-	.qrs-grid[data-count="6"] { --hero-size: min(70vh, 25vw); --item-size: min(35vh, 18vw); }
-	.qrs-grid[data-count="7"] { --hero-size: min(70vh, 22vw); --item-size: min(35vh, 18vw); }
-	.qrs-grid[data-count="8"] { --hero-size: min(70vh, 20vw); --item-size: min(35vh, 16vw); }
-	.qrs-grid[data-count="9"] { --hero-size: min(70vh, 20vw); --item-size: min(35vh, 14vw); }
-	.qrs-grid[data-count="10"] { --hero-size: min(70vh, 18vw); --item-size: min(35vh, 13vw); }
-	.qrs-grid[data-count="11"] { --hero-size: min(70vh, 16vw); --item-size: min(35vh, 12vw); }
-	.qrs-grid[data-count="12"] { --hero-size: min(70vh, 15vw); --item-size: min(35vh, 11vw); }
+	.qrs-grid[data-count="3"] { --hero-size: min(80vh, 42vw); --item-size: min(42vh, 30vw); }
+	.qrs-grid[data-count="4"] { --hero-size: min(80vh, 38vw); --item-size: min(42vh, 26vw); }
+	.qrs-grid[data-count="5"] { --hero-size: min(80vh, 36vw); --item-size: min(42vh, 24vw); }
+	.qrs-grid[data-count="6"] { --hero-size: min(80vh, 32vw); --item-size: min(42vh, 22vw); }
+	.qrs-grid[data-count="7"] { --hero-size: min(80vh, 28vw); --item-size: min(42vh, 20vw); }
+	.qrs-grid[data-count="8"] { --hero-size: min(80vh, 26vw); --item-size: min(42vh, 18vw); }
+	.qrs-grid[data-count="9"] { --hero-size: min(80vh, 24vw); --item-size: min(42vh, 17vw); }
+	.qrs-grid[data-count="10"] { --hero-size: min(80vh, 22vw); --item-size: min(42vh, 16vw); }
+	.qrs-grid[data-count="11"] { --hero-size: min(80vh, 20vw); --item-size: min(42vh, 15vw); }
+	.qrs-grid[data-count="12"] { --hero-size: min(80vh, 18vw); --item-size: min(42vh, 14vw); }
 
 	/* First 1-2 items are heroes */
 	.qrs-grid .qr-card:nth-child(1) { --qr-size: var(--hero-size, min(70vh, 30vw)); }
@@ -311,30 +311,48 @@
 	/* ===== MOBILE ===== */
 	@media (max-width: 767px) {
 		.qrs-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			grid-auto-rows: auto;
 			height: auto;
 			min-height: 100vh;
 			overflow-y: auto;
-			align-content: flex-start;
-			padding: 1rem;
-			gap: 1rem;
+			align-content: start;
+			padding: 0.5rem;
+			gap: 0.5rem;
 		}
 
-		/* Reset desktop sizing */
+		.qr-card {
+			justify-self: center;
+		}
+
+		/* Reset desktop sizing - smaller items */
 		.qrs-grid .qr-card {
-			--qr-size: 38vw;
+			--qr-size: 42vw;
 		}
 
-		/* First items are bigger */
+		/* First item is bigger and spans full width */
 		.qrs-grid .qr-card:nth-child(1) {
-			--qr-size: 65vw;
+			grid-column: 1 / -1;
+			--qr-size: 70vw;
 		}
 
-		/* Even counts: first 2 are big */
+		/* Even counts ≥6: first 2 are big and span full width */
 		.qrs-grid[data-count="6"] .qr-card:nth-child(2),
 		.qrs-grid[data-count="8"] .qr-card:nth-child(2),
 		.qrs-grid[data-count="10"] .qr-card:nth-child(2),
 		.qrs-grid[data-count="12"] .qr-card:nth-child(2) {
-			--qr-size: 65vw;
+			grid-column: 1 / -1;
+			--qr-size: 70vw;
+		}
+
+		/* 4 or fewer: all span full width */
+		.qrs-grid[data-count="1"] .qr-card,
+		.qrs-grid[data-count="2"] .qr-card,
+		.qrs-grid[data-count="3"] .qr-card,
+		.qrs-grid[data-count="4"] .qr-card {
+			grid-column: 1 / -1;
+			--qr-size: 70vw;
 		}
 
 		.qr-card-url {
