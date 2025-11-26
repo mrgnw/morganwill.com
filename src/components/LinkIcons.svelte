@@ -281,7 +281,7 @@
 		align-content: center;
 		width: 100%;
 		height: 100%;
-		overflow: hidden;
+		overflow: visible;
 		box-sizing: border-box;
 		transition: grid-template-columns 0.3s ease, opacity 0.2s ease;
 		opacity: 0;
@@ -299,18 +299,21 @@
 		box-sizing: border-box;
 		transition: width 0.3s ease, height 0.3s ease;
 		padding: 0.25rem;
+		overflow: visible;
 	}
 
 	/* QR code container */
 	.qr-card-code {
 		position: relative;
-		overflow: hidden;
+		overflow: visible;
 		line-height: 0;
 		flex: 1;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		min-height: 0;
+		padding: 0.5rem;
+		margin: -0.5rem;
 	}
 
 	/* Animate individual QR modules (rects) popping in */
