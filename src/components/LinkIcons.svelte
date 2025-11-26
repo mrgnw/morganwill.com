@@ -69,6 +69,44 @@
 	let selectedQr = $derived(selectedLink?.qr ?? null);
 	let selectedUrl = $derived(selectedLink?.url);
 
+	// Grid calculation state
+	let gridEl = $state(/** @type {HTMLElement | null} */ (null));
+	let size = $state(0);
+	let cols = $state(1);
+
+	function updateGrid() {
+		if (!gridEl) return;
+		const w = gridEl.clientWidth;
+		const h = gridEl.clientHeight;
+		const n = links.length;
+
+		let best = 0;
+		let bestCols = 1;
+
+		for (let c = 1; c <= n; c++) {
+			const r = Math.ceil(n / c);
+			const s = Math.min(w / c, h / r);
+			if (s > best) {
+				best = s;
+				bestCols = c;
+			}
+		}
+
+		size = best;
+		cols = bestCols;
+	}
+
+	// Set up ResizeObserver when gridEl becomes available
+	$effect(() => {
+		if (!gridEl) return;
+		
+		updateGrid();
+		const obs = new ResizeObserver(updateGrid);
+		obs.observe(gridEl);
+		
+		return () => obs.disconnect();
+	});
+
 	onMount(() => {
 		/**
 		 * @param {TouchEvent} e
@@ -99,12 +137,17 @@
 <div class="link-icons" class:qrs-mode={qrsMode}>
 	{#if qrsMode}
 		<!-- All QR codes grid view -->
-		<div class="qrs-grid" data-count={links.length}>
+		<div 
+			class="qrs-grid" 
+			bind:this={gridEl}
+			style="grid-template-columns: repeat({cols}, {size || 100}px)"
+		>
 			{#each links as link, index (link.title)}
 				<a 
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
+					style="width: {size || 100}px; height: {size || 100}px;"
 					transition:fade={{ duration: 400, delay: 80 * index }}
 				>
 					<span class="qr-card-title">{link.title}</span>
@@ -207,17 +250,21 @@
 		align-items: center;
 	}
 
+	.link-icons.qrs-mode {
+		width: 100vw;
+		height: 100vh;
+		position: fixed;
+		top: 0;
+		left: 0;
+	}
+
 	/* ===== QRS GRID MODE ===== */
 	.qrs-grid {
 		display: grid;
-		justify-items: center;
-		align-items: center;
 		justify-content: center;
 		align-content: center;
-		gap: 0.5rem;
-		padding: 0.5rem;
 		width: 100%;
-		height: 100vh;
+		height: 100%;
 		overflow: hidden;
 		box-sizing: border-box;
 	}
@@ -226,12 +273,13 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 		text-decoration: none;
-		gap: 0.25rem;
+		box-sizing: border-box;
 	}
 
 	.qr-card-title {
-		font-size: 1rem;
+		font-size: clamp(0.7rem, 2vw, 1rem);
 		font-weight: 500;
 		color: var(--primary);
 		text-transform: capitalize;
@@ -239,18 +287,24 @@
 
 	.qr-card-code {
 		line-height: 0;
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.qr-card-code :global(svg) {
-		width: var(--qr-size, 120px);
-		height: var(--qr-size, 120px);
+		width: 100%;
+		height: 100%;
+		max-width: 100%;
+		max-height: 100%;
 	}
 
 	.qr-card-url {
-		font-size: 0.65rem;
+		font-size: clamp(0.5rem, 1.5vw, 0.65rem);
 		color: var(--default);
 		opacity: 0.7;
-		max-width: var(--qr-size, 120px);
+		max-width: 100%;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -272,145 +326,6 @@
 	.qr-card:hover .qr-card-title,
 	.qr-card:hover .qr-card-url {
 		color: var(--highlight);
-	}
-
-	/* Desktop: Optimal grid layouts for maximum QR size
-	   Goal: distribute items evenly to maximize individual QR size
-	   Using grid-template-columns/rows to create balanced layouts */
-	
-	/* 1 item: 1x1 */
-	.qrs-grid[data-count="1"] { 
-		grid-template-columns: 1fr;
-		--qr-size: min(80vh, 80vw);
-	}
-
-	/* 2 items: 2x1 */
-	.qrs-grid[data-count="2"] { 
-		grid-template-columns: 1fr 1fr;
-		--qr-size: min(80vh, 45vw);
-	}
-
-	/* 3 items: 3x1 */
-	.qrs-grid[data-count="3"] { 
-		grid-template-columns: repeat(3, 1fr);
-		--qr-size: min(80vh, 30vw);
-	}
-
-	/* 4 items: 2x2 */
-	.qrs-grid[data-count="4"] { 
-		grid-template-columns: repeat(2, 1fr);
-		grid-template-rows: repeat(2, 1fr);
-		--qr-size: min(42vh, 45vw);
-	}
-
-	/* 5 items: 3x2 (one empty) */
-	.qrs-grid[data-count="5"] { 
-		grid-template-columns: repeat(3, 1fr);
-		grid-template-rows: repeat(2, 1fr);
-		--qr-size: min(42vh, 30vw);
-	}
-
-	/* 6 items: 3x2 */
-	.qrs-grid[data-count="6"] { 
-		grid-template-columns: repeat(3, 1fr);
-		grid-template-rows: repeat(2, 1fr);
-		--qr-size: min(42vh, 30vw);
-	}
-
-	/* 7 items: 4x2 (one empty) */
-	.qrs-grid[data-count="7"] { 
-		grid-template-columns: repeat(4, 1fr);
-		grid-template-rows: repeat(2, 1fr);
-		--qr-size: min(42vh, 22vw);
-	}
-
-	/* 8 items: 4x2 */
-	.qrs-grid[data-count="8"] { 
-		grid-template-columns: repeat(4, 1fr);
-		grid-template-rows: repeat(2, 1fr);
-		--qr-size: min(42vh, 22vw);
-	}
-
-	/* 9 items: 3x3 */
-	.qrs-grid[data-count="9"] { 
-		grid-template-columns: repeat(3, 1fr);
-		grid-template-rows: repeat(3, 1fr);
-		--qr-size: min(28vh, 30vw);
-	}
-
-	/* 10 items: 4x3 (two empty) or 5x2 */
-	.qrs-grid[data-count="10"] { 
-		grid-template-columns: repeat(5, 1fr);
-		grid-template-rows: repeat(2, 1fr);
-		--qr-size: min(42vh, 18vw);
-	}
-
-	/* 11 items: 4x3 (one empty) */
-	.qrs-grid[data-count="11"] { 
-		grid-template-columns: repeat(4, 1fr);
-		grid-template-rows: repeat(3, 1fr);
-		--qr-size: min(28vh, 22vw);
-	}
-
-	/* 12 items: 4x3 */
-	.qrs-grid[data-count="12"] { 
-		grid-template-columns: repeat(4, 1fr);
-		grid-template-rows: repeat(3, 1fr);
-		--qr-size: min(28vh, 22vw);
-	}
-
-	.qr-card {
-		--qr-size: inherit;
-	}
-
-	/* ===== MOBILE ===== */
-	@media (max-width: 767px) {
-		.qrs-grid {
-			grid-template-columns: 1fr 1fr !important;
-			grid-template-rows: auto !important;
-			grid-auto-rows: auto;
-			height: auto;
-			min-height: 100vh;
-			overflow-y: auto;
-			align-content: start;
-			padding: 0.5rem;
-			gap: 0.75rem;
-		}
-
-		.qr-card {
-			justify-self: center;
-			--qr-size: 44vw;
-		}
-
-		/* First item spans full width and is bigger */
-		.qrs-grid .qr-card:nth-child(1) {
-			grid-column: 1 / -1;
-			--qr-size: 75vw;
-		}
-
-		/* Even counts ≥6: first 2 span full width */
-		.qrs-grid[data-count="6"] .qr-card:nth-child(2),
-		.qrs-grid[data-count="8"] .qr-card:nth-child(2),
-		.qrs-grid[data-count="10"] .qr-card:nth-child(2),
-		.qrs-grid[data-count="12"] .qr-card:nth-child(2) {
-			grid-column: 1 / -1;
-			--qr-size: 75vw;
-		}
-
-		/* 4 or fewer: all span full width */
-		.qrs-grid[data-count="1"] .qr-card,
-		.qrs-grid[data-count="2"] .qr-card,
-		.qrs-grid[data-count="3"] .qr-card,
-		.qrs-grid[data-count="4"] .qr-card {
-			grid-column: 1 / -1;
-			--qr-size: 75vw;
-		}
-
-		.qr-card-url {
-			max-width: var(--qr-size);
-			white-space: normal;
-			word-break: break-all;
-		}
 	}
 
 	.title {
