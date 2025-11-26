@@ -10,6 +10,8 @@
 	import TablerFileCv from "~icons/tabler/file-cv";
 	import PhBookmarkSimpleBold from "~icons/ph/bookmark-simple-bold";
 	import RiInstagramLine from "~icons/ri/instagram-line";
+	import IconoirPhone from "~icons/iconoir/phone";
+	import RiWhatsappLine from "~icons/ri/whatsapp-line";
 
 	/** @type {Record<string, import('svelte').Component>} */
 	const iconMap = {
@@ -19,7 +21,9 @@
 		bluesky: RiBlueskyLine,
 		message: IconoirTelegramCircle,
 		blog: PhBookmarkSimpleBold,
-		cv: TablerFileCv
+		cv: TablerFileCv,
+		phone: IconoirPhone,
+		whatsapp: RiWhatsappLine
 	};
 
 	/**
