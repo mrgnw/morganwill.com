@@ -111,14 +111,14 @@
 					<div class="qr-card-header">
 						{#if icon}
 							{@const Icon = icon}
-							<Icon width="1.5em" height="1.5em" style="color: var(--default)" />
+							<Icon width="1.25em" height="1.25em" style="color: var(--default)" />
 						{/if}
 						<span class="qr-card-title">{link.title}</span>
 					</div>
 					<div class="qr-card-code">
 						{@html link.qr}
 					</div>
-					<div class="qr-card-url">{link.shortUrl ?? link.url}</div>
+					<div class="qr-card-url">{link.url}</div>
 				</a>
 			{/each}
 		</div>
@@ -219,10 +219,10 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		align-items: center;
+		align-items: stretch;
 		align-content: center;
-		gap: 2rem;
-		padding: 1rem;
+		gap: 1.5rem;
+		padding: 0.5rem;
 		width: 100%;
 		max-width: 100vw;
 		min-height: 100vh;
@@ -233,22 +233,22 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		padding: 1.5rem;
+		padding: 0.5rem;
 		text-decoration: none;
 		flex: 1 1 auto;
 		min-width: 200px;
 		max-width: 100%;
+		gap: 0.25rem;
 	}
 
 	.qr-card-header {
 		display: flex;
 		align-items: center;
-		gap: 0.75rem;
-		margin-bottom: 1rem;
+		gap: 0.5rem;
 	}
 
 	.qr-card-title {
-		font-size: clamp(1.25rem, 3vw, 1.75rem);
+		font-size: clamp(1rem, 2.5vw, 1.5rem);
 		font-weight: 500;
 		color: var(--primary);
 		text-transform: capitalize;
@@ -258,36 +258,48 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		width: 100%;
 		flex: 1;
-		width: 100%;
 	}
 
+	/* Force all QR SVGs to be square and same size */
 	.qr-card-code :global(svg) {
-		width: 100%;
-		height: 100%;
-		max-width: min(70vw, 400px);
-		max-height: min(70vw, 400px);
+		width: min(85vw, 600px);
+		height: min(85vw, 600px);
+		max-height: 75vh;
 	}
 
-	/* Scale QR based on number of items */
-	.qrs-grid:has(> :nth-child(2)) .qr-card-code :global(svg) {
-		max-width: min(40vw, 300px);
-		max-height: min(40vw, 300px);
-	}
+	/* Scale QR based on number of items - desktop */
+	@media (min-width: 768px) {
+		.qrs-grid:has(> :nth-child(2)) .qr-card-code :global(svg) {
+			width: min(44vw, 500px);
+			height: min(44vw, 500px);
+			max-height: 70vh;
+		}
 
-	.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg) {
-		max-width: min(35vw, 280px);
-		max-height: min(35vw, 280px);
-	}
+		.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg) {
+			width: min(30vw, 450px);
+			height: min(30vw, 450px);
+			max-height: 65vh;
+		}
 
-	.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
-		max-width: min(28vw, 220px);
-		max-height: min(28vw, 220px);
-	}
+		.qrs-grid:has(> :nth-child(4)) .qr-card-code :global(svg) {
+			width: min(23vw, 400px);
+			height: min(23vw, 400px);
+			max-height: 60vh;
+		}
 
-	.qrs-grid:has(> :nth-child(7)) .qr-card-code :global(svg) {
-		max-width: min(22vw, 180px);
-		max-height: min(22vw, 180px);
+		.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
+			width: min(18vw, 320px);
+			height: min(18vw, 320px);
+			max-height: 50vh;
+		}
+
+		.qrs-grid:has(> :nth-child(7)) .qr-card-code :global(svg) {
+			width: min(14vw, 260px);
+			height: min(14vw, 260px);
+			max-height: 45vh;
+		}
 	}
 
 	.qr-card-code :global(svg path:first-child) {
@@ -299,49 +311,56 @@
 	}
 
 	.qr-card-url {
-		font-size: clamp(0.7rem, 2vw, 0.9rem);
+		font-size: clamp(0.65rem, 1.5vw, 0.85rem);
 		color: var(--default);
-		margin-top: 0.75rem;
 		word-break: break-all;
 		text-align: center;
 		opacity: 0.7;
 	}
 
-	/* Mobile: stack vertically for fewer items, grid for more */
+	/* Mobile */
 	@media (max-width: 767px) {
 		.qrs-grid {
-			grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
-			gap: 1rem;
-			padding: 0.5rem;
-		}
-
-		.qrs-grid:has(> :only-child) .qr-card-code :global(svg),
-		.qrs-grid:has(> :nth-child(2)):not(:has(> :nth-child(3))) .qr-card-code :global(svg) {
-			max-width: 80vw;
-			max-height: 80vw;
-		}
-
-		.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg) {
-			max-width: 42vw;
-			max-height: 42vw;
-		}
-
-		.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
-			max-width: 38vw;
-			max-height: 38vw;
-		}
-
-		.qrs-grid:has(> :nth-child(7)) .qr-card-code :global(svg) {
-			max-width: 28vw;
-			max-height: 28vw;
+			flex-direction: column;
+			gap: 0.5rem;
+			padding: 0.25rem;
 		}
 
 		.qr-card {
-			padding: 0.75rem;
+			width: 100%;
+			padding: 0.25rem;
 		}
 
-		.qr-card-header {
-			margin-bottom: 0.5rem;
+		/* Force square QRs on mobile too */
+		.qrs-grid:has(> :only-child) .qr-card-code :global(svg),
+		.qrs-grid:has(> :nth-child(2)):not(:has(> :nth-child(3))) .qr-card-code :global(svg) {
+			width: 85vw;
+			height: 85vw;
+			max-height: 45vh;
+		}
+
+		.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg),
+		.qrs-grid:has(> :nth-child(4)):not(:has(> :nth-child(5))) .qr-card-code :global(svg) {
+			width: 42vw;
+			height: 42vw;
+			max-height: 28vh;
+		}
+
+		.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
+			width: 38vw;
+			height: 38vw;
+			max-height: 20vh;
+		}
+
+		/* 5+ items: 2-column grid on mobile */
+		.qrs-grid:has(> :nth-child(5)) {
+			flex-direction: row;
+			flex-wrap: wrap;
+		}
+
+		.qrs-grid:has(> :nth-child(5)) .qr-card {
+			flex: 1 1 45%;
+			min-width: 45%;
 		}
 	}
 
