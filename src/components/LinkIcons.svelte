@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from "svelte";
 	import { fade } from "svelte/transition";
+	import { innerWidth, innerHeight } from "svelte/reactivity/window";
 
 	// Icon imports - managed internally
 	import JamLinkedinCircle from "~icons/jam/linkedin-circle";
@@ -70,18 +71,18 @@
 	let selectedUrl = $derived(selectedLink?.url);
 
 	// Grid calculation - derive defaults from link count
-	let gridEl = $state(/** @type {HTMLElement | null} */ (null));
 	let initialCols = Math.ceil(Math.sqrt(links.length));
 	let initialSize = Math.floor(100 / initialCols); // vh units
-	let cols = $state(initialCols);
-	let size = $state(0); // 0 means use initialSize (vh units)
-	let ready = $state(false); // true after first calculation
 
-	function updateGrid() {
-		if (!gridEl) return;
-		const w = gridEl.clientWidth;
-		const h = gridEl.clientHeight;
+	// Reactive grid calculation based on window size
+	let gridCalc = $derived.by(() => {
+		const w = innerWidth.current ?? 0;
+		const h = innerHeight.current ?? 0;
 		const n = links.length;
+
+		if (w === 0 || h === 0) {
+			return { cols: initialCols, size: 0, ready: false };
+		}
 
 		let best = 0;
 		let bestCols = 1;
@@ -95,10 +96,12 @@
 			}
 		}
 
-		size = best;
-		cols = bestCols;
-		ready = true;
-	}
+		return { cols: bestCols, size: best, ready: true };
+	});
+
+	let cols = $derived(gridCalc.cols);
+	let size = $derived(gridCalc.size);
+	let ready = $derived(gridCalc.ready);
 
 	onMount(() => {
 		/**
@@ -113,30 +116,8 @@
 
 		document.body.addEventListener("touchstart", handleBodyTouch);
 
-		// Set up ResizeObserver for qrs grid
-		let obs = /** @type {ResizeObserver | null} */ (null);
-		
-		// Use MutationObserver to wait for gridEl to appear in DOM
-		const mutObs = new MutationObserver(() => {
-			if (gridEl && !obs) {
-				updateGrid();
-				obs = new ResizeObserver(updateGrid);
-				obs.observe(gridEl);
-			}
-		});
-		mutObs.observe(document.body, { childList: true, subtree: true });
-		
-		// Also check immediately in case element already exists
-		if (gridEl) {
-			updateGrid();
-			obs = new ResizeObserver(updateGrid);
-			obs.observe(gridEl);
-		}
-
 		return () => {
 			document.body.removeEventListener("touchstart", handleBodyTouch);
-			obs?.disconnect();
-			mutObs.disconnect();
 		};
 	});
 
@@ -147,17 +128,18 @@
 	function getIcon(title) {
 		return iconMap[title] ?? null;
 	}
+
+	// Reactive size unit for grid
+	let sizeUnit = $derived(size ? `${size}px` : `${initialSize}vh`);
 </script>
 
 <div class="link-icons" class:qrs-mode={qrsMode}>
 	{#if qrsMode}
 		<!-- All QR codes grid view -->
-		{@const sizeUnit = size ? `${size}px` : `${initialSize}vh`}
 		<div 
 			class="qrs-grid" 
 			class:ready
-			bind:this={gridEl}
-			style="grid-template-columns: repeat({cols}, {sizeUnit})"
+			style="--card-size: {sizeUnit}; --cols: {cols}"
 		>
 			{#each links as link, index (link.title)}
 				<a 
@@ -276,15 +258,19 @@
 
 	/* ===== QRS GRID MODE ===== */
 	.qrs-grid {
-		display: grid;
+		display: flex;
+		flex-wrap: wrap;
 		justify-content: center;
 		align-content: center;
+		align-items: center;
 		width: 100%;
 		height: 100%;
 		overflow: visible;
 		box-sizing: border-box;
-		transition: grid-template-columns 0.3s ease, opacity 0.2s ease;
+		transition: opacity 0.2s ease;
 		opacity: 0;
+		max-width: calc(var(--cols) * var(--card-size));
+		margin: 0 auto;
 	}
 
 	.qrs-grid.ready {
