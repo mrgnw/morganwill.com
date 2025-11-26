@@ -164,7 +164,7 @@
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
-					style="width: {sizeUnit}; height: {sizeUnit}; animation-delay: {index * 50}ms;"
+					style="width: {sizeUnit}; height: {sizeUnit}; --delay: {index * 80}ms;"
 				>
 					<span class="qr-card-title">{link.title}</span>
 					<div class="qr-card-code">
@@ -299,8 +299,55 @@
 		text-decoration: none;
 		box-sizing: border-box;
 		transition: width 0.3s ease, height 0.3s ease;
-		animation: fadeIn 0.4s ease forwards;
+	}
+
+	/* Scan-line reveal animation for QR codes */
+	.qr-card-code {
+		position: relative;
+		overflow: hidden;
+		line-height: 0;
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.qr-card-code::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			to right,
+			transparent 0%,
+			rgba(255, 255, 255, 0.9) 2%,
+			var(--highlight, #1e83ff) 4%,
+			rgba(255, 255, 255, 0.9) 6%,
+			var(--bg, #fff) 10%,
+			var(--bg, #fff) 100%
+		);
+		animation: scanReveal 0.4s ease-out forwards;
+		animation-delay: var(--delay, 0ms);
+	}
+
+	@keyframes scanReveal {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(100%);
+		}
+	}
+
+	/* Fade in title and URL with stagger */
+	.qr-card-title,
+	.qr-card-url {
 		opacity: 0;
+		animation: fadeIn 0.2s ease-out forwards;
+		animation-delay: calc(var(--delay, 0ms) + 200ms);
+	}
+
+	.qr-card-url {
+		animation-delay: calc(var(--delay, 0ms) + 250ms);
 	}
 
 	@keyframes fadeIn {
@@ -316,14 +363,6 @@
 		text-transform: capitalize;
 	}
 
-	.qr-card-code {
-		line-height: 0;
-		flex: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
 	.qr-card-code :global(svg) {
 		width: 100%;
 		height: 100%;
@@ -334,7 +373,6 @@
 	.qr-card-url {
 		font-size: clamp(0.5rem, 1.5vw, 0.65rem);
 		color: var(--default);
-		opacity: 0.7;
 		max-width: 100%;
 		overflow: hidden;
 		text-overflow: ellipsis;
