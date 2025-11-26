@@ -45,7 +45,7 @@ const all_links = [
 		blurb: 'Message on Telegram',
 	},
 	{
-		title: 'cv',
+		title: 'resume',
 		alias: 'cv',
 		url: 'https://cv.morganwill.com/',
 		shortUrl: 'https://cv.xcc.es/',
