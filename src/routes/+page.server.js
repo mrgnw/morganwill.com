@@ -154,6 +154,7 @@ export async function load({ request, url }) {
 			const qr = await QRCode.toString(qrUrl, {
 				type: "svg",
 				width: 164,
+				margin: 0,
 			});
 			return { ...link, qr };
 		})
