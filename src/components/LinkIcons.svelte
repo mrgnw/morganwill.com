@@ -216,48 +216,78 @@
 
 	/* All QR codes grid mode */
 	.qrs-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-		gap: 1.5rem;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+		align-content: center;
+		gap: 2rem;
 		padding: 1rem;
-		max-width: 900px;
 		width: 100%;
+		max-width: 100vw;
+		min-height: 100vh;
 	}
 
 	.qr-card {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding: 1rem;
-		border-radius: 0.75rem;
+		justify-content: center;
+		padding: 1.5rem;
 		text-decoration: none;
-		transition: transform 0.2s ease, box-shadow 0.2s ease;
-		background: var(--bg);
-		border: 1px solid var(--default);
-	}
-
-	.qr-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		flex: 1 1 auto;
+		min-width: 200px;
+		max-width: 100%;
 	}
 
 	.qr-card-header {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 0.75rem;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
 	}
 
 	.qr-card-title {
-		font-size: 1rem;
+		font-size: clamp(1.25rem, 3vw, 1.75rem);
 		font-weight: 500;
 		color: var(--primary);
 		text-transform: capitalize;
 	}
 
+	.qr-card-code {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex: 1;
+		width: 100%;
+	}
+
 	.qr-card-code :global(svg) {
-		width: 120px;
-		height: 120px;
+		width: 100%;
+		height: 100%;
+		max-width: min(70vw, 400px);
+		max-height: min(70vw, 400px);
+	}
+
+	/* Scale QR based on number of items */
+	.qrs-grid:has(> :nth-child(2)) .qr-card-code :global(svg) {
+		max-width: min(40vw, 300px);
+		max-height: min(40vw, 300px);
+	}
+
+	.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg) {
+		max-width: min(35vw, 280px);
+		max-height: min(35vw, 280px);
+	}
+
+	.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
+		max-width: min(28vw, 220px);
+		max-height: min(28vw, 220px);
+	}
+
+	.qrs-grid:has(> :nth-child(7)) .qr-card-code :global(svg) {
+		max-width: min(22vw, 180px);
+		max-height: min(22vw, 180px);
 	}
 
 	.qr-card-code :global(svg path:first-child) {
@@ -269,11 +299,50 @@
 	}
 
 	.qr-card-url {
-		font-size: 0.75rem;
+		font-size: clamp(0.7rem, 2vw, 0.9rem);
 		color: var(--default);
-		margin-top: 0.5rem;
+		margin-top: 0.75rem;
 		word-break: break-all;
 		text-align: center;
+		opacity: 0.7;
+	}
+
+	/* Mobile: stack vertically for fewer items, grid for more */
+	@media (max-width: 767px) {
+		.qrs-grid {
+			grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+			gap: 1rem;
+			padding: 0.5rem;
+		}
+
+		.qrs-grid:has(> :only-child) .qr-card-code :global(svg),
+		.qrs-grid:has(> :nth-child(2)):not(:has(> :nth-child(3))) .qr-card-code :global(svg) {
+			max-width: 80vw;
+			max-height: 80vw;
+		}
+
+		.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg) {
+			max-width: 42vw;
+			max-height: 42vw;
+		}
+
+		.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
+			max-width: 38vw;
+			max-height: 38vw;
+		}
+
+		.qrs-grid:has(> :nth-child(7)) .qr-card-code :global(svg) {
+			max-width: 28vw;
+			max-height: 28vw;
+		}
+
+		.qr-card {
+			padding: 0.75rem;
+		}
+
+		.qr-card-header {
+			margin-bottom: 0.5rem;
+		}
 	}
 
 	.title {
