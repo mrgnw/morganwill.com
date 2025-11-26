@@ -209,10 +209,10 @@
 
 	/* ===== QRS GRID MODE ===== */
 	.qrs-grid {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
+		display: grid;
+		justify-items: center;
 		align-items: center;
+		justify-content: center;
 		align-content: center;
 		gap: 0.5rem;
 		padding: 0.5rem;
@@ -274,76 +274,127 @@
 		color: var(--highlight);
 	}
 
-	/* Desktop: Use CSS custom properties for sizing based on count */
-	/* Hero items (first 1-2) get --hero-size, others get --item-size */
+	/* Desktop: Optimal grid layouts for maximum QR size
+	   Goal: distribute items evenly to maximize individual QR size
+	   Using grid-template-columns/rows to create balanced layouts */
 	
-	.qrs-grid[data-count="1"] { --hero-size: min(85vh, 85vw); }
-	.qrs-grid[data-count="1"] .qr-card { --qr-size: var(--hero-size); }
+	/* 1 item: 1x1 */
+	.qrs-grid[data-count="1"] { 
+		grid-template-columns: 1fr;
+		--qr-size: min(80vh, 80vw);
+	}
 
-	.qrs-grid[data-count="2"] { --hero-size: min(80vh, 45vw); }
-	.qrs-grid[data-count="2"] .qr-card { --qr-size: var(--hero-size); }
+	/* 2 items: 2x1 */
+	.qrs-grid[data-count="2"] { 
+		grid-template-columns: 1fr 1fr;
+		--qr-size: min(80vh, 45vw);
+	}
 
-	.qrs-grid[data-count="3"] { --hero-size: min(80vh, 42vw); --item-size: min(42vh, 30vw); }
-	.qrs-grid[data-count="4"] { --hero-size: min(80vh, 38vw); --item-size: min(42vh, 26vw); }
-	.qrs-grid[data-count="5"] { --hero-size: min(80vh, 36vw); --item-size: min(42vh, 24vw); }
-	.qrs-grid[data-count="6"] { --hero-size: min(80vh, 32vw); --item-size: min(42vh, 22vw); }
-	.qrs-grid[data-count="7"] { --hero-size: min(80vh, 28vw); --item-size: min(42vh, 20vw); }
-	.qrs-grid[data-count="8"] { --hero-size: min(80vh, 26vw); --item-size: min(42vh, 18vw); }
-	.qrs-grid[data-count="9"] { --hero-size: min(80vh, 24vw); --item-size: min(42vh, 17vw); }
-	.qrs-grid[data-count="10"] { --hero-size: min(80vh, 22vw); --item-size: min(42vh, 16vw); }
-	.qrs-grid[data-count="11"] { --hero-size: min(80vh, 20vw); --item-size: min(42vh, 15vw); }
-	.qrs-grid[data-count="12"] { --hero-size: min(80vh, 18vw); --item-size: min(42vh, 14vw); }
+	/* 3 items: 3x1 */
+	.qrs-grid[data-count="3"] { 
+		grid-template-columns: repeat(3, 1fr);
+		--qr-size: min(80vh, 30vw);
+	}
 
-	/* First 1-2 items are heroes */
-	.qrs-grid .qr-card:nth-child(1) { --qr-size: var(--hero-size, min(70vh, 30vw)); }
-	.qrs-grid .qr-card:nth-child(2) { --qr-size: var(--hero-size, min(70vh, 30vw)); }
-	.qrs-grid .qr-card:nth-child(n+3) { --qr-size: var(--item-size, min(35vh, 18vw)); }
+	/* 4 items: 2x2 */
+	.qrs-grid[data-count="4"] { 
+		grid-template-columns: repeat(2, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+		--qr-size: min(42vh, 45vw);
+	}
 
-	/* Odd counts: only first item is hero */
-	.qrs-grid[data-count="3"] .qr-card:nth-child(2),
-	.qrs-grid[data-count="5"] .qr-card:nth-child(2),
-	.qrs-grid[data-count="7"] .qr-card:nth-child(2),
-	.qrs-grid[data-count="9"] .qr-card:nth-child(2),
-	.qrs-grid[data-count="11"] .qr-card:nth-child(2) {
-		--qr-size: var(--item-size);
+	/* 5 items: 3x2 (one empty) */
+	.qrs-grid[data-count="5"] { 
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+		--qr-size: min(42vh, 30vw);
+	}
+
+	/* 6 items: 3x2 */
+	.qrs-grid[data-count="6"] { 
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+		--qr-size: min(42vh, 30vw);
+	}
+
+	/* 7 items: 4x2 (one empty) */
+	.qrs-grid[data-count="7"] { 
+		grid-template-columns: repeat(4, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+		--qr-size: min(42vh, 22vw);
+	}
+
+	/* 8 items: 4x2 */
+	.qrs-grid[data-count="8"] { 
+		grid-template-columns: repeat(4, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+		--qr-size: min(42vh, 22vw);
+	}
+
+	/* 9 items: 3x3 */
+	.qrs-grid[data-count="9"] { 
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+		--qr-size: min(28vh, 30vw);
+	}
+
+	/* 10 items: 4x3 (two empty) or 5x2 */
+	.qrs-grid[data-count="10"] { 
+		grid-template-columns: repeat(5, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+		--qr-size: min(42vh, 18vw);
+	}
+
+	/* 11 items: 4x3 (one empty) */
+	.qrs-grid[data-count="11"] { 
+		grid-template-columns: repeat(4, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+		--qr-size: min(28vh, 22vw);
+	}
+
+	/* 12 items: 4x3 */
+	.qrs-grid[data-count="12"] { 
+		grid-template-columns: repeat(4, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+		--qr-size: min(28vh, 22vw);
+	}
+
+	.qr-card {
+		--qr-size: inherit;
 	}
 
 	/* ===== MOBILE ===== */
 	@media (max-width: 767px) {
 		.qrs-grid {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
+			grid-template-columns: 1fr 1fr !important;
+			grid-template-rows: auto !important;
 			grid-auto-rows: auto;
 			height: auto;
 			min-height: 100vh;
 			overflow-y: auto;
 			align-content: start;
 			padding: 0.5rem;
-			gap: 0.5rem;
+			gap: 0.75rem;
 		}
 
 		.qr-card {
 			justify-self: center;
+			--qr-size: 44vw;
 		}
 
-		/* Reset desktop sizing - smaller items */
-		.qrs-grid .qr-card {
-			--qr-size: 42vw;
-		}
-
-		/* First item is bigger and spans full width */
+		/* First item spans full width and is bigger */
 		.qrs-grid .qr-card:nth-child(1) {
 			grid-column: 1 / -1;
-			--qr-size: 70vw;
+			--qr-size: 75vw;
 		}
 
-		/* Even counts ≥6: first 2 are big and span full width */
+		/* Even counts ≥6: first 2 span full width */
 		.qrs-grid[data-count="6"] .qr-card:nth-child(2),
 		.qrs-grid[data-count="8"] .qr-card:nth-child(2),
 		.qrs-grid[data-count="10"] .qr-card:nth-child(2),
 		.qrs-grid[data-count="12"] .qr-card:nth-child(2) {
 			grid-column: 1 / -1;
-			--qr-size: 70vw;
+			--qr-size: 75vw;
 		}
 
 		/* 4 or fewer: all span full width */
@@ -352,7 +403,7 @@
 		.qrs-grid[data-count="3"] .qr-card,
 		.qrs-grid[data-count="4"] .qr-card {
 			grid-column: 1 / -1;
-			--qr-size: 70vw;
+			--qr-size: 75vw;
 		}
 
 		.qr-card-url {
