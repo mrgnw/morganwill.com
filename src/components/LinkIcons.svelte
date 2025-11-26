@@ -99,9 +99,8 @@
 <div class="link-icons" class:qrs-mode={qrsMode}>
 	{#if qrsMode}
 		<!-- All QR codes grid view -->
-		<div class="qrs-grid">
+		<div class="qrs-grid" data-count={links.length}>
 			{#each links as link, index (link.title)}
-				{@const icon = getIcon(link.title)}
 				<a 
 					href={link.url} 
 					target="_blank" 
@@ -109,14 +108,6 @@
 					transition:fade={{ duration: 400, delay: 80 * index }}
 				>
 					<span class="qr-card-title">{link.title}</span>
-					<!-- Icon hidden for now
-					<div class="qr-card-header">
-						{#if icon}
-							{@const Icon = icon}
-							<Icon width="1.25em" height="1.25em" style="color: var(--default)" />
-						{/if}
-					</div>
-					-->
 					<div class="qr-card-code">
 						{@html link.qr}
 					</div>
@@ -216,31 +207,28 @@
 		align-items: center;
 	}
 
-	/* All QR codes grid mode */
+	/* Desktop: first 1-2 on left (big), rest on right in rows */
 	.qrs-grid {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
+		display: grid;
+		justify-items: center;
 		align-items: center;
-		align-content: center;
-		gap: .1rem;
+		gap: 0.5rem;
 		padding: 0.5rem;
 		width: 100%;
-		max-width: 100vw;
-		min-height: 100vh;
+		height: 100vh;
+		overflow: hidden;
 	}
 
 	.qr-card {
-		display: grid;
-		grid-template-rows: auto 1fr auto;
-		justify-items: center;
+		display: flex;
+		flex-direction: column;
 		align-items: center;
-		padding: 0.8rem;
-		gap: 0.5rem;
+		justify-content: center;
+		padding: 0.5rem;
+		gap: 0.25rem;
 		text-decoration: none;
-		flex: 1 1 auto;
-		min-width: 200px;
-		max-width: 100%;
+		width: 100%;
+		height: 100%;
 	}
 
 	.qr-card-title {
@@ -252,53 +240,95 @@
 	}
 
 	.qr-card-code {
-		display: block;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 		line-height: 0;
+		flex: 1;
+		width: 100%;
 	}
 
-	/* Force all QR SVGs to be square and same size */
 	.qr-card-code :global(svg) {
-		width: min(85vw, 600px);
-		height: min(85vw, 600px);
-		max-height: 75vh;
+		width: auto;
+		height: 100%;
+		aspect-ratio: 1;
+		max-width: 100%;
+		max-height: 100%;
 	}
 
-	/* Scale QR based on number of items - desktop */
-	@media (min-width: 768px) {
-		.qrs-grid:has(> :nth-child(2)) .qr-card-code :global(svg) {
-			width: min(46vw, 80vh);
-			height: min(46vw, 80vh);
-		}
+	/* Desktop layouts */
+	/* 1 item: centered */
+	.qrs-grid[data-count="1"] { 
+		grid-template-columns: 1fr; 
+	}
 
-		.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg) {
-			width: min(32vw, 75vh);
-			height: min(32vw, 75vh);
-		}
+	/* 2 items: side by side */
+	.qrs-grid[data-count="2"] { 
+		grid-template-columns: 1fr 1fr; 
+	}
 
-		.qrs-grid:has(> :nth-child(4)) .qr-card-code :global(svg) {
-			width: min(24vw, 45vh);
-			height: min(24vw, 45vh);
-		}
+	/* 3 items: 1 big left, 2 stacked right */
+	.qrs-grid[data-count="3"] { 
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+	}
+	.qrs-grid[data-count="3"] .qr-card:nth-child(1) {
+		grid-row: 1 / -1;
+	}
 
-		.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
-			width: min(19vw, 42vh);
-			height: min(19vw, 42vh);
-		}
+	/* 4 items: 2 left stacked, 2 right stacked */
+	.qrs-grid[data-count="4"] { 
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+	}
 
-		.qrs-grid:has(> :nth-child(7)) .qr-card-code :global(svg) {
-			width: min(19vw, 42vh);
-			height: min(19vw, 42vh);
-		}
+	/* 5 items: 1 big left, 4 in 2x2 grid right */
+	.qrs-grid[data-count="5"] { 
+		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+	}
+	.qrs-grid[data-count="5"] .qr-card:nth-child(1) {
+		grid-row: 1 / -1;
+	}
 
-		.qrs-grid:has(> :nth-child(9)) .qr-card-code :global(svg) {
-			width: min(19vw, 38vh);
-			height: min(19vw, 38vh);
-		}
+	/* 6 items: 2 stacked left, 4 in 2x2 grid right */
+	.qrs-grid[data-count="6"] { 
+		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+	}
+	.qrs-grid[data-count="6"] .qr-card:nth-child(1) { grid-row: 1; grid-column: 1; }
+	.qrs-grid[data-count="6"] .qr-card:nth-child(2) { grid-row: 2; grid-column: 1; }
 
-		.qrs-grid:has(> :nth-child(10)) .qr-card-code :global(svg) {
-			width: min(19vw, 30vh);
-			height: min(19vw, 30vh);
-		}
+	/* 7 items: 1 big left, 6 in 2x3 grid right */
+	.qrs-grid[data-count="7"] { 
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+	}
+	.qrs-grid[data-count="7"] .qr-card:nth-child(1) {
+		grid-row: 1 / -1;
+	}
+
+	/* 8 items: 2 stacked left, 6 in 2x3 right */
+	.qrs-grid[data-count="8"] { 
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+	}
+	.qrs-grid[data-count="8"] .qr-card:nth-child(1) { grid-row: 1; grid-column: 1; }
+	.qrs-grid[data-count="8"] .qr-card:nth-child(2) { grid-row: 2; grid-column: 1; }
+
+	/* 9+ items: 1 big left, rest in 3 rows right */
+	.qrs-grid[data-count="9"],
+	.qrs-grid[data-count="10"],
+	.qrs-grid[data-count="11"],
+	.qrs-grid[data-count="12"] {
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+		grid-template-rows: 1fr 1fr 1fr;
+	}
+	.qrs-grid[data-count="9"] .qr-card:nth-child(1),
+	.qrs-grid[data-count="10"] .qr-card:nth-child(1),
+	.qrs-grid[data-count="11"] .qr-card:nth-child(1),
+	.qrs-grid[data-count="12"] .qr-card:nth-child(1) {
+		grid-row: 1 / -1;
 	}
 
 	.qr-card-code :global(svg path:first-child) {
@@ -329,52 +359,60 @@
 		transition: color 0.15s ease;
 	}
 
-	/* Mobile */
+	/* Mobile: 2 columns, first 1-2 span full width */
 	@media (max-width: 767px) {
 		.qrs-grid {
-			flex-direction: column;
-			align-content: flex-start;
-			gap: 0.5rem;
-			padding: 0.5rem;
-			min-height: auto;
+			grid-template-columns: repeat(2, 1fr) !important;
+			grid-template-rows: auto !important;
+			grid-auto-rows: auto;
+			height: auto;
+			min-height: 100vh;
 			overflow-y: auto;
 		}
 
 		.qr-card {
-			width: 100%;
-			padding: 0.5rem;
+			grid-row: auto !important;
+			grid-column: auto !important;
+			height: auto;
 		}
 
-		/* Force square QRs on mobile too */
-		.qrs-grid:has(> :only-child) .qr-card-code :global(svg),
-		.qrs-grid:has(> :nth-child(2)):not(:has(> :nth-child(3))) .qr-card-code :global(svg) {
-			width: 85vw;
-			height: 85vw;
-			max-height: 45vh;
+		/* Even count ≥6: first 2 span full width */
+		.qrs-grid[data-count="6"] .qr-card:nth-child(-n+2),
+		.qrs-grid[data-count="8"] .qr-card:nth-child(-n+2),
+		.qrs-grid[data-count="10"] .qr-card:nth-child(-n+2),
+		.qrs-grid[data-count="12"] .qr-card:nth-child(-n+2) {
+			grid-column: 1 / -1 !important;
 		}
 
-		.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg),
-		.qrs-grid:has(> :nth-child(4)):not(:has(> :nth-child(5))) .qr-card-code :global(svg) {
-			width: 42vw;
-			height: 42vw;
-			max-height: 28vh;
+		/* Odd count ≥5: first 1 spans full width */
+		.qrs-grid[data-count="5"] .qr-card:nth-child(1),
+		.qrs-grid[data-count="7"] .qr-card:nth-child(1),
+		.qrs-grid[data-count="9"] .qr-card:nth-child(1),
+		.qrs-grid[data-count="11"] .qr-card:nth-child(1) {
+			grid-column: 1 / -1 !important;
 		}
 
-		.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
-			width: 38vw;
-			height: 38vw;
-			max-height: 20vh;
+		/* 4 or fewer: all single column (big) */
+		.qrs-grid[data-count="1"] .qr-card,
+		.qrs-grid[data-count="2"] .qr-card,
+		.qrs-grid[data-count="3"] .qr-card,
+		.qrs-grid[data-count="4"] .qr-card {
+			grid-column: 1 / -1 !important;
 		}
 
-		/* 5+ items: 2-column grid on mobile */
-		.qrs-grid:has(> :nth-child(5)) {
-			flex-direction: row;
-			flex-wrap: wrap;
+		/* Big items sizing */
+		.qrs-grid .qr-card:nth-child(1) .qr-card-code :global(svg),
+		.qrs-grid .qr-card:nth-child(2) .qr-card-code :global(svg) {
+			width: 60vw;
+			height: 60vw;
+			max-height: 30vh;
 		}
 
-		.qrs-grid:has(> :nth-child(5)) .qr-card {
-			flex: 1 1 45%;
-			min-width: 45%;
+		/* Smaller items in 2-col grid */
+		.qrs-grid .qr-card:nth-child(n+3) .qr-card-code :global(svg) {
+			width: 40vw;
+			height: 40vw;
+			max-height: 22vh;
 		}
 	}
 
