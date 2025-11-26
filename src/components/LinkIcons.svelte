@@ -295,10 +295,10 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		justify-content: center;
 		text-decoration: none;
 		box-sizing: border-box;
 		transition: width 0.3s ease, height 0.3s ease;
+		padding: 0.25rem;
 	}
 
 	/* Scan-line reveal animation for QR codes */
@@ -310,20 +310,25 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		min-height: 0;
 	}
 
 	.qr-card-code::after {
 		content: '';
 		position: absolute;
-		inset: 0;
+		top: 0;
+		left: -100%;
+		width: 200%;
+		height: 100%;
 		background: linear-gradient(
 			to right,
-			transparent 0%,
-			rgba(255, 255, 255, 0.9) 2%,
-			var(--highlight, #1e83ff) 4%,
-			rgba(255, 255, 255, 0.9) 6%,
-			var(--bg, #fff) 10%,
-			var(--bg, #fff) 100%
+			var(--bg, #fff) 0%,
+			var(--bg, #fff) 45%,
+			rgba(255, 255, 255, 0.9) 48%,
+			var(--highlight, #1e83ff) 50%,
+			rgba(255, 255, 255, 0.9) 52%,
+			transparent 55%,
+			transparent 100%
 		);
 		animation: scanReveal 0.4s ease-out forwards;
 		animation-delay: var(--delay, 0ms);
@@ -364,10 +369,10 @@
 	}
 
 	.qr-card-code :global(svg) {
-		width: 100%;
+		width: auto;
 		height: 100%;
 		max-width: 100%;
-		max-height: 100%;
+		aspect-ratio: 1;
 	}
 
 	.qr-card-url {
