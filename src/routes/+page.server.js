@@ -86,25 +86,70 @@ function getPrivateLinks() {
 	return privateLinks;
 }
 
-export async function load() {
+/**
+ * Get filtered links based on hostname and URL params
+ * @param {typeof combinedLinks} allLinks
+ * @param {string} hostname
+ * @param {URLSearchParams} urlParams
+ */
+function getFilteredLinks(allLinks, hostname, urlParams) {
+	const linksParam = urlParams.get("links");
+	
+	// Check for ?links=li.tg.ig OR just ?li&tg&ig (keys as link identifiers)
+	const paramKeys = [...urlParams.keys()];
+	const matchingKeys = paramKeys.filter(key => 
+		allLinks.some(link => link.title === key || link.alias === key)
+	);
+	
+	if (linksParam) {
+		// Explicit ?links=li.tg.ig or ?links=li,tg,ig format
+		const requestedLinks = linksParam.split(/[.,]/).map(s => s.trim().toLowerCase());
+		return requestedLinks
+			.map(key => allLinks.find(link => link.title === key || link.alias === key))
+			.filter(Boolean);
+	} else if (matchingKeys.length > 0) {
+		// Shorthand ?li&tg&ig format
+		return matchingKeys
+			.map(key => allLinks.find(link => link.title === key || link.alias === key))
+			.filter(Boolean);
+	} else if (hostname === "morganwill.com") {
+		return ["linkedin", "github", "bluesky", "telegram", "cv"]
+			.map(title => allLinks.find(link => link.title === title))
+			.filter(Boolean);
+	} else if (hostname === "zenfo.co") {
+		return ["instagram", "blog", "bluesky", "telegram"]
+			.map(title => allLinks.find(link => link.title === title))
+			.filter(Boolean);
+	} else {
+		return allLinks.filter(link => link.title !== "cv");
+	}
+}
+
+/** @type {import('./$types').PageServerLoad} */
+export async function load({ request, url }) {
+	// Get hostname from request headers (works with Cloudflare, proxies, etc.)
+	const hostname = request.headers.get('host')?.split(':')[0] 
+		?? url.hostname 
+		?? 'localhost';
+	
 	const combinedLinks = [...all_links, ...getPrivateLinks()];
 
-	const links = await Promise.all(
+	const linksWithQr = await Promise.all(
 		combinedLinks.map(async (link) => {
-			const url = link.shortUrl ?? link.url;
-			const qr = await QRCode.toString(url, {
+			const qrUrl = link.shortUrl ?? link.url;
+			const qr = await QRCode.toString(qrUrl, {
 				type: "svg",
 				width: 164,
-			}
-			);
-			return {
-				...link,
-				qr
-			};
+			});
+			return { ...link, qr };
 		})
 	);
 
+	const links = getFilteredLinks(linksWithQr, hostname, url.searchParams);
+
 	return {
-		all_links: links
+		links,
+		hostname,
+		all_links: linksWithQr
 	};
 }
