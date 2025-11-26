@@ -328,13 +328,13 @@
 	@media (max-width: 767px) {
 		.qrs-grid {
 			flex-direction: column;
-			gap: 0;
-			padding: 0;
+			gap: 0.5rem;
+			padding: 0.5rem;
 		}
 
 		.qr-card {
 			width: 100%;
-			padding: 0;
+			padding: 0.5rem;
 		}
 
 		/* Force square QRs on mobile too */
