@@ -14,13 +14,24 @@
 	onMount(() => {
 		hostname = window.location.hostname;
 		
-		// Check for ?links= param first (e.g. ?links=linkedin,tg,ig)
 		const urlParams = new URLSearchParams(window.location.search);
 		const linksParam = urlParams.get("links");
 		
+		// Check for ?links=li,tg,ig OR just ?li,tg,ig (keys as link identifiers)
+		const paramKeys = [...urlParams.keys()];
+		const matchingKeys = paramKeys.filter(key => 
+			all_links.some(link => link.title === key || link.alias === key)
+		);
+		
 		if (linksParam) {
-			const requestedLinks = linksParam.split(",").map(s => s.trim().toLowerCase());
+			// Explicit ?links=li.tg.ig or ?links=li,tg,ig format
+			const requestedLinks = linksParam.split(/[.,]/).map(s => s.trim().toLowerCase());
 			links = requestedLinks
+				.map(key => all_links.find(link => link.title === key || link.alias === key))
+				.filter(Boolean);
+		} else if (matchingKeys.length > 0) {
+			// Shorthand ?li,tg,ig format (keys are the link identifiers)
+			links = matchingKeys
 				.map(key => all_links.find(link => link.title === key || link.alias === key))
 				.filter(Boolean);
 		} else if (hostname === "morganwill.com") {
