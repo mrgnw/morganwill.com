@@ -2,7 +2,34 @@ import QRCode from 'qrcode';
 import { env } from '$env/dynamic/private';
 
 /**
- * Generate an SVG with individual rects for animation
+ * Seeded random number generator for consistent shuffling
+ * @param {number} seed
+ * @returns {function(): number}
+ */
+function seededRandom(seed) {
+	return function() {
+		seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+		return seed / 0x7fffffff;
+	};
+}
+
+/**
+ * Shuffle array using Fisher-Yates with seeded random
+ * @param {Array} array
+ * @param {function(): number} random
+ * @returns {Array}
+ */
+function shuffleArray(array, random) {
+	const shuffled = [...array];
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		const j = Math.floor(random() * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+	}
+	return shuffled;
+}
+
+/**
+ * Generate an SVG with individual rects for animation (randomized order)
  * @param {string} text - Text to encode
  * @param {number} size - SVG size in pixels
  * @returns {string} SVG string with individual rect elements
@@ -13,21 +40,29 @@ function generateAnimatedQRSvg(text, size = 164) {
 	const moduleCount = modules.size;
 	const moduleSize = size / moduleCount;
 	
-	let rects = '';
-	let index = 0;
-	
+	// Collect all filled rects first
+	const allRects = [];
 	for (let row = 0; row < moduleCount; row++) {
 		for (let col = 0; col < moduleCount; col++) {
 			const idx = row * moduleCount + col;
 			if (modules.data[idx]) {
 				const x = col * moduleSize;
 				const y = row * moduleSize;
-				// Add data-index for CSS animation stagger
-				rects += `<rect x="${x}" y="${y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}"/>`;
-				index++;
+				allRects.push({ x, y });
 			}
 		}
 	}
+	
+	// Shuffle rects using seeded random (seed from text hash for consistency)
+	const seed = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+	const random = seededRandom(seed);
+	const shuffledRects = shuffleArray(allRects, random);
+	
+	// Build SVG string with shuffled order
+	let rects = '';
+	shuffledRects.forEach((rect, index) => {
+		rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}"/>`;
+	});
 	
 	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">${rects}</svg>`;
 }
