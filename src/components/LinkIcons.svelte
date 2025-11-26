@@ -69,10 +69,12 @@
 	let selectedQr = $derived(selectedLink?.qr ?? null);
 	let selectedUrl = $derived(selectedLink?.url);
 
-	// Grid calculation - simple defaults, will be calculated on mount
+	// Grid calculation - derive defaults from link count
 	let gridEl = $state(/** @type {HTMLElement | null} */ (null));
-	let size = $state(150);
-	let cols = $state(Math.ceil(Math.sqrt(links.length)));
+	let initialCols = Math.ceil(Math.sqrt(links.length));
+	let initialSize = Math.floor(100 / initialCols); // vh units
+	let cols = $state(initialCols);
+	let size = $state(0); // 0 means use initialSize (vh units)
 
 	function updateGrid() {
 		if (!gridEl) return;
@@ -148,17 +150,18 @@
 <div class="link-icons" class:qrs-mode={qrsMode}>
 	{#if qrsMode}
 		<!-- All QR codes grid view -->
+		{@const sizeUnit = size ? `${size}px` : `${initialSize}vh`}
 		<div 
 			class="qrs-grid" 
 			bind:this={gridEl}
-			style="grid-template-columns: repeat({cols}, {size}px)"
+			style="grid-template-columns: repeat({cols}, {sizeUnit})"
 		>
 			{#each links as link, index (link.title)}
 				<a 
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
-					style="width: {size}px; height: {size}px; animation-delay: {index * 50}ms;"
+					style="width: {sizeUnit}; height: {sizeUnit}; animation-delay: {index * 50}ms;"
 				>
 					<span class="qr-card-title">{link.title}</span>
 					<div class="qr-card-code">
