@@ -223,8 +223,8 @@
 		justify-content: center;
 		align-items: center;
 		align-content: center;
-		gap: 1rem;
-		padding: 0.5rem;
+		gap: .1rem;
+		padding: 0;
 		width: 100%;
 		max-width: 100vw;
 		min-height: 100vh;
@@ -235,7 +235,8 @@
 		grid-template-rows: auto 1fr auto;
 		justify-items: center;
 		align-items: center;
-		padding: 0;
+		padding: 0.8rem;
+		gap: 0.5rem;
 		text-decoration: none;
 		flex: 1 1 auto;
 		min-width: 200px;
