@@ -164,7 +164,7 @@
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
-					style="width: {sizeUnit}; height: {sizeUnit}; --delay: {index * 400}ms;"
+					style="width: {sizeUnit}; height: {sizeUnit}; --delay: {300 + index * 400}ms;"
 				>
 					<span class="qr-card-title">{link.title}</span>
 					<div class="qr-card-code">
