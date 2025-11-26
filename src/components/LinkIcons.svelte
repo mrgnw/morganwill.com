@@ -108,13 +108,15 @@
 					class="qr-card"
 					transition:fade={{ duration: 400, delay: 80 * index }}
 				>
+					<span class="qr-card-title">{link.title}</span>
+					<!-- Icon hidden for now
 					<div class="qr-card-header">
 						{#if icon}
 							{@const Icon = icon}
 							<Icon width="1.25em" height="1.25em" style="color: var(--default)" />
 						{/if}
-						<span class="qr-card-title">{link.title}</span>
 					</div>
+					-->
 					<div class="qr-card-code">
 						{@html link.qr}
 					</div>
@@ -219,9 +221,9 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		align-items: stretch;
+		align-items: center;
 		align-content: center;
-		gap: 1.5rem;
+		gap: 1rem;
 		padding: 0.5rem;
 		width: 100%;
 		max-width: 100vw;
@@ -229,22 +231,15 @@
 	}
 
 	.qr-card {
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		justify-items: center;
 		align-items: center;
-		justify-content: center;
-		padding: 0.5rem;
+		padding: 0;
 		text-decoration: none;
 		flex: 1 1 auto;
 		min-width: 200px;
 		max-width: 100%;
-		gap: 0.25rem;
-	}
-
-	.qr-card-header {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
 	}
 
 	.qr-card-title {
@@ -252,14 +247,12 @@
 		font-weight: 500;
 		color: var(--primary);
 		text-transform: capitalize;
+		line-height: 1;
 	}
 
 	.qr-card-code {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		width: 100%;
-		flex: 1;
+		display: block;
+		line-height: 0;
 	}
 
 	/* Force all QR SVGs to be square and same size */
@@ -307,28 +300,40 @@
 	}
 
 	.qr-card-code :global(svg path:last-child) {
-		stroke: var(--qr);
+		stroke: var(--default);
+		transition: stroke 0.15s ease;
+	}
+
+	.qr-card:hover .qr-card-code :global(svg path:last-child) {
+		stroke: var(--highlight);
+	}
+
+	.qr-card:hover .qr-card-title,
+	.qr-card:hover .qr-card-url {
+		color: var(--highlight);
 	}
 
 	.qr-card-url {
-		font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+		font-size: clamp(0.6rem, 1.2vw, 0.75rem);
 		color: var(--default);
 		word-break: break-all;
 		text-align: center;
 		opacity: 0.7;
+		line-height: 1;
+		transition: color 0.15s ease;
 	}
 
 	/* Mobile */
 	@media (max-width: 767px) {
 		.qrs-grid {
 			flex-direction: column;
-			gap: 0.5rem;
-			padding: 0.25rem;
+			gap: 0;
+			padding: 0;
 		}
 
 		.qr-card {
 			width: 100%;
-			padding: 0.25rem;
+			padding: 0;
 		}
 
 		/* Force square QRs on mobile too */
