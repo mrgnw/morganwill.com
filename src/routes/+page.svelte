@@ -34,7 +34,6 @@
 		--qr: rgb(30, 131, 255);
 		--bg: #ffffff;
 		background-color: var(--bg);
-		overflow: hidden;
 	}
 
 	@media (prefers-color-scheme: dark) {

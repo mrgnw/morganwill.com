@@ -224,7 +224,7 @@
 		align-items: center;
 		align-content: center;
 		gap: .1rem;
-		padding: 0;
+		padding: 0.5rem;
 		width: 100%;
 		max-width: 100vw;
 		min-height: 100vh;
@@ -266,33 +266,38 @@
 	/* Scale QR based on number of items - desktop */
 	@media (min-width: 768px) {
 		.qrs-grid:has(> :nth-child(2)) .qr-card-code :global(svg) {
-			width: min(44vw, 500px);
-			height: min(44vw, 500px);
-			max-height: 70vh;
+			width: min(46vw, 80vh);
+			height: min(46vw, 80vh);
 		}
 
 		.qrs-grid:has(> :nth-child(3)) .qr-card-code :global(svg) {
-			width: min(30vw, 450px);
-			height: min(30vw, 450px);
-			max-height: 65vh;
+			width: min(32vw, 75vh);
+			height: min(32vw, 75vh);
 		}
 
 		.qrs-grid:has(> :nth-child(4)) .qr-card-code :global(svg) {
-			width: min(23vw, 400px);
-			height: min(23vw, 400px);
-			max-height: 60vh;
+			width: min(24vw, 45vh);
+			height: min(24vw, 45vh);
 		}
 
 		.qrs-grid:has(> :nth-child(5)) .qr-card-code :global(svg) {
-			width: min(18vw, 320px);
-			height: min(18vw, 320px);
-			max-height: 50vh;
+			width: min(19vw, 42vh);
+			height: min(19vw, 42vh);
 		}
 
 		.qrs-grid:has(> :nth-child(7)) .qr-card-code :global(svg) {
-			width: min(14vw, 260px);
-			height: min(14vw, 260px);
-			max-height: 45vh;
+			width: min(19vw, 42vh);
+			height: min(19vw, 42vh);
+		}
+
+		.qrs-grid:has(> :nth-child(9)) .qr-card-code :global(svg) {
+			width: min(19vw, 38vh);
+			height: min(19vw, 38vh);
+		}
+
+		.qrs-grid:has(> :nth-child(10)) .qr-card-code :global(svg) {
+			width: min(19vw, 30vh);
+			height: min(19vw, 30vh);
 		}
 	}
 
@@ -328,8 +333,11 @@
 	@media (max-width: 767px) {
 		.qrs-grid {
 			flex-direction: column;
+			align-content: flex-start;
 			gap: 0.5rem;
 			padding: 0.5rem;
+			min-height: auto;
+			overflow-y: auto;
 		}
 
 		.qr-card {
