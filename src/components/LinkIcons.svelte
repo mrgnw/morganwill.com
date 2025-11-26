@@ -69,10 +69,10 @@
 	let selectedQr = $derived(selectedLink?.qr ?? null);
 	let selectedUrl = $derived(selectedLink?.url);
 
-	// Grid calculation state
+	// Grid calculation - simple defaults, will be calculated on mount
 	let gridEl = $state(/** @type {HTMLElement | null} */ (null));
-	let size = $state(0);
-	let cols = $state(1);
+	let size = $state(150);
+	let cols = $state(Math.ceil(Math.sqrt(links.length)));
 
 	function updateGrid() {
 		if (!gridEl) return;
@@ -96,17 +96,6 @@
 		cols = bestCols;
 	}
 
-	// Set up ResizeObserver when gridEl becomes available
-	$effect(() => {
-		if (!gridEl) return;
-		
-		updateGrid();
-		const obs = new ResizeObserver(updateGrid);
-		obs.observe(gridEl);
-		
-		return () => obs.disconnect();
-	});
-
 	onMount(() => {
 		/**
 		 * @param {TouchEvent} e
@@ -120,8 +109,30 @@
 
 		document.body.addEventListener("touchstart", handleBodyTouch);
 
+		// Set up ResizeObserver for qrs grid
+		let obs = /** @type {ResizeObserver | null} */ (null);
+		
+		// Use MutationObserver to wait for gridEl to appear in DOM
+		const mutObs = new MutationObserver(() => {
+			if (gridEl && !obs) {
+				updateGrid();
+				obs = new ResizeObserver(updateGrid);
+				obs.observe(gridEl);
+			}
+		});
+		mutObs.observe(document.body, { childList: true, subtree: true });
+		
+		// Also check immediately in case element already exists
+		if (gridEl) {
+			updateGrid();
+			obs = new ResizeObserver(updateGrid);
+			obs.observe(gridEl);
+		}
+
 		return () => {
 			document.body.removeEventListener("touchstart", handleBodyTouch);
+			obs?.disconnect();
+			mutObs.disconnect();
 		};
 	});
 
@@ -140,15 +151,14 @@
 		<div 
 			class="qrs-grid" 
 			bind:this={gridEl}
-			style="grid-template-columns: repeat({cols}, {size || 100}px)"
+			style="grid-template-columns: repeat({cols}, {size}px)"
 		>
 			{#each links as link, index (link.title)}
 				<a 
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
-					style="width: {size || 100}px; height: {size || 100}px;"
-					transition:fade={{ duration: 400, delay: 80 * index }}
+					style="width: {size}px; height: {size}px; animation-delay: {index * 50}ms;"
 				>
 					<span class="qr-card-title">{link.title}</span>
 					<div class="qr-card-code">
@@ -267,6 +277,7 @@
 		height: 100%;
 		overflow: hidden;
 		box-sizing: border-box;
+		transition: grid-template-columns 0.3s ease;
 	}
 
 	.qr-card {
@@ -276,6 +287,15 @@
 		justify-content: center;
 		text-decoration: none;
 		box-sizing: border-box;
+		transition: width 0.3s ease, height 0.3s ease;
+		animation: fadeIn 0.4s ease forwards;
+		opacity: 0;
+	}
+
+	@keyframes fadeIn {
+		to {
+			opacity: 1;
+		}
 	}
 
 	.qr-card-title {
