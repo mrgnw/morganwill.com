@@ -68,12 +68,6 @@
 	let selectedUrl = $derived(selectedLink?.url);
 
 	onMount(() => {
-		// Check URL params for qr mode
-		const urlParams = new URLSearchParams(window.location.search);
-		if (urlParams.has("qr")) {
-			qrMode = true;
-		}
-
 		/**
 		 * @param {TouchEvent} e
 		 */

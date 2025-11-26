@@ -91,6 +91,7 @@ function getPrivateLinks() {
  * @param {typeof combinedLinks} allLinks
  * @param {string} hostname
  * @param {URLSearchParams} urlParams
+ * @returns {{ links: typeof allLinks, qrMode: boolean }}
  */
 function getFilteredLinks(allLinks, hostname, urlParams) {
 	const linksParam = urlParams.get("links");
@@ -101,32 +102,39 @@ function getFilteredLinks(allLinks, hostname, urlParams) {
 	// Split any keys that contain . or , (e.g., ?wa.li becomes ["wa", "li"])
 	const expandedKeys = paramKeys.flatMap(key => key.split(/[.,]/));
 	
+	// Check if qr mode is requested (via ?qr or ?li.tg.qr)
+	const qrMode = urlParams.has("qr") || expandedKeys.includes("qr");
+	
+	// Filter out "qr" from matching keys
 	const matchingKeys = expandedKeys.filter(key => 
-		allLinks.some(link => link.title === key || link.alias === key)
+		key !== "qr" && allLinks.some(link => link.title === key || link.alias === key)
 	);
 	
+	let links;
 	if (linksParam) {
 		// Explicit ?links=li.tg.ig or ?links=li,tg,ig format
-		const requestedLinks = linksParam.split(/[.,]/).map(s => s.trim().toLowerCase());
-		return requestedLinks
+		const requestedLinks = linksParam.split(/[.,]/).map(s => s.trim().toLowerCase()).filter(s => s !== "qr");
+		links = requestedLinks
 			.map(key => allLinks.find(link => link.title === key || link.alias === key))
 			.filter(Boolean);
 	} else if (matchingKeys.length > 0) {
 		// Shorthand ?li&tg&ig or ?wa.li format
-		return matchingKeys
+		links = matchingKeys
 			.map(key => allLinks.find(link => link.title === key || link.alias === key))
 			.filter(Boolean);
 	} else if (hostname === "morganwill.com") {
-		return ["linkedin", "github", "bluesky", "telegram", "cv"]
+		links = ["linkedin", "github", "bluesky", "telegram", "cv"]
 			.map(title => allLinks.find(link => link.title === title))
 			.filter(Boolean);
 	} else if (hostname === "zenfo.co") {
-		return ["instagram", "blog", "bluesky", "telegram"]
+		links = ["instagram", "blog", "bluesky", "telegram"]
 			.map(title => allLinks.find(link => link.title === title))
 			.filter(Boolean);
 	} else {
-		return allLinks.filter(link => link.title !== "cv");
+		links = allLinks.filter(link => link.title !== "cv");
 	}
+	
+	return { links, qrMode };
 }
 
 /** @type {import('./$types').PageServerLoad} */
@@ -149,10 +157,11 @@ export async function load({ request, url }) {
 		})
 	);
 
-	const links = getFilteredLinks(linksWithQr, hostname, url.searchParams);
+	const { links, qrMode } = getFilteredLinks(linksWithQr, hostname, url.searchParams);
 
 	return {
 		links,
+		qrMode,
 		hostname,
 		all_links: linksWithQr
 	};
