@@ -75,6 +75,7 @@
 	let initialSize = Math.floor(100 / initialCols); // vh units
 	let cols = $state(initialCols);
 	let size = $state(0); // 0 means use initialSize (vh units)
+	let ready = $state(false); // true after first calculation
 
 	function updateGrid() {
 		if (!gridEl) return;
@@ -96,6 +97,7 @@
 
 		size = best;
 		cols = bestCols;
+		ready = true;
 	}
 
 	onMount(() => {
@@ -153,6 +155,7 @@
 		{@const sizeUnit = size ? `${size}px` : `${initialSize}vh`}
 		<div 
 			class="qrs-grid" 
+			class:ready
 			bind:this={gridEl}
 			style="grid-template-columns: repeat({cols}, {sizeUnit})"
 		>
@@ -280,7 +283,12 @@
 		height: 100%;
 		overflow: hidden;
 		box-sizing: border-box;
-		transition: grid-template-columns 0.3s ease;
+		transition: grid-template-columns 0.3s ease, opacity 0.2s ease;
+		opacity: 0;
+	}
+
+	.qrs-grid.ready {
+		opacity: 1;
 	}
 
 	.qr-card {
