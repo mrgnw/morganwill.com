@@ -91,7 +91,7 @@ function getPrivateLinks() {
  * @param {typeof combinedLinks} allLinks
  * @param {string} hostname
  * @param {URLSearchParams} urlParams
- * @returns {{ links: typeof allLinks, qrMode: boolean }}
+ * @returns {{ links: typeof allLinks, qrMode: boolean, qrsMode: boolean }}
  */
 function getFilteredLinks(allLinks, hostname, urlParams) {
 	const linksParam = urlParams.get("links");
@@ -104,16 +104,18 @@ function getFilteredLinks(allLinks, hostname, urlParams) {
 	
 	// Check if qr mode is requested (via ?qr or ?li.tg.qr)
 	const qrMode = urlParams.has("qr") || expandedKeys.includes("qr");
+	// Check if all-qr mode is requested (via ?qrs or ?li.tg.qrs)
+	const qrsMode = urlParams.has("qrs") || expandedKeys.includes("qrs");
 	
-	// Filter out "qr" from matching keys
+	// Filter out "qr" and "qrs" from matching keys
 	const matchingKeys = expandedKeys.filter(key => 
-		key !== "qr" && allLinks.some(link => link.title === key || link.alias === key)
+		key !== "qr" && key !== "qrs" && allLinks.some(link => link.title === key || link.alias === key)
 	);
 	
 	let links;
 	if (linksParam) {
 		// Explicit ?links=li.tg.ig or ?links=li,tg,ig format
-		const requestedLinks = linksParam.split(/[.,]/).map(s => s.trim().toLowerCase()).filter(s => s !== "qr");
+		const requestedLinks = linksParam.split(/[.,]/).map(s => s.trim().toLowerCase()).filter(s => s !== "qr" && s !== "qrs");
 		links = requestedLinks
 			.map(key => allLinks.find(link => link.title === key || link.alias === key))
 			.filter(Boolean);
@@ -134,7 +136,7 @@ function getFilteredLinks(allLinks, hostname, urlParams) {
 		links = allLinks.filter(link => link.title !== "cv");
 	}
 	
-	return { links, qrMode };
+	return { links, qrMode, qrsMode };
 }
 
 /** @type {import('./$types').PageServerLoad} */
@@ -157,11 +159,14 @@ export async function load({ request, url }) {
 		})
 	);
 
-	const { links, qrMode } = getFilteredLinks(linksWithQr, hostname, url.searchParams);
+	const { links, qrMode, qrsMode } = getFilteredLinks(linksWithQr, hostname, url.searchParams);
+	
+	console.log('🔍 Server load:', { qrMode, qrsMode, linksCount: links.length, searchParams: url.searchParams.toString() });
 
 	return {
 		links,
 		qrMode,
+		qrsMode,
 		hostname,
 		all_links: linksWithQr
 	};

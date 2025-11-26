@@ -41,7 +41,8 @@
 	 *   defaultTitle?: string,
 	 *   iconSize?: string,
 	 *   selected?: string | null,
-	 *   qrMode?: boolean
+	 *   qrMode?: boolean,
+	 *   qrsMode?: boolean
 	 * }}
 	 */
 	let {
@@ -49,7 +50,8 @@
 		defaultTitle = "",
 		iconSize = "4.5em",
 		selected = $bindable(null),
-		qrMode = $bindable(false)
+		qrMode = $bindable(false),
+		qrsMode = $bindable(false)
 	} = $props();
 
 	/**
@@ -94,32 +96,63 @@
 	}
 </script>
 
-<div class="link-icons">
-	<h1 class="title" ondblclick={toggleQrMode}>
-		{#if qrMode && selectedQr}
-			<div class="qr-wrapper">
-				{#if selectedUrl}
-					<div class="url-display" transition:fade={{ duration: 300 }}>
-						<a
-							href={selectedUrl}
-							target="_blank"
-							class="url-link"
-						>
-							{selectedUrl}
-						</a>
+<div class="link-icons" class:qrs-mode={qrsMode}>
+	{#if true}
+		<div style="position: fixed; top: 0; left: 0; background: red; color: white; padding: 0.5rem; z-index: 9999; font-size: 12px;">
+			qrsMode: {qrsMode}, links: {links.length}
+		</div>
+	{/if}
+	{#if qrsMode}
+		<!-- All QR codes grid view -->
+		<div class="qrs-grid">
+			{#each links as link, index (link.title)}
+				{@const icon = getIcon(link.title)}
+				<a 
+					href={link.url} 
+					target="_blank" 
+					class="qr-card"
+					transition:fade={{ duration: 400, delay: 80 * index }}
+				>
+					<div class="qr-card-header">
+						{#if icon}
+							{@const Icon = icon}
+							<Icon width="1.5em" height="1.5em" style="color: var(--default)" />
+						{/if}
+						<span class="qr-card-title">{link.title}</span>
 					</div>
-				{/if}
-				{#if typeof selectedQr === "string"}
-					{@html selectedQr}
-				{/if}
-			</div>
-		{:else}
-			{selected ?? defaultTitle}
-		{/if}
-	</h1>
+					<div class="qr-card-code">
+						{@html link.qr}
+					</div>
+					<div class="qr-card-url">{link.shortUrl ?? link.url}</div>
+				</a>
+			{/each}
+		</div>
+	{:else}
+		<h1 class="title" ondblclick={toggleQrMode}>
+			{#if qrMode && selectedQr}
+				<div class="qr-wrapper">
+					{#if selectedUrl}
+						<div class="url-display" transition:fade={{ duration: 300 }}>
+							<a
+								href={selectedUrl}
+								target="_blank"
+								class="url-link"
+							>
+								{selectedUrl}
+							</a>
+						</div>
+					{/if}
+					{#if typeof selectedQr === "string"}
+						{@html selectedQr}
+					{/if}
+				</div>
+			{:else}
+				{selected ?? defaultTitle}
+			{/if}
+		</h1>
 
-	<div
-		class="links"
+		<div
+			class="links"
 		ontouchmove={(e) => {
 			e.preventDefault();
 			const touch = e.touches[0];
@@ -175,7 +208,8 @@
 				{/if}
 			</a>
 		{/each}
-	</div>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -183,6 +217,99 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	/* All QR codes grid mode */
+	.qrs-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+		gap: 1.5rem;
+		padding: 1rem;
+		max-width: 900px;
+		width: 100%;
+	}
+
+	.qr-card {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 1rem;
+		border-radius: 0.75rem;
+		text-decoration: none;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	.qr-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.qr-card-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.qr-card-title {
+		font-size: 1rem;
+		font-weight: 500;
+		color: var(--primary);
+		text-transform: capitalize;
+	}
+
+	.qr-card-code {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.qr-card-code :global(svg) {
+		width: 120px;
+		height: 120px;
+	}
+
+	.qr-card-code :global(svg path:first-child) {
+		fill: transparent;
+	}
+
+	.qr-card-code :global(svg path:last-child) {
+		stroke: var(--qr);
+	}
+
+	.qr-card-url {
+		font-size: 0.7rem;
+		color: var(--default);
+		opacity: 0.7;
+		text-align: center;
+		word-break: break-all;
+		max-width: 100%;
+		margin-top: 0.5rem;
+	}
+
+	@media (max-width: 500px) {
+		.qrs-grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 0.75rem;
+			padding: 0.5rem;
+		}
+
+		.qr-card {
+			padding: 0.5rem;
+		}
+
+		.qr-card-code :global(svg) {
+			width: 90px;
+			height: 90px;
+		}
+
+		.qr-card-title {
+			font-size: 0.875rem;
+		}
+
+		.qr-card-url {
+			font-size: 0.6rem;
+		}
 	}
 
 	.title {
