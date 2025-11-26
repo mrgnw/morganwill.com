@@ -48,10 +48,10 @@
 	let {
 		links = [],
 		defaultTitle = "",
-		iconSize = "4.5em",
+		iconSize = "clamp(3.5em, 8vw, 5.5em)",
 		selected = $bindable(null),
 		qrMode = $bindable(false),
-		qrsMode = $bindable(false)
+		qrsMode = false
 	} = $props();
 
 	/**
@@ -97,11 +97,6 @@
 </script>
 
 <div class="link-icons" class:qrs-mode={qrsMode}>
-	{#if true}
-		<div style="position: fixed; top: 0; left: 0; background: red; color: white; padding: 0.5rem; z-index: 9999; font-size: 12px;">
-			qrsMode: {qrsMode}, links: {links.length}
-		</div>
-	{/if}
 	{#if qrsMode}
 		<!-- All QR codes grid view -->
 		<div class="qrs-grid">
@@ -153,27 +148,27 @@
 
 		<div
 			class="links"
-		ontouchmove={(e) => {
-			e.preventDefault();
-			const touch = e.touches[0];
-			const element = document.elementFromPoint(touch.clientX, touch.clientY);
-			const linkElement = element?.closest('a');
-			if (linkElement) {
-				const linkData = links.find(link => 
-					linkElement.getAttribute('data-title') === link.title
-				);
-				if (linkData) handleSelect(linkData.title);
-			} else if (!qrMode) {
-				handleSelect(null);
-			}
-		}}
-	>
-		{#each links as { url, blurb, title }, index (title)}
-			{@const icon = getIcon(title)}
-			<a
-				href={qrMode ? undefined : url}
-				target="_blank"
-				aria-label={blurb}
+			ontouchmove={(e) => {
+				e.preventDefault();
+				const touch = e.touches[0];
+				const element = document.elementFromPoint(touch.clientX, touch.clientY);
+				const linkElement = element?.closest('a');
+				if (linkElement) {
+					const linkData = links.find(link => 
+						linkElement.getAttribute('data-title') === link.title
+					);
+					if (linkData) handleSelect(linkData.title);
+				} else if (!qrMode) {
+					handleSelect(null);
+				}
+			}}
+		>
+			{#each links as { url, blurb, title }, index (title)}
+				{@const icon = getIcon(title)}
+				<a
+					href={qrMode ? undefined : url}
+					target="_blank"
+					aria-label={blurb}
 				data-title={title}
 				class:active={title === selected}
 				class:flash-on={qrMode}
@@ -237,18 +232,20 @@
 		border-radius: 0.75rem;
 		text-decoration: none;
 		transition: transform 0.2s ease, box-shadow 0.2s ease;
+		background: var(--bg);
+		border: 1px solid var(--default);
 	}
 
 	.qr-card:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	}
 
 	.qr-card-header {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.75rem;
 	}
 
 	.qr-card-title {
@@ -256,12 +253,6 @@
 		font-weight: 500;
 		color: var(--primary);
 		text-transform: capitalize;
-	}
-
-	.qr-card-code {
-		display: flex;
-		justify-content: center;
-		align-items: center;
 	}
 
 	.qr-card-code :global(svg) {
@@ -278,38 +269,11 @@
 	}
 
 	.qr-card-url {
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		color: var(--default);
-		opacity: 0.7;
-		text-align: center;
-		word-break: break-all;
-		max-width: 100%;
 		margin-top: 0.5rem;
-	}
-
-	@media (max-width: 500px) {
-		.qrs-grid {
-			grid-template-columns: repeat(2, 1fr);
-			gap: 0.75rem;
-			padding: 0.5rem;
-		}
-
-		.qr-card {
-			padding: 0.5rem;
-		}
-
-		.qr-card-code :global(svg) {
-			width: 90px;
-			height: 90px;
-		}
-
-		.qr-card-title {
-			font-size: 0.875rem;
-		}
-
-		.qr-card-url {
-			font-size: 0.6rem;
-		}
+		word-break: break-all;
+		text-align: center;
 	}
 
 	.title {
@@ -371,10 +335,13 @@
 
 	.links {
 		display: flex;
-		gap: 2rem;
+		gap: clamp(1.5rem, 5vw, 3rem);
 		align-items: center;
 		justify-content: center;
-		padding: 2rem;
+		padding: clamp(1rem, 4vw, 2rem);
+		flex-wrap: wrap;
+		max-width: min(90vw, 800px);
+		margin: 0 auto;
 	}
 
 	a {
@@ -392,23 +359,32 @@
 	@media (max-width: 767px) {
 		.links {
 			display: grid;
-			grid-template-columns: 1fr;
-			width: min(100%, 300px);
-			gap: 1rem;
-			padding: 1rem;
+			grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+			width: min(100vw - 2rem, 400px);
+			gap: clamp(1rem, 4vw, 2rem);
+			padding: clamp(1rem, 4vw, 2rem);
 			margin: 0 auto;
 		}
 
 		@media (max-height: 800px) {
 			.links {
-				grid-template-columns: repeat(2, 1fr);
-				width: min(100%, 200px);
+				grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+				width: min(100vw - 1rem, 350px);
+				gap: clamp(0.75rem, 3vw, 1.5rem);
 				justify-items: center;
 				align-items: center;
 			}
 
 			a {
 				width: auto;
+			}
+		}
+
+		@media (max-height: 650px) {
+			.links {
+				grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+				width: min(100vw - 1rem, 320px);
+				gap: clamp(0.5rem, 2vw, 1rem);
 			}
 		}
 	}

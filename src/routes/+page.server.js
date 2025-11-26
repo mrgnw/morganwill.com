@@ -160,8 +160,6 @@ export async function load({ request, url }) {
 	);
 
 	const { links, qrMode, qrsMode } = getFilteredLinks(linksWithQr, hostname, url.searchParams);
-	
-	console.log('🔍 Server load:', { qrMode, qrsMode, linksCount: links.length, searchParams: url.searchParams.toString() });
 
 	return {
 		links,
