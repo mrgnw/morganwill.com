@@ -315,11 +315,23 @@
 
 	/* Animate individual QR modules (rects) popping in */
 	.qr-card-code :global(svg rect) {
-		fill: var(--default);
 		opacity: 0;
 		transform: scale(0);
-		animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+		animation: popIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 	}
+
+	/* Randomize hue rotation per rect using nth-child patterns */
+	.qr-card-code :global(svg rect:nth-child(3n+1)) { --hue-shift: 0deg; --hue-mid1: 120deg; --hue-mid2: 240deg; }
+	.qr-card-code :global(svg rect:nth-child(3n+2)) { --hue-shift: 60deg; --hue-mid1: 180deg; --hue-mid2: 300deg; }
+	.qr-card-code :global(svg rect:nth-child(3n)) { --hue-shift: 30deg; --hue-mid1: 150deg; --hue-mid2: 270deg; }
+	
+	.qr-card-code :global(svg rect:nth-child(7n+1)) { --hue-shift: 45deg; }
+	.qr-card-code :global(svg rect:nth-child(7n+3)) { --hue-shift: 90deg; }
+	.qr-card-code :global(svg rect:nth-child(7n+5)) { --hue-shift: 135deg; }
+	
+	.qr-card-code :global(svg rect:nth-child(11n+2)) { --hue-mid1: 60deg; --hue-mid2: 180deg; }
+	.qr-card-code :global(svg rect:nth-child(11n+5)) { --hue-mid1: 200deg; --hue-mid2: 320deg; }
+	.qr-card-code :global(svg rect:nth-child(11n+8)) { --hue-mid1: 280deg; --hue-mid2: 40deg; }
 
 	/* Stagger rects within each QR - waves of 20 rects at a time */
 	.qr-card-code :global(svg rect:nth-child(20n+1)) { animation-delay: calc(var(--delay, 0ms) + 0ms); }
@@ -353,18 +365,37 @@
 	@keyframes popIn {
 		0% {
 			opacity: 0;
-			transform: scale(0) rotate(-10deg);
+			transform: scale(0) rotate(-15deg);
+			fill: oklch(65% 0.25 var(--hue-shift, 0deg));
+			filter: blur(4px) brightness(1.5);
+		}
+		20% {
+			opacity: 0.7;
+			transform: scale(1.4) rotate(8deg);
+			fill: oklch(70% 0.3 var(--hue-mid1, 120deg));
+			filter: blur(2px) brightness(1.3);
+		}
+		40% {
+			opacity: 0.9;
+			transform: scale(0.8) rotate(-5deg);
+			fill: oklch(60% 0.28 var(--hue-mid2, 240deg));
+			filter: blur(1px) brightness(1.1);
 		}
 		60% {
 			opacity: 1;
-			transform: scale(1.15) rotate(2deg);
+			transform: scale(1.15) rotate(3deg);
+			fill: oklch(55% 0.2 calc(var(--hue-shift, 0deg) + 180deg));
+			filter: blur(0) brightness(1);
 		}
 		80% {
 			transform: scale(0.95) rotate(-1deg);
+			fill: oklch(40% 0.08 var(--hue-shift, 0deg));
 		}
 		100% {
 			opacity: 1;
 			transform: scale(1) rotate(0deg);
+			fill: var(--default, currentColor);
+			filter: blur(0) brightness(1);
 		}
 	}
 
