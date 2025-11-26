@@ -68,17 +68,10 @@
 	let selectedUrl = $derived(selectedLink?.url);
 
 	onMount(() => {
-		// Check URL params for qr mode or specific link alias
+		// Check URL params for qr mode
 		const urlParams = new URLSearchParams(window.location.search);
 		if (urlParams.has("qr")) {
 			qrMode = true;
-		}
-		const aliases = links.map((l) => l.alias);
-		for (const alias of aliases) {
-			if (urlParams.has(alias)) {
-				selected = links.find((l) => l.alias === alias)?.title ?? null;
-				qrMode = true;
-			}
 		}
 
 		/**

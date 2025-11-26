@@ -95,9 +95,13 @@ function getPrivateLinks() {
 function getFilteredLinks(allLinks, hostname, urlParams) {
 	const linksParam = urlParams.get("links");
 	
-	// Check for ?links=li.tg.ig OR just ?li&tg&ig (keys as link identifiers)
+	// Check for ?links=li.tg.ig OR just ?li&tg&ig OR ?wa.li (keys as link identifiers)
 	const paramKeys = [...urlParams.keys()];
-	const matchingKeys = paramKeys.filter(key => 
+	
+	// Split any keys that contain . or , (e.g., ?wa.li becomes ["wa", "li"])
+	const expandedKeys = paramKeys.flatMap(key => key.split(/[.,]/));
+	
+	const matchingKeys = expandedKeys.filter(key => 
 		allLinks.some(link => link.title === key || link.alias === key)
 	);
 	
@@ -108,7 +112,7 @@ function getFilteredLinks(allLinks, hostname, urlParams) {
 			.map(key => allLinks.find(link => link.title === key || link.alias === key))
 			.filter(Boolean);
 	} else if (matchingKeys.length > 0) {
-		// Shorthand ?li&tg&ig format
+		// Shorthand ?li&tg&ig or ?wa.li format
 		return matchingKeys
 			.map(key => allLinks.find(link => link.title === key || link.alias === key))
 			.filter(Boolean);
