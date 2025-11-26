@@ -1,6 +1,37 @@
 import QRCode from 'qrcode';
 import { env } from '$env/dynamic/private';
 
+/**
+ * Generate an SVG with individual rects for animation
+ * @param {string} text - Text to encode
+ * @param {number} size - SVG size in pixels
+ * @returns {string} SVG string with individual rect elements
+ */
+function generateAnimatedQRSvg(text, size = 164) {
+	const qr = QRCode.create(text);
+	const modules = qr.modules;
+	const moduleCount = modules.size;
+	const moduleSize = size / moduleCount;
+	
+	let rects = '';
+	let index = 0;
+	
+	for (let row = 0; row < moduleCount; row++) {
+		for (let col = 0; col < moduleCount; col++) {
+			const idx = row * moduleCount + col;
+			if (modules.data[idx]) {
+				const x = col * moduleSize;
+				const y = row * moduleSize;
+				// Add data-index for CSS animation stagger
+				rects += `<rect x="${x}" y="${y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}"/>`;
+				index++;
+			}
+		}
+	}
+	
+	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">${rects}</svg>`;
+}
+
 const all_links = [
 	{
 		title: 'instagram',
@@ -147,15 +178,23 @@ export async function load({ request, url }) {
 		?? 'localhost';
 	
 	const combinedLinks = [...all_links, ...getPrivateLinks()];
+	
+	// Check if qrs mode early to decide which QR format to use
+	const paramKeys = [...url.searchParams.keys()];
+	const expandedKeys = paramKeys.flatMap(key => key.split(/[.,]/));
+	const willBeQrsMode = url.searchParams.has("qrs") || expandedKeys.includes("qrs");
 
 	const linksWithQr = await Promise.all(
 		combinedLinks.map(async (link) => {
 			const qrUrl = link.shortUrl ?? link.url;
-			const qr = await QRCode.toString(qrUrl, {
-				type: "svg",
-				width: 164,
-				margin: 0,
-			});
+			// Use animated SVG (individual rects) for qrs mode
+			const qr = willBeQrsMode 
+				? generateAnimatedQRSvg(qrUrl, 164)
+				: await QRCode.toString(qrUrl, {
+						type: "svg",
+						width: 164,
+						margin: 0,
+					});
 			return { ...link, qr };
 		})
 	);

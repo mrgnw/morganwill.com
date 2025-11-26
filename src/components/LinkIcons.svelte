@@ -164,7 +164,7 @@
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
-					style="width: {sizeUnit}; height: {sizeUnit}; --delay: {300 + index * 400}ms;"
+					style="width: {sizeUnit}; height: {sizeUnit}; --delay: {300 + index * 250}ms;"
 				>
 					<span class="qr-card-title">{link.title}</span>
 					<div class="qr-card-code">
@@ -301,7 +301,7 @@
 		padding: 0.25rem;
 	}
 
-	/* Scan-line reveal animation for QR codes */
+	/* QR code container */
 	.qr-card-code {
 		position: relative;
 		overflow: hidden;
@@ -313,33 +313,58 @@
 		min-height: 0;
 	}
 
-	.qr-card-code::after {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: -100%;
-		width: 200%;
-		height: 100%;
-		background: linear-gradient(
-			to right,
-			var(--bg, #fff) 0%,
-			var(--bg, #fff) 45%,
-			rgba(255, 255, 255, 0.9) 48%,
-			var(--highlight, #1e83ff) 50%,
-			rgba(255, 255, 255, 0.9) 52%,
-			transparent 55%,
-			transparent 100%
-		);
-		animation: scanReveal 0.4s ease-out forwards;
-		animation-delay: var(--delay, 0ms);
+	/* Animate individual QR modules (rects) popping in */
+	.qr-card-code :global(svg rect) {
+		fill: var(--default);
+		opacity: 0;
+		transform: scale(0);
+		animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 	}
 
-	@keyframes scanReveal {
-		from {
-			transform: translateX(0);
+	/* Stagger rects within each QR - waves of 20 rects at a time */
+	.qr-card-code :global(svg rect:nth-child(20n+1)) { animation-delay: calc(var(--delay, 0ms) + 0ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+2)) { animation-delay: calc(var(--delay, 0ms) + 15ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+3)) { animation-delay: calc(var(--delay, 0ms) + 30ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+4)) { animation-delay: calc(var(--delay, 0ms) + 45ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+5)) { animation-delay: calc(var(--delay, 0ms) + 60ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+6)) { animation-delay: calc(var(--delay, 0ms) + 75ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+7)) { animation-delay: calc(var(--delay, 0ms) + 90ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+8)) { animation-delay: calc(var(--delay, 0ms) + 105ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+9)) { animation-delay: calc(var(--delay, 0ms) + 120ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+10)) { animation-delay: calc(var(--delay, 0ms) + 135ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+11)) { animation-delay: calc(var(--delay, 0ms) + 150ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+12)) { animation-delay: calc(var(--delay, 0ms) + 165ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+13)) { animation-delay: calc(var(--delay, 0ms) + 180ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+14)) { animation-delay: calc(var(--delay, 0ms) + 195ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+15)) { animation-delay: calc(var(--delay, 0ms) + 210ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+16)) { animation-delay: calc(var(--delay, 0ms) + 225ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+17)) { animation-delay: calc(var(--delay, 0ms) + 240ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+18)) { animation-delay: calc(var(--delay, 0ms) + 255ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+19)) { animation-delay: calc(var(--delay, 0ms) + 270ms); }
+	.qr-card-code :global(svg rect:nth-child(20n+20)) { animation-delay: calc(var(--delay, 0ms) + 285ms); }
+
+	/* Add progressive delay for later rects so animation spreads out */
+	.qr-card-code :global(svg rect:nth-child(n+21)) { animation-delay: calc(var(--delay, 0ms) + 300ms + 15ms * (calc(1))); }
+	.qr-card-code :global(svg rect:nth-child(n+100)) { animation-delay: calc(var(--delay, 0ms) + 400ms); }
+	.qr-card-code :global(svg rect:nth-child(n+200)) { animation-delay: calc(var(--delay, 0ms) + 550ms); }
+	.qr-card-code :global(svg rect:nth-child(n+300)) { animation-delay: calc(var(--delay, 0ms) + 700ms); }
+	.qr-card-code :global(svg rect:nth-child(n+400)) { animation-delay: calc(var(--delay, 0ms) + 850ms); }
+
+	@keyframes popIn {
+		0% {
+			opacity: 0;
+			transform: scale(0) rotate(-10deg);
 		}
-		to {
-			transform: translateX(100%);
+		60% {
+			opacity: 1;
+			transform: scale(1.15) rotate(2deg);
+		}
+		80% {
+			transform: scale(0.95) rotate(-1deg);
+		}
+		100% {
+			opacity: 1;
+			transform: scale(1) rotate(0deg);
 		}
 	}
 
@@ -347,12 +372,12 @@
 	.qr-card-title,
 	.qr-card-url {
 		opacity: 0;
-		animation: fadeIn 0.2s ease-out forwards;
-		animation-delay: calc(var(--delay, 0ms) + 200ms);
+		animation: fadeIn 0.3s ease-out forwards;
+		animation-delay: calc(var(--delay, 0ms) + 600ms);
 	}
 
 	.qr-card-url {
-		animation-delay: calc(var(--delay, 0ms) + 250ms);
+		animation-delay: calc(var(--delay, 0ms) + 700ms);
 	}
 
 	@keyframes fadeIn {
