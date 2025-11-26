@@ -15,11 +15,11 @@
 
 	/** @type {Record<string, import('svelte').Component>} */
 	const iconMap = {
-		photos: RiInstagramLine,
-		LinkedIn: JamLinkedinCircle,
+		instagram: RiInstagramLine,
+		linkedin: JamLinkedinCircle,
 		github: IconoirGithubCircle,
 		bluesky: RiBlueskyLine,
-		message: IconoirTelegramCircle,
+		telegram: IconoirTelegramCircle,
 		blog: PhBookmarkSimpleBold,
 		cv: TablerFileCv,
 		phone: IconoirPhone,

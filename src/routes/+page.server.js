@@ -3,14 +3,14 @@ import { env } from '$env/dynamic/private';
 
 const all_links = [
 	{
-		title: 'photos',
-		alias: 'photo',
+		title: 'instagram',
+		alias: 'ig',
 		url: 'https://instagram.com/zenfo.co',
 		shortUrl: 'https://a.xcc.es/photos',
 		blurb: 'Instagram photo portfolio',
 	},
 	{
-		title: 'LinkedIn',
+		title: 'linkedin',
 		alias: 'li',
 		url: 'https://linkedin.com/in/mrgnw',
 		shortUrl: 'https://a.xcc.es/li',
@@ -38,8 +38,8 @@ const all_links = [
 		blurb: 'Bluesky profile',
 	},
 	{
-		title: 'message',
-		alias: 'dm',
+		title: 'telegram',
+		alias: 'tg',
 		url: 'https://t.me/mrgnw',
 		shortUrl: 'https://t.me/mrgnw',
 		blurb: 'Message on Telegram',

@@ -13,10 +13,20 @@
 
 	onMount(() => {
 		hostname = window.location.hostname;
-		if (hostname === "morganwill.com") {
-			links = get_links(["LinkedIn", "github", "bluesky", "message", "cv"]);
+		
+		// Check for ?links= param first (e.g. ?links=linkedin,tg,ig)
+		const urlParams = new URLSearchParams(window.location.search);
+		const linksParam = urlParams.get("links");
+		
+		if (linksParam) {
+			const requestedLinks = linksParam.split(",").map(s => s.trim().toLowerCase());
+			links = requestedLinks
+				.map(key => all_links.find(link => link.title === key || link.alias === key))
+				.filter(Boolean);
+		} else if (hostname === "morganwill.com") {
+			links = get_links(["linkedin", "github", "bluesky", "telegram", "cv"]);
 		} else if (hostname === "zenfo.co") {
-			links = get_links(["photos", "blog", "bluesky", "message"]);
+			links = get_links(["instagram", "blog", "bluesky", "telegram"]);
 		} else {
 			links = all_links.filter((link) => link.title !== "cv");
 		}
