@@ -103,6 +103,76 @@
 	let size = $derived(gridCalc.size);
 	let ready = $derived(gridCalc.ready);
 
+	/**
+	 * Apply row-based wave animation delays to QR code rects
+	 * @param {HTMLElement} container
+	 * @param {number} baseDelay
+	 */
+	function applyWaveAnimation(container, baseDelay) {
+		const svg = container.querySelector('svg');
+		if (!svg) return;
+		
+		const rects = svg.querySelectorAll('rect');
+		if (rects.length === 0) return;
+		
+		// Get all unique y values and sort them to determine rows
+		/** @type {Map<number, Element[]>} */
+		const rowMap = new Map();
+		
+		rects.forEach(rect => {
+			const y = parseFloat(rect.getAttribute('y') ?? '0');
+			if (!rowMap.has(y)) {
+				rowMap.set(y, []);
+			}
+			rowMap.get(y)?.push(rect);
+		});
+		
+		// Sort rows by y position
+		const sortedYValues = [...rowMap.keys()].sort((a, b) => a - b);
+		
+		// Apply staggered delay per row (35ms between rows for wave effect)
+		sortedYValues.forEach((y, rowIndex) => {
+			const rowRects = rowMap.get(y) ?? [];
+			rowRects.forEach(rect => {
+				const delay = baseDelay + (rowIndex * 35);
+				// @ts-ignore
+				rect.style.animationDelay = `${delay}ms`;
+			});
+		});
+	}
+
+	/**
+	 * Svelte action to apply wave animation when element mounts
+	 * @param {HTMLElement} node
+	 * @param {number} baseDelay
+	 */
+	function waveAction(node, baseDelay) {
+		// Use requestAnimationFrame to ensure SVG is rendered
+		requestAnimationFrame(() => {
+			applyWaveAnimation(node, baseDelay);
+			
+			// Also set delays for sibling title and URL elements
+			const card = node.closest('.qr-card');
+			if (card) {
+				const title = card.querySelector('.qr-card-title');
+				const url = card.querySelector('.qr-card-url');
+				// @ts-ignore
+				if (title) title.style.animationDelay = `${baseDelay + 400}ms`;
+				// @ts-ignore
+				if (url) url.style.animationDelay = `${baseDelay + 500}ms`;
+			}
+		});
+		
+		return {
+			/**
+			 * @param {number} newDelay
+			 */
+			update(newDelay) {
+				applyWaveAnimation(node, newDelay);
+			}
+		};
+	}
+
 	onMount(() => {
 		/**
 		 * @param {TouchEvent} e
@@ -146,10 +216,10 @@
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
-					style="width: {sizeUnit}; height: {sizeUnit}; --delay: {300 + index * 250}ms;"
+					style="width: {sizeUnit}; height: {sizeUnit};"
 				>
 					<span class="qr-card-title">{link.title}</span>
-					<div class="qr-card-code">
+					<div class="qr-card-code" use:waveAction={200 + index * 180}>
 						{@html link.qr}
 					</div>
 					<div class="qr-card-url">{link.url}</div>
@@ -302,102 +372,48 @@
 		margin: -0.5rem;
 	}
 
-	/* Animate individual QR modules (rects) popping in */
+	/* Animate individual QR modules (rects) with wave/rug-unroll effect */
 	.qr-card-code :global(svg rect) {
 		opacity: 0;
-		transform: scale(0);
-		animation: popIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+		transform-origin: center top;
+		transform: perspective(200px) rotateX(-90deg) translateY(-50%);
+		animation: waveUnroll 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+		/* Default delay - will be overridden by JS for proper row staggering */
+		animation-delay: 0ms;
 	}
 
-	/* Randomize hue rotation per rect using nth-child patterns */
-	.qr-card-code :global(svg rect:nth-child(3n+1)) { --hue-shift: 0deg; --hue-mid1: 120deg; --hue-mid2: 240deg; }
-	.qr-card-code :global(svg rect:nth-child(3n+2)) { --hue-shift: 60deg; --hue-mid1: 180deg; --hue-mid2: 300deg; }
-	.qr-card-code :global(svg rect:nth-child(3n)) { --hue-shift: 30deg; --hue-mid1: 150deg; --hue-mid2: 270deg; }
-	
-	.qr-card-code :global(svg rect:nth-child(7n+1)) { --hue-shift: 45deg; }
-	.qr-card-code :global(svg rect:nth-child(7n+3)) { --hue-shift: 90deg; }
-	.qr-card-code :global(svg rect:nth-child(7n+5)) { --hue-shift: 135deg; }
-	
-	.qr-card-code :global(svg rect:nth-child(11n+2)) { --hue-mid1: 60deg; --hue-mid2: 180deg; }
-	.qr-card-code :global(svg rect:nth-child(11n+5)) { --hue-mid1: 200deg; --hue-mid2: 320deg; }
-	.qr-card-code :global(svg rect:nth-child(11n+8)) { --hue-mid1: 280deg; --hue-mid2: 40deg; }
-
-	/* Stagger rects within each QR - waves of 20 rects at a time */
-	.qr-card-code :global(svg rect:nth-child(20n+1)) { animation-delay: calc(var(--delay, 0ms) + 0ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+2)) { animation-delay: calc(var(--delay, 0ms) + 15ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+3)) { animation-delay: calc(var(--delay, 0ms) + 30ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+4)) { animation-delay: calc(var(--delay, 0ms) + 45ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+5)) { animation-delay: calc(var(--delay, 0ms) + 60ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+6)) { animation-delay: calc(var(--delay, 0ms) + 75ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+7)) { animation-delay: calc(var(--delay, 0ms) + 90ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+8)) { animation-delay: calc(var(--delay, 0ms) + 105ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+9)) { animation-delay: calc(var(--delay, 0ms) + 120ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+10)) { animation-delay: calc(var(--delay, 0ms) + 135ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+11)) { animation-delay: calc(var(--delay, 0ms) + 150ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+12)) { animation-delay: calc(var(--delay, 0ms) + 165ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+13)) { animation-delay: calc(var(--delay, 0ms) + 180ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+14)) { animation-delay: calc(var(--delay, 0ms) + 195ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+15)) { animation-delay: calc(var(--delay, 0ms) + 210ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+16)) { animation-delay: calc(var(--delay, 0ms) + 225ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+17)) { animation-delay: calc(var(--delay, 0ms) + 240ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+18)) { animation-delay: calc(var(--delay, 0ms) + 255ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+19)) { animation-delay: calc(var(--delay, 0ms) + 270ms); }
-	.qr-card-code :global(svg rect:nth-child(20n+20)) { animation-delay: calc(var(--delay, 0ms) + 285ms); }
-
-	/* Add progressive delay for later rects so animation spreads out */
-	.qr-card-code :global(svg rect:nth-child(n+21)) { animation-delay: calc(var(--delay, 0ms) + 300ms + 15ms * (calc(1))); }
-	.qr-card-code :global(svg rect:nth-child(n+100)) { animation-delay: calc(var(--delay, 0ms) + 400ms); }
-	.qr-card-code :global(svg rect:nth-child(n+200)) { animation-delay: calc(var(--delay, 0ms) + 550ms); }
-	.qr-card-code :global(svg rect:nth-child(n+300)) { animation-delay: calc(var(--delay, 0ms) + 700ms); }
-	.qr-card-code :global(svg rect:nth-child(n+400)) { animation-delay: calc(var(--delay, 0ms) + 850ms); }
-
-	@keyframes popIn {
+	@keyframes waveUnroll {
 		0% {
 			opacity: 0;
-			transform: scale(0) rotate(-15deg);
-			fill: oklch(65% 0.25 var(--hue-shift, 0deg));
-			filter: blur(4px) brightness(1.5);
+			transform: perspective(200px) rotateX(-90deg) translateY(-50%) scaleY(0.5);
 		}
-		20% {
+		30% {
 			opacity: 0.7;
-			transform: scale(1.4) rotate(8deg);
-			fill: oklch(70% 0.3 var(--hue-mid1, 120deg));
-			filter: blur(2px) brightness(1.3);
+			transform: perspective(200px) rotateX(-15deg) translateY(-8%) scaleY(1.05);
 		}
-		40% {
-			opacity: 0.9;
-			transform: scale(0.8) rotate(-5deg);
-			fill: oklch(60% 0.28 var(--hue-mid2, 240deg));
-			filter: blur(1px) brightness(1.1);
+		55% {
+			opacity: 0.95;
+			transform: perspective(200px) rotateX(10deg) translateY(3%) scaleY(1);
 		}
-		60% {
+		75% {
 			opacity: 1;
-			transform: scale(1.15) rotate(3deg);
-			fill: oklch(55% 0.2 calc(var(--hue-shift, 0deg) + 180deg));
-			filter: blur(0) brightness(1);
+			transform: perspective(200px) rotateX(-5deg) translateY(-1%);
 		}
-		80% {
-			transform: scale(0.95) rotate(-1deg);
-			fill: oklch(40% 0.08 var(--hue-shift, 0deg));
+		90% {
+			transform: perspective(200px) rotateX(2deg) translateY(0.5%);
 		}
 		100% {
 			opacity: 1;
-			transform: scale(1) rotate(0deg);
-			fill: var(--default, currentColor);
-			filter: blur(0) brightness(1);
+			transform: perspective(200px) rotateX(0deg) translateY(0) scaleY(1);
 		}
 	}
 
-	/* Fade in title and URL with stagger */
+	/* Fade in title and URL with stagger - delays set by JS */
 	.qr-card-title,
 	.qr-card-url {
 		opacity: 0;
-		animation: fadeIn 0.3s ease-out forwards;
-		animation-delay: calc(var(--delay, 0ms) + 600ms);
-	}
-
-	.qr-card-url {
-		animation-delay: calc(var(--delay, 0ms) + 700ms);
+		animation: fadeIn 0.4s ease-out forwards;
+		animation-delay: 0ms; /* Will be overridden by JS */
 	}
 
 	@keyframes fadeIn {
