@@ -77,7 +77,10 @@
 	// Reactive grid calculation based on window size
 	let gridCalc = $derived.by(() => {
 		const w = innerWidth.current ?? 0;
-		const h = innerHeight.current ?? 0;
+		// Use visualViewport height if available (more accurate on mobile)
+		const h = (typeof window !== 'undefined' && window.visualViewport?.height) 
+			? window.visualViewport.height 
+			: (innerHeight.current ?? 0);
 		const n = links.length;
 
 		if (w === 0 || h === 0) {
@@ -96,7 +99,8 @@
 			}
 		}
 
-		return { cols: bestCols, size: best, ready: true };
+		// Subtract a small buffer to prevent any overflow
+		return { cols: bestCols, size: Math.floor(best * 0.98), ready: true };
 	});
 
 	let cols = $derived(gridCalc.cols);
@@ -255,10 +259,10 @@
 					onmouseenter={() => hoveredCard = index}
 					onmouseleave={() => hoveredCard = null}
 				>
-					<span class="qr-card-title">{link.title}</span>
 					<div class="qr-card-code" use:waveAction={100 + animOrder * 80}>
 						{@html link.qr}
 					</div>
+					<span class="qr-card-title">{link.title}</span>
 					<div class="qr-card-url">{link.url}</div>
 				</a>
 			{/each}
@@ -357,10 +361,13 @@
 
 	.link-icons.qrs-mode {
 		width: 100vw;
-		height: 100vh;
+		height: 100dvh;
+		height: 100vh; /* fallback */
+		height: 100dvh;
 		position: fixed;
 		top: 0;
 		left: 0;
+		overflow: hidden;
 	}
 
 	/* ===== QRS GRID MODE ===== */
@@ -372,7 +379,8 @@
 		align-items: center;
 		width: 100%;
 		height: 100%;
-		overflow: visible;
+		max-height: 100%;
+		overflow: hidden;
 		box-sizing: border-box;
 		transition: opacity 0.2s ease;
 		opacity: 0;
@@ -388,15 +396,14 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 		text-decoration: none;
 		box-sizing: border-box;
 		transition: width 0.3s ease, height 0.3s ease, transform 0.25s ease, opacity 0.25s ease;
-		padding: 0.25rem;
+		padding: 0.125rem;
 		overflow: visible;
 		position: relative;
-		/* 3D context for floating title */
-		transform-style: preserve-3d;
-		perspective: 500px;
+		gap: 0.25rem;
 	}
 
 	.qr-card.shrink {
@@ -414,40 +421,19 @@
 		align-items: center;
 		justify-content: center;
 		min-height: 0;
-		padding: 0.5rem;
-		margin: -0.5rem;
 	}
 
 	.qr-card-title {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%) translateZ(20px);
-		z-index: 10;
-		font-size: clamp(0.9rem, 3vw, 1.4rem);
-		font-weight: 700;
+		font-size: clamp(0.65rem, 2vw, 0.9rem);
+		font-weight: 600;
 		color: var(--primary);
 		text-transform: capitalize;
-		pointer-events: none;
-		/* Text stroke for readability */
-		-webkit-text-stroke: 0.25em var(--bg, white);
-		paint-order: stroke fill;
-		/* Enhanced shadow for floating effect */
-		text-shadow: 
-			0 0 0.2em var(--bg, white),
-			0 0 0.4em var(--bg, white),
-			0 4px 8px rgba(0, 0, 0, 0.3),
-			0 8px 16px rgba(0, 0, 0, 0.15);
-		transition: transform 0.3s ease, text-shadow 0.3s ease;
+		line-height: 1;
+		transition: color 0.2s ease, transform 0.2s ease;
 	}
 
 	.qr-card:hover .qr-card-title {
-		transform: translate(-50%, -50%) translateZ(40px) scale(1.1);
-		text-shadow: 
-			0 0 0.2em var(--bg, white),
-			0 0 0.4em var(--bg, white),
-			0 8px 16px rgba(0, 0, 0, 0.35),
-			0 16px 32px rgba(0, 0, 0, 0.2);
+		transform: scale(1.05);
 	}
 
 	/* Animate individual QR modules (rects) with radial bloom effect */
@@ -486,13 +472,18 @@
 	/* Fade in title with stagger - delay set by JS */
 	.qr-card-title {
 		opacity: 0;
-		animation: fadeIn 0.4s ease-out forwards;
+		animation: fadeSlideIn 0.4s ease-out forwards;
 		animation-delay: 0ms; /* Will be overridden by JS */
 	}
 
-	@keyframes fadeIn {
+	@keyframes fadeSlideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
 		to {
 			opacity: 1;
+			transform: translateY(0);
 		}
 	}
 
