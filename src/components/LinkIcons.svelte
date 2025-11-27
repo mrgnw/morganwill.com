@@ -171,6 +171,9 @@
 		return orderMap;
 	});
 
+	// Track which QR card is being hovered
+	let hoveredCard = $state(/** @type {number | null} */ (null));
+
 	/**
 	 * Svelte action to apply wave animation when element mounts
 	 * @param {HTMLElement} node
@@ -247,7 +250,10 @@
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
+					class:shrink={hoveredCard !== null && hoveredCard !== index}
 					style="width: {sizeUnit}; height: {sizeUnit};"
+					onmouseenter={() => hoveredCard = index}
+					onmouseleave={() => hoveredCard = null}
 				>
 					<span class="qr-card-title">{link.title}</span>
 					<div class="qr-card-code" use:waveAction={100 + animOrder * 80}>
@@ -384,13 +390,18 @@
 		align-items: center;
 		text-decoration: none;
 		box-sizing: border-box;
-		transition: width 0.3s ease, height 0.3s ease;
+		transition: width 0.3s ease, height 0.3s ease, transform 0.25s ease, opacity 0.25s ease;
 		padding: 0.25rem;
 		overflow: visible;
 		position: relative;
 		/* 3D context for floating title */
 		transform-style: preserve-3d;
 		perspective: 500px;
+	}
+
+	.qr-card.shrink {
+		transform: scale(0.92);
+		opacity: 0.7;
 	}
 
 	/* QR code container */
@@ -472,9 +483,8 @@
 		}
 	}
 
-	/* Fade in title and URL with stagger - delays set by JS */
-	.qr-card-title,
-	.qr-card-url {
+	/* Fade in title with stagger - delay set by JS */
+	.qr-card-title {
 		opacity: 0;
 		animation: fadeIn 0.4s ease-out forwards;
 		animation-delay: 0ms; /* Will be overridden by JS */
@@ -500,6 +510,12 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		opacity: 0;
+		transition: opacity 0.2s ease;
+	}
+
+	.qr-card:hover .qr-card-url {
+		opacity: 1;
 	}
 
 	.qr-card-code :global(svg path:first-child) {
