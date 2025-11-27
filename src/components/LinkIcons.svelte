@@ -104,7 +104,7 @@
 	let ready = $derived(gridCalc.ready);
 
 	/**
-	 * Apply row-based wave animation delays to QR code rects
+	 * Apply radial wave animation - expands from center outward
 	 * @param {HTMLElement} container
 	 * @param {number} baseDelay
 	 */
@@ -115,31 +115,61 @@
 		const rects = svg.querySelectorAll('rect');
 		if (rects.length === 0) return;
 		
-		// Get all unique y values and sort them to determine rows
-		/** @type {Map<number, Element[]>} */
-		const rowMap = new Map();
+		// Find the center of the QR code
+		let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
 		
 		rects.forEach(rect => {
+			const x = parseFloat(rect.getAttribute('x') ?? '0');
 			const y = parseFloat(rect.getAttribute('y') ?? '0');
-			if (!rowMap.has(y)) {
-				rowMap.set(y, []);
-			}
-			rowMap.get(y)?.push(rect);
+			const w = parseFloat(rect.getAttribute('width') ?? '1');
+			const h = parseFloat(rect.getAttribute('height') ?? '1');
+			minX = Math.min(minX, x);
+			maxX = Math.max(maxX, x + w);
+			minY = Math.min(minY, y);
+			maxY = Math.max(maxY, y + h);
 		});
 		
-		// Sort rows by y position
-		const sortedYValues = [...rowMap.keys()].sort((a, b) => a - b);
+		const centerX = (minX + maxX) / 2;
+		const centerY = (minY + maxY) / 2;
+		const maxDistance = Math.sqrt(Math.pow(maxX - centerX, 2) + Math.pow(maxY - centerY, 2));
 		
-		// Apply staggered delay per row (35ms between rows for wave effect)
-		sortedYValues.forEach((y, rowIndex) => {
-			const rowRects = rowMap.get(y) ?? [];
-			rowRects.forEach(rect => {
-				const delay = baseDelay + (rowIndex * 35);
-				// @ts-ignore
-				rect.style.animationDelay = `${delay}ms`;
-			});
+		// Calculate distance from center for each rect and apply delay
+		rects.forEach(rect => {
+			const x = parseFloat(rect.getAttribute('x') ?? '0');
+			const y = parseFloat(rect.getAttribute('y') ?? '0');
+			const w = parseFloat(rect.getAttribute('width') ?? '1');
+			const h = parseFloat(rect.getAttribute('height') ?? '1');
+			
+			// Distance from rect center to QR center
+			const rectCenterX = x + w / 2;
+			const rectCenterY = y + h / 2;
+			const distance = Math.sqrt(Math.pow(rectCenterX - centerX, 2) + Math.pow(rectCenterY - centerY, 2));
+			
+			// Normalize distance to 0-1 range and convert to delay
+			const normalizedDistance = distance / maxDistance;
+			const delay = baseDelay + (normalizedDistance * 500); // 500ms spread from center to edge
+			
+			// @ts-ignore
+			rect.style.animationDelay = `${delay}ms`;
 		});
 	}
+
+	// Generate random order for QR cards (shuffled indices)
+	let cardOrder = $derived.by(() => {
+		const indices = links.map((_, i) => i);
+		// Fisher-Yates shuffle
+		for (let i = indices.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[indices[i], indices[j]] = [indices[j], indices[i]];
+		}
+		// Return a map of original index -> animation order
+		/** @type {Map<number, number>} */
+		const orderMap = new Map();
+		indices.forEach((originalIndex, animationOrder) => {
+			orderMap.set(originalIndex, animationOrder);
+		});
+		return orderMap;
+	});
 
 	/**
 	 * Svelte action to apply wave animation when element mounts
@@ -212,6 +242,7 @@
 			style="--card-size: {sizeUnit}; --cols: {cols}"
 		>
 			{#each links as link, index (link.title)}
+				{@const animOrder = cardOrder.get(index) ?? index}
 				<a 
 					href={link.url} 
 					target="_blank" 
@@ -219,7 +250,7 @@
 					style="width: {sizeUnit}; height: {sizeUnit};"
 				>
 					<span class="qr-card-title">{link.title}</span>
-					<div class="qr-card-code" use:waveAction={200 + index * 180}>
+					<div class="qr-card-code" use:waveAction={200 + animOrder * 180}>
 						{@html link.qr}
 					</div>
 					<div class="qr-card-url">{link.url}</div>
@@ -372,39 +403,36 @@
 		margin: -0.5rem;
 	}
 
-	/* Animate individual QR modules (rects) with wave/rug-unroll effect */
+	/* Animate individual QR modules (rects) with radial bloom effect */
 	.qr-card-code :global(svg rect) {
 		opacity: 0;
-		transform-origin: center top;
-		transform: perspective(200px) rotateX(-90deg) translateY(-50%);
-		animation: waveUnroll 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-		/* Default delay - will be overridden by JS for proper row staggering */
+		transform-origin: center center;
+		transform: scale(0) rotate(180deg);
+		animation: radialBloom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+		/* Default delay - will be overridden by JS for radial staggering */
 		animation-delay: 0ms;
 	}
 
-	@keyframes waveUnroll {
+	@keyframes radialBloom {
 		0% {
 			opacity: 0;
-			transform: perspective(200px) rotateX(-90deg) translateY(-50%) scaleY(0.5);
+			transform: scale(0) rotate(180deg);
+			filter: blur(2px);
 		}
-		30% {
-			opacity: 0.7;
-			transform: perspective(200px) rotateX(-15deg) translateY(-8%) scaleY(1.05);
-		}
-		55% {
-			opacity: 0.95;
-			transform: perspective(200px) rotateX(10deg) translateY(3%) scaleY(1);
+		50% {
+			opacity: 0.8;
+			transform: scale(1.3) rotate(-10deg);
+			filter: blur(0.5px);
 		}
 		75% {
 			opacity: 1;
-			transform: perspective(200px) rotateX(-5deg) translateY(-1%);
-		}
-		90% {
-			transform: perspective(200px) rotateX(2deg) translateY(0.5%);
+			transform: scale(0.9) rotate(5deg);
+			filter: blur(0);
 		}
 		100% {
 			opacity: 1;
-			transform: perspective(200px) rotateX(0deg) translateY(0) scaleY(1);
+			transform: scale(1) rotate(0deg);
+			filter: blur(0);
 		}
 	}
 
