@@ -147,7 +147,7 @@
 			
 			// Normalize distance to 0-1 range and convert to delay
 			const normalizedDistance = distance / maxDistance;
-			const delay = baseDelay + (normalizedDistance * 500); // 500ms spread from center to edge
+			const delay = baseDelay + (normalizedDistance * 300); // 300ms spread from center to edge
 			
 			// @ts-ignore
 			rect.style.animationDelay = `${delay}ms`;
@@ -187,9 +187,9 @@
 				const title = card.querySelector('.qr-card-title');
 				const url = card.querySelector('.qr-card-url');
 				// @ts-ignore
-				if (title) title.style.animationDelay = `${baseDelay + 400}ms`;
+				if (title) title.style.animationDelay = `${baseDelay + 200}ms`;
 				// @ts-ignore
-				if (url) url.style.animationDelay = `${baseDelay + 500}ms`;
+				if (url) url.style.animationDelay = `${baseDelay + 280}ms`;
 			}
 		});
 		
@@ -250,7 +250,7 @@
 					style="width: {sizeUnit}; height: {sizeUnit};"
 				>
 					<span class="qr-card-title">{link.title}</span>
-					<div class="qr-card-code" use:waveAction={200 + animOrder * 180}>
+					<div class="qr-card-code" use:waveAction={100 + animOrder * 80}>
 						{@html link.qr}
 					</div>
 					<div class="qr-card-url">{link.url}</div>
@@ -387,6 +387,10 @@
 		transition: width 0.3s ease, height 0.3s ease;
 		padding: 0.25rem;
 		overflow: visible;
+		position: relative;
+		/* 3D context for floating title */
+		transform-style: preserve-3d;
+		perspective: 500px;
 	}
 
 	/* QR code container */
@@ -403,12 +407,44 @@
 		margin: -0.5rem;
 	}
 
+	.qr-card-title {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%) translateZ(20px);
+		z-index: 10;
+		font-size: clamp(0.9rem, 3vw, 1.4rem);
+		font-weight: 700;
+		color: var(--primary);
+		text-transform: capitalize;
+		pointer-events: none;
+		/* Text stroke for readability */
+		-webkit-text-stroke: 0.25em var(--bg, white);
+		paint-order: stroke fill;
+		/* Enhanced shadow for floating effect */
+		text-shadow: 
+			0 0 0.2em var(--bg, white),
+			0 0 0.4em var(--bg, white),
+			0 4px 8px rgba(0, 0, 0, 0.3),
+			0 8px 16px rgba(0, 0, 0, 0.15);
+		transition: transform 0.3s ease, text-shadow 0.3s ease;
+	}
+
+	.qr-card:hover .qr-card-title {
+		transform: translate(-50%, -50%) translateZ(40px) scale(1.1);
+		text-shadow: 
+			0 0 0.2em var(--bg, white),
+			0 0 0.4em var(--bg, white),
+			0 8px 16px rgba(0, 0, 0, 0.35),
+			0 16px 32px rgba(0, 0, 0, 0.2);
+	}
+
 	/* Animate individual QR modules (rects) with radial bloom effect */
 	.qr-card-code :global(svg rect) {
 		opacity: 0;
 		transform-origin: center center;
 		transform: scale(0) rotate(180deg);
-		animation: radialBloom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+		animation: radialBloom 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 		/* Default delay - will be overridden by JS for radial staggering */
 		animation-delay: 0ms;
 	}
@@ -419,12 +455,12 @@
 			transform: scale(0) rotate(180deg);
 			filter: blur(2px);
 		}
-		50% {
+		45% {
 			opacity: 0.8;
 			transform: scale(1.3) rotate(-10deg);
 			filter: blur(0.5px);
 		}
-		75% {
+		70% {
 			opacity: 1;
 			transform: scale(0.9) rotate(5deg);
 			filter: blur(0);
@@ -448,13 +484,6 @@
 		to {
 			opacity: 1;
 		}
-	}
-
-	.qr-card-title {
-		font-size: clamp(0.7rem, 2vw, 1rem);
-		font-weight: 500;
-		color: var(--primary);
-		text-transform: capitalize;
 	}
 
 	.qr-card-code :global(svg) {
