@@ -269,17 +269,26 @@
 					target="_blank" 
 					class="qr-card"
 					class:shrink={hoveredCard !== null && hoveredCard !== index}
-					class:gradient={isGradient}
 					onmouseenter={() => hoveredCard = index}
 					onmouseleave={() => hoveredCard = null}
 				>
-					<div 
-						class="qr-card-code" 
-						style="--brand-color: {link.brandColor ?? '#888'}" 
-						use:waveAction={100 + animOrder * 80}
-					>
-						{@html link.qr}
-					</div>
+					{#if isGradient && link.qr}
+						<div 
+							class="qr-card-code qr-gradient" 
+							style="--brand-color: {link.brandColor}; --qr-mask: url('data:image/svg+xml,{encodeURIComponent(link.qr)}')"
+							use:waveAction={100 + animOrder * 80}
+						>
+							<div class="gradient-fill"></div>
+						</div>
+					{:else}
+						<div 
+							class="qr-card-code" 
+							style="--brand-color: {link.brandColor ?? '#888'}" 
+							use:waveAction={100 + animOrder * 80}
+						>
+							{@html link.qr}
+						</div>
+					{/if}
 					<span class="qr-card-title">{link.title}</span>
 				</a>
 			{/each}
@@ -450,18 +459,23 @@
 		position: relative;
 	}
 
-	/* For gradient brand colors, use a gradient overlay with mix-blend-mode */
-	.qr-card.gradient .qr-card-code {
-		color: white;
+	/* For gradient brand colors, use mask to show gradient through QR shape */
+	.qr-card-code.qr-gradient {
+		color: transparent;
 	}
 
-	.qr-card.gradient .qr-card-code::after {
-		content: '';
+	.qr-card-code.qr-gradient .gradient-fill {
 		position: absolute;
 		inset: 0;
 		background: var(--brand-color);
-		mix-blend-mode: multiply;
-		pointer-events: none;
+		-webkit-mask-image: var(--qr-mask);
+		mask-image: var(--qr-mask);
+		-webkit-mask-size: contain;
+		mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		mask-position: center;
 	}
 
 	.qr-card-code :global(svg) {
