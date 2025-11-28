@@ -34,6 +34,7 @@
 	 * @property {string} url
 	 * @property {string} blurb
 	 * @property {string} [qr]
+	 * @property {string} [brandColor]
 	 */
 
 	/**
@@ -262,15 +263,21 @@
 		>
 			{#each links as link, index (link.title)}
 				{@const animOrder = cardOrder.get(index) ?? index}
+				{@const isGradient = link.brandColor?.includes('gradient')}
 				<a 
 					href={link.url} 
 					target="_blank" 
 					class="qr-card"
 					class:shrink={hoveredCard !== null && hoveredCard !== index}
+					class:gradient={isGradient}
 					onmouseenter={() => hoveredCard = index}
 					onmouseleave={() => hoveredCard = null}
 				>
-					<div class="qr-card-code" use:waveAction={100 + animOrder * 80}>
+					<div 
+						class="qr-card-code" 
+						style="--brand-color: {link.brandColor ?? '#888'}" 
+						use:waveAction={100 + animOrder * 80}
+					>
 						{@html link.qr}
 					</div>
 					<span class="qr-card-title">{link.title}</span>
@@ -399,6 +406,11 @@
 		opacity: 1;
 	}
 
+	.qr-card-title {
+		z-index: 2;
+		position: relative;
+	}
+
 	.qr-card {
 		display: grid;
 		grid-template-rows: 1fr auto;
@@ -429,12 +441,27 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--qr, var(--primary));
 		overflow: hidden;
 		width: 100%;
 		height: 100%;
 		min-width: 0;
 		min-height: 0;
+		color: var(--brand-color, #888);
+		position: relative;
+	}
+
+	/* For gradient brand colors, use a gradient overlay with mix-blend-mode */
+	.qr-card.gradient .qr-card-code {
+		color: white;
+	}
+
+	.qr-card.gradient .qr-card-code::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: var(--brand-color);
+		mix-blend-mode: multiply;
+		pointer-events: none;
 	}
 
 	.qr-card-code :global(svg) {

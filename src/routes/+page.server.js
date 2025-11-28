@@ -74,6 +74,7 @@ const all_links = [
 		url: 'https://instagram.com/zenfo.co',
 		shortUrl: 'https://a.xcc.es/photos',
 		blurb: 'Instagram photo portfolio',
+		brandColor: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)',
 	},
 	{
 		title: 'linkedin',
@@ -81,6 +82,7 @@ const all_links = [
 		url: 'https://linkedin.com/in/mrgnw',
 		shortUrl: 'https://a.xcc.es/li',
 		blurb: 'LinkedIn profile',
+		brandColor: '#0A66C2',
 	},
 	{
 		title: 'github',
@@ -88,6 +90,7 @@ const all_links = [
 		url: 'https://github.com/mrgnw',
 		shortUrl: 'https://a.xcc.es/gh',
 		blurb: 'GitHub profile',
+		brandColor: '#6e5494',
 	},
 	{
 		title: 'blog',
@@ -95,6 +98,7 @@ const all_links = [
 		url: 'https://blog.morganwill.com',
 		shortUrl: 'https://blog.morganwill.com',
 		blurb: 'Blog',
+		brandColor: '#ff6b6b',
 	},
 	{
 		title: 'bluesky',
@@ -102,6 +106,7 @@ const all_links = [
 		url: 'https://bsky.app/profile/xcc.es',
 		shortUrl: 'https://a.xcc.es/bsky',
 		blurb: 'Bluesky profile',
+		brandColor: '#0085ff',
 	},
 	{
 		title: 'telegram',
@@ -109,6 +114,7 @@ const all_links = [
 		url: 'https://t.me/mrgnw',
 		shortUrl: 'https://t.me/mrgnw',
 		blurb: 'Message on Telegram',
+		brandColor: '#26A5E4',
 	},
 	{
 		title: 'resume',
@@ -116,6 +122,7 @@ const all_links = [
 		url: 'https://cv.morganwill.com/',
 		shortUrl: 'https://cv.xcc.es/',
 		blurb: 'View my résumé/cv in HTML or download a PDF',
+		brandColor: '#2d3748',
 	},
 ]
 
@@ -134,6 +141,7 @@ function getPrivateLinks() {
 			url: `tel:${env.PHONE_NUMBER}`,
 			shortUrl: `tel:${env.PHONE_NUMBER}`,
 			blurb: 'Call me',
+			brandColor: '#34c759',
 		});
 	}
 
@@ -146,6 +154,7 @@ function getPrivateLinks() {
 			url: `https://wa.me/${waNumber}`,
 			shortUrl: `https://wa.me/${waNumber}`,
 			blurb: 'Message on WhatsApp',
+			brandColor: '#25D366',
 		});
 	}
 
