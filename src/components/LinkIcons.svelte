@@ -421,6 +421,7 @@
 		align-items: center;
 		justify-content: center;
 		min-height: 0;
+		color: var(--qr, var(--primary));
 	}
 
 	.qr-card-title {
@@ -438,6 +439,7 @@
 
 	/* Animate individual QR modules (rects) with radial bloom effect */
 	.qr-card-code :global(svg rect) {
+		fill: var(--qr, var(--primary));
 		opacity: 0;
 		transform-origin: center center;
 		transform: scale(0) rotate(180deg);
@@ -513,13 +515,16 @@
 		fill: transparent;
 	}
 
-	.qr-card-code :global(svg path:last-child) {
-		stroke: var(--default);
-		transition: stroke 0.15s ease;
+	.qr-card:hover .qr-card-code {
+		color: var(--highlight);
 	}
 
 	.qr-card:hover .qr-card-code :global(svg path:last-child) {
 		stroke: var(--highlight);
+	}
+
+	.qr-card:hover .qr-card-code :global(svg rect) {
+		fill: var(--highlight);
 	}
 
 	.qr-card:hover .qr-card-title,
