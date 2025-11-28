@@ -445,13 +445,17 @@
 
 	.qr-card-title {
 		font-size: clamp(0.5rem, 1.5vw, 0.9rem);
-		font-weight: 600;
-		color: var(--primary);
+		font-weight: 700;
+		color: #888;
 		text-transform: capitalize;
 		line-height: 1;
-		transition: color 0.2s ease;
 		text-align: center;
-		padding: 0.15em 0;
+		padding: 0.25em 0.5em;
+		transition: color 0.2s ease;
+	}
+
+	.qr-card:hover .qr-card-title {
+		color: #3b82f6 !important;
 	}
 
 	/* Landscape: rotate title on left side - text reads bottom to top */
@@ -459,7 +463,7 @@
 		writing-mode: vertical-rl !important;
 		transform: rotate(180deg) !important;
 		text-orientation: mixed;
-		padding: 0 0.15em;
+		padding: 0.4em 0.2em;
 		align-self: center;
 		order: -1;
 	}
