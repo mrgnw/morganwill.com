@@ -1,5 +1,8 @@
 import QRCode from 'qrcode';
 import { env } from '$env/dynamic/private';
+import { links as all_links } from '$lib/links.js';
+
+/** @typedef {import('$lib/links.js').Link} Link */
 
 /**
  * Seeded random number generator for consistent shuffling
@@ -67,71 +70,13 @@ function generateAnimatedQRSvg(text, size = 164) {
 	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${rects}</svg>`;
 }
 
-const all_links = [
-	{
-		title: 'instagram',
-		alias: 'ig',
-		url: 'https://instagram.com/zenfo.co',
-		shortUrl: 'https://a.xcc.es/photos',
-		blurb: 'Instagram photo portfolio',
-		brandColor: 'linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045)',
-	},
-	{
-		title: 'linkedin',
-		alias: 'li',
-		url: 'https://linkedin.com/in/mrgnw',
-		shortUrl: 'https://a.xcc.es/li',
-		blurb: 'LinkedIn profile',
-		brandColor: '#0A66C2',
-	},
-	{
-		title: 'github',
-		alias: 'gh',
-		url: 'https://github.com/mrgnw',
-		shortUrl: 'https://a.xcc.es/gh',
-		blurb: 'GitHub profile',
-		brandColor: '#6e5494',
-	},
-	{
-		title: 'blog',
-		alias: 'blog',
-		url: 'https://blog.morganwill.com',
-		shortUrl: 'https://blog.morganwill.com',
-		blurb: 'Blog',
-		brandColor: '#ff6b6b',
-	},
-	{
-		title: 'bluesky',
-		alias: 'bsky',
-		url: 'https://bsky.app/profile/xcc.es',
-		shortUrl: 'https://a.xcc.es/bsky',
-		blurb: 'Bluesky profile',
-		brandColor: '#0085ff',
-	},
-	{
-		title: 'telegram',
-		alias: 'tg',
-		url: 'https://t.me/mrgnw',
-		shortUrl: 'https://t.me/mrgnw',
-		blurb: 'Message on Telegram',
-		brandColor: '#26A5E4',
-	},
-	{
-		title: 'resume',
-		alias: 'cv',
-		url: 'https://cv.morganwill.com/',
-		shortUrl: 'https://cv.xcc.es/',
-		blurb: 'View my résumé/cv in HTML or download a PDF',
-		brandColor: '#2d3748',
-	},
-]
-
 /**
  * Build private links from environment variables
  * These are not checked into the repository
+ * @returns {Link[]}
  */
 function getPrivateLinks() {
-	/** @type {typeof all_links} */
+	/** @type {Link[]} */
 	const privateLinks = [];
 
 	if (env.PHONE_NUMBER) {
@@ -141,7 +86,7 @@ function getPrivateLinks() {
 			url: `tel:${env.PHONE_NUMBER}`,
 			shortUrl: `tel:${env.PHONE_NUMBER}`,
 			blurb: 'Call me',
-			brandColor: '#34c759',
+			colors: ['#34c759', '#28a745'],
 		});
 	}
 
@@ -154,7 +99,7 @@ function getPrivateLinks() {
 			url: `https://wa.me/${waNumber}`,
 			shortUrl: `https://wa.me/${waNumber}`,
 			blurb: 'Message on WhatsApp',
-			brandColor: '#25D366',
+			colors: ['#25D366', '#128C7E'],
 		});
 	}
 
@@ -163,10 +108,10 @@ function getPrivateLinks() {
 
 /**
  * Get filtered links based on hostname and URL params
- * @param {typeof combinedLinks} allLinks
+ * @param {Link[]} allLinks
  * @param {string} hostname
  * @param {URLSearchParams} urlParams
- * @returns {{ links: typeof allLinks, qrMode: boolean, qrsMode: boolean }}
+ * @returns {{ links: Link[], qrMode: boolean, qrsMode: boolean }}
  */
 function getFilteredLinks(allLinks, hostname, urlParams) {
 	const linksParam = urlParams.get("links");

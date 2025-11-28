@@ -34,7 +34,7 @@
 	 * @property {string} url
 	 * @property {string} blurb
 	 * @property {string} [qr]
-	 * @property {string} [brandColor]
+	 * @property {string[]} [colors]
 	 */
 
 	/**
@@ -250,6 +250,64 @@
 
 	// Reactive size unit for grid
 	let sizeUnit = $derived(size ? `${size}px` : `${initialSize}vh`);
+
+	/**
+	 * Build SVG gradient defs from colors array
+	 * @param {string[]} colors
+	 * @param {string} id
+	 * @param {number} size - SVG viewBox size
+	 * @returns {string}
+	 */
+	function buildGradientDefs(colors, id, size) {
+		const stops = colors.map((color, i) => {
+			const offset = (i / (colors.length - 1)) * 100;
+			return `<stop offset="${offset}%" stop-color="${color}"/>`;
+		}).join('');
+		// Use userSpaceOnUse so gradient spans the entire SVG, not each rect
+		// Diagonal from top-left to bottom-right
+		return `<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${size}" y2="${size}">${stops}</linearGradient></defs>`;
+	}
+
+	/**
+	 * Svelte action to use shadow DOM for gradient isolation
+	 * @param {HTMLElement} node
+	 * @param {{ qr: string, colors: string[], id: string }} params
+	 */
+	function shadowGradient(node, { qr, colors, id }) {
+		const shadowRoot = node.attachShadow({ mode: 'open' });
+		
+		// Extract the viewBox size from the SVG
+		const sizeMatch = qr.match(/viewBox="0 0 (\d+) (\d+)"/);
+		const svgSize = sizeMatch ? parseInt(sizeMatch[1]) : 164;
+		
+		// Inject the gradient defs into the SVG
+		const gradientDefs = buildGradientDefs(colors, id, svgSize);
+		// Replace fill="currentColor" with fill="url(#id)"
+		const coloredQr = qr.replace(/fill="currentColor"/g, `fill="url(#${id})"`);
+		// Insert defs after opening svg tag
+		const svgWithDefs = coloredQr.replace(/(<svg[^>]*>)/, `$1${gradientDefs}`);
+		
+		shadowRoot.innerHTML = `
+			<style>
+				:host { display: contents; }
+				svg { width: 100%; height: 100%; }
+				rect {
+					opacity: 0;
+					animation: fadeIn 0.15s ease-out forwards;
+				}
+				@keyframes fadeIn {
+					to { opacity: 1; }
+				}
+			</style>
+			${svgWithDefs}
+		`;
+		
+		return {
+			destroy() {
+				// Cleanup if needed
+			}
+		};
+	}
 </script>
 
 <div class="link-icons" class:qrs-mode={qrsMode}>
@@ -263,7 +321,8 @@
 		>
 			{#each links as link, index (link.title)}
 				{@const animOrder = cardOrder.get(index) ?? index}
-				{@const isGradient = link.brandColor?.includes('gradient')}
+				{@const isGradient = (link.colors?.length ?? 0) > 1}
+				{@const singleColor = link.colors?.[0] ?? '#888'}
 				<a 
 					href={link.url} 
 					target="_blank" 
@@ -272,18 +331,16 @@
 					onmouseenter={() => hoveredCard = index}
 					onmouseleave={() => hoveredCard = null}
 				>
-					{#if isGradient && link.qr}
+					{#if isGradient && link.qr && link.colors}
 						<div 
-							class="qr-card-code qr-gradient" 
-							style="--brand-color: {link.brandColor}; --qr-mask: url('data:image/svg+xml,{encodeURIComponent(link.qr)}')"
+							class="qr-card-code"
+							use:shadowGradient={{ qr: link.qr, colors: link.colors, id: `grad-${link.title}` }}
 							use:waveAction={100 + animOrder * 80}
-						>
-							<div class="gradient-fill"></div>
-						</div>
+						></div>
 					{:else}
 						<div 
 							class="qr-card-code" 
-							style="--brand-color: {link.brandColor ?? '#888'}" 
+							style="--brand-color: {singleColor}" 
 							use:waveAction={100 + animOrder * 80}
 						>
 							{@html link.qr}
@@ -457,25 +514,6 @@
 		min-height: 0;
 		color: var(--brand-color, #888);
 		position: relative;
-	}
-
-	/* For gradient brand colors, use mask to show gradient through QR shape */
-	.qr-card-code.qr-gradient {
-		color: transparent;
-	}
-
-	.qr-card-code.qr-gradient .gradient-fill {
-		position: absolute;
-		inset: 0;
-		background: var(--brand-color);
-		-webkit-mask-image: var(--qr-mask);
-		mask-image: var(--qr-mask);
-		-webkit-mask-size: contain;
-		mask-size: contain;
-		-webkit-mask-repeat: no-repeat;
-		mask-repeat: no-repeat;
-		-webkit-mask-position: center;
-		mask-position: center;
 	}
 
 	.qr-card-code :global(svg) {
