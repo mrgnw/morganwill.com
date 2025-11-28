@@ -1,5 +1,6 @@
 <script>
 	import { fade } from "svelte/transition";
+	import ColoredIcon from "./ColoredIcon.svelte";
 
 	// Icon imports
 	import JamLinkedinCircle from "~icons/jam/linkedin-circle";
@@ -159,10 +160,15 @@
 		>
 			{#if icon}
 				{@const Icon = icon}
-				<Icon
-					width={iconSize}
-					height={iconSize}
-				/>
+				{@const iconColors = colors ?? ['var(--default)']}
+				{#if qrMode && isSelected}
+					<ColoredIcon icon={Icon} colors={iconColors} size={iconSize} />
+				{:else}
+					<Icon
+						width={iconSize}
+						height={iconSize}
+					/>
+				{/if}
 			{/if}
 		</a>
 	{/each}
