@@ -1,5 +1,7 @@
 <script>
 	import { onMount } from "svelte";
+	import { flip } from "svelte/animate";
+	import { scale, fade } from "svelte/transition";
 	import ColoredQr from "./ColoredQr.svelte";
 
 	/**
@@ -208,6 +210,9 @@
 			class:shrink={hoveredCard !== null && hoveredCard !== index}
 			onmouseenter={() => hoveredCard = index}
 			onmouseleave={() => hoveredCard = null}
+			animate:flip={{ duration: 300 }}
+			in:scale={{ duration: 250, delay: 50, start: 0.8 }}
+			out:scale={{ duration: 200, start: 0.8 }}
 		>
 			<div 
 				class="qr-card-code"
@@ -236,7 +241,7 @@
 		height: 100%;
 		overflow: hidden;
 		box-sizing: border-box;
-		transition: opacity 0.2s ease;
+		transition: opacity 0.2s ease, grid-template-columns 0.3s ease;
 		opacity: 0;
 		gap: 2px;
 		place-content: center;

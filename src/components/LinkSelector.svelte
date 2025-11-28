@@ -192,7 +192,7 @@
 		justify-content: center;
 		width: auto;
 		position: relative;
-		transition: transform 0.3s ease;
+		transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
 	}
 
 	.active {
@@ -200,7 +200,13 @@
 	}
 
 	.qr-selected {
-		transform: scale(1.1);
+		transform: scale(1.15);
+		color: var(--highlight);
+	}
+
+	.qr-mode a:not(.qr-selected) {
+		opacity: 0.5;
+		transform: scale(0.9);
 	}
 
 	@media (max-width: 767px) {
