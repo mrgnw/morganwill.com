@@ -176,14 +176,8 @@ export async function load({ request, url }) {
 	const linksWithQr = await Promise.all(
 		combinedLinks.map(async (link) => {
 			const qrUrl = link.shortUrl ?? link.url;
-			// Use animated SVG (individual rects) for qrs mode
-			const qr = willBeQrsMode 
-				? generateAnimatedQRSvg(qrUrl, 164)
-				: await QRCode.toString(qrUrl, {
-						type: "svg",
-						width: 164,
-						margin: 0,
-					});
+			// Always use our custom SVG format with fill="currentColor" for consistent styling
+			const qr = generateAnimatedQRSvg(qrUrl, 164);
 			return { ...link, qr };
 		})
 	);

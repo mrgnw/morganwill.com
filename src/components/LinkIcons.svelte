@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { fade } from "svelte/transition";
 	import { innerWidth, innerHeight } from "svelte/reactivity/window";
+	import ColoredQr from "./ColoredQr.svelte";
 
 	// Icon imports - managed internally
 	import JamLinkedinCircle from "~icons/jam/linkedin-circle";
@@ -250,64 +251,6 @@
 
 	// Reactive size unit for grid
 	let sizeUnit = $derived(size ? `${size}px` : `${initialSize}vh`);
-
-	/**
-	 * Build SVG gradient defs from colors array
-	 * @param {string[]} colors
-	 * @param {string} id
-	 * @param {number} size - SVG viewBox size
-	 * @returns {string}
-	 */
-	function buildGradientDefs(colors, id, size) {
-		const stops = colors.map((color, i) => {
-			const offset = (i / (colors.length - 1)) * 100;
-			return `<stop offset="${offset}%" stop-color="${color}"/>`;
-		}).join('');
-		// Use userSpaceOnUse so gradient spans the entire SVG, not each rect
-		// Diagonal from top-left to bottom-right
-		return `<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${size}" y2="${size}">${stops}</linearGradient></defs>`;
-	}
-
-	/**
-	 * Svelte action to use shadow DOM for gradient isolation
-	 * @param {HTMLElement} node
-	 * @param {{ qr: string, colors: string[], id: string }} params
-	 */
-	function shadowGradient(node, { qr, colors, id }) {
-		const shadowRoot = node.attachShadow({ mode: 'open' });
-		
-		// Extract the viewBox size from the SVG
-		const sizeMatch = qr.match(/viewBox="0 0 (\d+) (\d+)"/);
-		const svgSize = sizeMatch ? parseInt(sizeMatch[1]) : 164;
-		
-		// Inject the gradient defs into the SVG
-		const gradientDefs = buildGradientDefs(colors, id, svgSize);
-		// Replace fill="currentColor" with fill="url(#id)"
-		const coloredQr = qr.replace(/fill="currentColor"/g, `fill="url(#${id})"`);
-		// Insert defs after opening svg tag
-		const svgWithDefs = coloredQr.replace(/(<svg[^>]*>)/, `$1${gradientDefs}`);
-		
-		shadowRoot.innerHTML = `
-			<style>
-				:host { display: contents; }
-				svg { width: 100%; height: 100%; }
-				rect {
-					opacity: 0;
-					animation: fadeIn 0.15s ease-out forwards;
-				}
-				@keyframes fadeIn {
-					to { opacity: 1; }
-				}
-			</style>
-			${svgWithDefs}
-		`;
-		
-		return {
-			destroy() {
-				// Cleanup if needed
-			}
-		};
-	}
 </script>
 
 <div class="link-icons" class:qrs-mode={qrsMode}>
@@ -321,8 +264,6 @@
 		>
 			{#each links as link, index (link.title)}
 				{@const animOrder = cardOrder.get(index) ?? index}
-				{@const isGradient = (link.colors?.length ?? 0) > 1}
-				{@const singleColor = link.colors?.[0] ?? '#888'}
 				<a 
 					href={link.url} 
 					target="_blank" 
@@ -331,28 +272,26 @@
 					onmouseenter={() => hoveredCard = index}
 					onmouseleave={() => hoveredCard = null}
 				>
-					{#if isGradient && link.qr && link.colors}
-						<div 
-							class="qr-card-code"
-							use:shadowGradient={{ qr: link.qr, colors: link.colors, id: `grad-${link.title}` }}
-							use:waveAction={100 + animOrder * 80}
-						></div>
-					{:else}
-						<div 
-							class="qr-card-code" 
-							style="--brand-color: {singleColor}" 
-							use:waveAction={100 + animOrder * 80}
-						>
-							{@html link.qr}
-						</div>
-					{/if}
+					<div 
+						class="qr-card-code"
+						use:waveAction={100 + animOrder * 80}
+					>
+						{#if link.qr}
+							<ColoredQr 
+								qr={link.qr} 
+								colors={link.colors ?? ['#888']} 
+								id="qr-{link.title}"
+								animate={false}
+							/>
+						{/if}
+					</div>
 					<span class="qr-card-title">{link.title}</span>
 				</a>
 			{/each}
 		</div>
 	{:else}
 		<h1 class="title" ondblclick={toggleQrMode}>
-			{#if qrMode && selectedQr}
+			{#if qrMode && selectedLink?.qr}
 				<div class="qr-wrapper">
 					{#if selectedUrl}
 						<div class="url-display" transition:fade={{ duration: 300 }}>
@@ -365,9 +304,12 @@
 							</a>
 						</div>
 					{/if}
-					{#if typeof selectedQr === "string"}
-						{@html selectedQr}
-					{/if}
+					<ColoredQr 
+						qr={selectedLink.qr} 
+						colors={selectedLink.colors ?? ['#888']} 
+						id="qr-{selectedLink.title}"
+						animate={false}
+					/>
 				</div>
 			{:else}
 				{selected ?? defaultTitle}
@@ -512,7 +454,6 @@
 		height: 100%;
 		min-width: 0;
 		min-height: 0;
-		color: var(--brand-color, #888);
 		position: relative;
 	}
 
@@ -549,7 +490,6 @@
 
 	/* Animate individual QR modules (rects) with radial bloom effect */
 	.qr-card-code :global(svg rect) {
-		fill: currentColor;
 		opacity: 0;
 		transform-origin: center center;
 		transform: scale(0) rotate(180deg);
@@ -610,16 +550,8 @@
 		fill: transparent;
 	}
 
-	.qr-card:hover .qr-card-code {
-		color: var(--highlight);
-	}
-
 	.qr-card:hover .qr-card-code :global(svg path:last-child) {
 		stroke: var(--highlight);
-	}
-
-	.qr-card:hover .qr-card-code :global(svg rect) {
-		fill: currentColor;
 	}
 
 	.qr-card:hover .qr-card-title {
@@ -645,6 +577,11 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	.qr-wrapper :global(.colored-qr) {
+		width: 164px;
+		height: 164px;
 	}
 
 	.qr-wrapper :global(svg) {
