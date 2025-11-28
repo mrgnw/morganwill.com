@@ -1,5 +1,5 @@
 <script>
-	import { innerWidth, innerHeight } from "svelte/reactivity/window";
+	import { onMount } from "svelte";
 	import ColoredQr from "./ColoredQr.svelte";
 
 	/**
@@ -19,20 +19,23 @@
 	 */
 	let { links = [] } = $props();
 
-	// Grid calculation - derive defaults from link count
-	let initialCols = Math.ceil(Math.sqrt(links.length));
-	let initialSize = Math.floor(100 / initialCols); // vh units
+	// Container dimensions (updated via ResizeObserver)
+	let containerWidth = $state(0);
+	let containerHeight = $state(0);
+	/** @type {HTMLDivElement | null} */
+	let containerEl = $state(null);
 
-	// Reactive grid calculation based on window size
+	// Grid calculation - derive defaults from link count
+	let initialCols = $derived(Math.ceil(Math.sqrt(links.length)));
+	let initialSize = $derived(Math.floor(100 / initialCols)); // vh units
+
+	// Reactive grid calculation based on container size
 	let gridCalc = $derived.by(() => {
-		const w = innerWidth.current ?? 0;
-		// Use visualViewport height if available (more accurate on mobile)
-		const h = (typeof window !== 'undefined' && window.visualViewport?.height) 
-			? window.visualViewport.height 
-			: (innerHeight.current ?? 0);
+		const w = containerWidth;
+		const h = containerHeight;
 		const n = links.length;
 
-		if (w === 0 || h === 0) {
+		if (w === 0 || h === 0 || n === 0) {
 			return { cols: initialCols, size: 0, ready: false, landscape: false };
 		}
 
@@ -69,6 +72,21 @@
 	let size = $derived(gridCalc.size);
 	let ready = $derived(gridCalc.ready);
 	let landscape = $derived(gridCalc.landscape);
+
+	onMount(() => {
+		if (!containerEl) return;
+
+		const resizeObserver = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				containerWidth = entry.contentRect.width;
+				containerHeight = entry.contentRect.height;
+			}
+		});
+
+		resizeObserver.observe(containerEl);
+
+		return () => resizeObserver.disconnect();
+	});
 
 	/**
 	 * Apply radial wave animation - expands from center outward
@@ -179,6 +197,7 @@
 	class:ready
 	class:landscape
 	style="--card-size: {sizeUnit}; --cols: {cols}"
+	bind:this={containerEl}
 >
 	{#each links as link, index (link.title)}
 		{@const animOrder = cardOrder.get(index) ?? index}

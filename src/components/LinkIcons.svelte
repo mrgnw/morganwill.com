@@ -1,32 +1,7 @@
 <script>
 	import { onMount } from "svelte";
-	import { fade } from "svelte/transition";
 	import QrGrid from "./QrGrid.svelte";
-	import QrSingle from "./QrSingle.svelte";
-
-	// Icon imports - managed internally
-	import JamLinkedinCircle from "~icons/jam/linkedin-circle";
-	import IconoirGithubCircle from "~icons/iconoir/github-circle";
-	import IconoirTelegramCircle from "~icons/iconoir/telegram-circle";
-	import RiBlueskyLine from "~icons/ri/bluesky-line";
-	import TablerFileCv from "~icons/tabler/file-cv";
-	import PhBookmarkSimpleBold from "~icons/ph/bookmark-simple-bold";
-	import RiInstagramLine from "~icons/ri/instagram-line";
-	import IconoirPhone from "~icons/iconoir/phone";
-	import RiWhatsappLine from "~icons/ri/whatsapp-line";
-
-	/** @type {Record<string, import('svelte').Component>} */
-	const iconMap = {
-		instagram: RiInstagramLine,
-		linkedin: JamLinkedinCircle,
-		github: IconoirGithubCircle,
-		bluesky: RiBlueskyLine,
-		telegram: IconoirTelegramCircle,
-		blog: PhBookmarkSimpleBold,
-		cv: TablerFileCv,
-		phone: IconoirPhone,
-		whatsapp: RiWhatsappLine
-	};
+	import LinkSelector from "./LinkSelector.svelte";
 
 	/**
 	 * @typedef {Object} Link
@@ -44,8 +19,7 @@
 	 *   defaultTitle?: string,
 	 *   iconSize?: string,
 	 *   selected?: string | null,
-	 *   qrMode?: boolean,
-	 *   qrsMode?: boolean
+	 *   qrMode?: boolean
 	 * }}
 	 */
 	let {
@@ -53,9 +27,20 @@
 		defaultTitle = "",
 		iconSize = "clamp(3.5em, 8vw, 5.5em)",
 		selected = $bindable(null),
-		qrMode = $bindable(false),
-		qrsMode = false
+		qrMode = $bindable(false)
 	} = $props();
+
+	// Set of link titles to show QRs for (when in qrMode)
+	let selectedQrs = $state(/** @type {Set<string>} */ (new Set()));
+
+	// Links to display in the QR grid
+	let qrLinks = $derived.by(() => {
+		if (selectedQrs.size === 0) {
+			// Show all links when none selected
+			return links;
+		}
+		return links.filter(link => selectedQrs.has(link.title));
+	});
 
 	/**
 	 * @param {string | null} title
@@ -64,11 +49,36 @@
 		selected = title;
 	}
 
-	function toggleQrMode() {
-		qrMode = !qrMode;
+	/**
+	 * Toggle a QR in the selection (for qrMode)
+	 * @param {string} title
+	 */
+	function toggleQr(title) {
+		if (selectedQrs.has(title)) {
+			selectedQrs.delete(title);
+		} else {
+			selectedQrs.add(title);
+		}
+		// Trigger reactivity
+		selectedQrs = new Set(selectedQrs);
 	}
 
-	let selectedLink = $derived(links.find((l) => l.title === selected));
+	function activateQrMode() {
+		qrMode = true;
+		// Update URL without navigation
+		const url = new URL(window.location.href);
+		url.searchParams.set('qr', '');
+		window.history.pushState({}, '', url);
+	}
+
+	function deactivateQrMode() {
+		qrMode = false;
+		selectedQrs = new Set();
+		// Update URL without navigation
+		const url = new URL(window.location.href);
+		url.searchParams.delete('qr');
+		window.history.pushState({}, '', url);
+	}
 
 	onMount(() => {
 		/**
@@ -87,87 +97,30 @@
 			document.body.removeEventListener("touchstart", handleBodyTouch);
 		};
 	});
-
-	/**
-	 * Get the icon component for a given link title
-	 * @param {string} title
-	 */
-	function getIcon(title) {
-		return iconMap[title] ?? null;
-	}
 </script>
 
-<div class="link-icons" class:qrs-mode={qrsMode}>
-	{#if qrsMode}
-		<QrGrid {links} />
-	{:else}
-		{#if qrMode && selectedLink?.qr}
-			<QrSingle link={selectedLink} ondblclick={toggleQrMode} />
-		{:else}
-			<h1 class="title" ondblclick={toggleQrMode}>
-				{selected ?? defaultTitle}
-			</h1>
-		{/if}
-
-		<div
-			class="links"
-			ontouchmove={(e) => {
-				e.preventDefault();
-				const touch = e.touches[0];
-				const element = document.elementFromPoint(touch.clientX, touch.clientY);
-				const linkElement = element?.closest('a');
-				if (linkElement) {
-					const linkData = links.find(link => 
-						linkElement.getAttribute('data-title') === link.title
-					);
-					if (linkData) handleSelect(linkData.title);
-				} else if (!qrMode) {
-					handleSelect(null);
-				}
-			}}
-		>
-			{#each links as { url, blurb, title }, index (title)}
-				{@const icon = getIcon(title)}
-				<a
-					href={qrMode ? undefined : url}
-					target="_blank"
-					aria-label={blurb}
-				data-title={title}
-				class:active={title === selected}
-				class:flash-on={qrMode}
-				class:flash-off={!qrMode}
-				ontouchstart={(e) => {
-					e.preventDefault();
-					handleSelect(title);
-				}}
-				ontouchend={(e) => {
-					e.preventDefault();
-					if (selected === title && !qrMode) {
-						setTimeout(() => {
-							window.open(url, '_blank');
-						}, 100);
-					}
-				}}
-				onmouseover={() => handleSelect(title)}
-				onmouseout={() => !qrMode && handleSelect(null)}
-				onfocus={() => handleSelect(title)}
-				onblur={() => !qrMode && handleSelect(null)}
-				transition:fade={{ duration: 800, delay: 150 * index }}
-			>
-				{#if icon}
-					{@const Icon = icon}
-					<Icon
-						style="color: {title === selected
-							? 'var(--highlight)'
-							: 'var(--default)'}"
-						width={iconSize}
-						height={iconSize}
-					/>
-				{/if}
-			</a>
-		{/each}
+<div class="link-icons" class:qr-mode={qrMode}>
+	{#if qrMode}
+		<div class="qr-area">
+			<QrGrid links={qrLinks} />
 		</div>
+	{:else}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<h1 class="title" ondblclick={activateQrMode}>
+			{selected ?? defaultTitle}
+		</h1>
 	{/if}
+
+	<LinkSelector 
+		{links} 
+		{selected} 
+		{qrMode}
+		{iconSize}
+		selectedQrs={selectedQrs}
+		onselect={handleSelect}
+		ontoggleqr={toggleQr}
+		ondeactivate={deactivateQrMode}
+	/>
 </div>
 
 <style>
@@ -177,7 +130,7 @@
 		align-items: center;
 	}
 
-	.link-icons.qrs-mode {
+	.link-icons.qr-mode {
 		width: 100vw;
 		height: 100dvh;
 		height: 100vh; /* fallback */
@@ -185,6 +138,15 @@
 		position: fixed;
 		top: 0;
 		left: 0;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.qr-area {
+		flex: 1;
+		width: 100%;
+		min-height: 0;
 		overflow: hidden;
 	}
 
@@ -200,105 +162,5 @@
 		user-select: none;
 		min-height: 128px;
 		z-index: 50;
-	}
-
-	.links {
-		display: flex;
-		gap: clamp(1.5rem, 5vw, 3rem);
-		align-items: center;
-		justify-content: center;
-		padding: clamp(1rem, 4vw, 2rem);
-		flex-wrap: wrap;
-		max-width: min(90vw, 800px);
-		margin: 0 auto;
-	}
-
-	a {
-		display: flex;
-		justify-content: center;
-		width: auto;
-		position: relative;
-		transition: transform 0.3s ease;
-	}
-
-	.active {
-		color: var(--highlight);
-	}
-
-	@media (max-width: 767px) {
-		.links {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-			width: min(100vw - 2rem, 400px);
-			gap: clamp(1rem, 4vw, 2rem);
-			padding: clamp(1rem, 4vw, 2rem);
-			margin: 0 auto;
-		}
-
-		@media (max-height: 800px) {
-			.links {
-				grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-				width: min(100vw - 1rem, 350px);
-				gap: clamp(0.75rem, 3vw, 1.5rem);
-				justify-items: center;
-				align-items: center;
-			}
-
-			a {
-				width: auto;
-			}
-		}
-
-		@media (max-height: 650px) {
-			.links {
-				grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-				width: min(100vw - 1rem, 320px);
-				gap: clamp(0.5rem, 2vw, 1rem);
-			}
-		}
-	}
-
-	@keyframes flash-on {
-		0% {
-			color: var(--default);
-		}
-
-		50% {
-			color: var(--highlight);
-		}
-
-		100% {
-			color: var(--default);
-		}
-	}
-
-	@keyframes flash-off {
-		0% {
-			color: var(--default);
-		}
-
-		50% {
-			color: rgba(128, 128, 128, 0.8);
-		}
-
-		100% {
-			color: var(--default);
-		}
-	}
-
-	.flash-on :global(svg) {
-		animation: flash-on 0.5s ease-in-out;
-	}
-
-	.flash-off :global(svg) {
-		animation: flash-off 0.5s ease-in-out;
-	}
-
-	a :global(svg) {
-		user-select: none;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		pointer-events: none;
 	}
 </style>

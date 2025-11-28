@@ -17,7 +17,7 @@
 </svelte:head>
 
 <div class="container">
-	<LinkIcons links={data.links} defaultTitle="Morgan" qrMode={data.qrMode} qrsMode={data.qrsMode} />
+	<LinkIcons links={data.links} defaultTitle="Morgan" qrMode={data.qrMode} />
 </div>
 
 {#if data.hostname === "morganwill.com"}
