@@ -122,9 +122,10 @@
 		}
 	}}
 >
-	{#each links as { url, blurb, title }, index (title)}
+	{#each links as { url, blurb, title, colors }, index (title)}
 		{@const icon = getIcon(title)}
 		{@const isSelected = selectedQrs.has(title)}
+		{@const primaryColor = colors?.[0] ?? 'var(--highlight)'}
 		<a
 			href={qrMode ? undefined : url}
 			target="_blank"
@@ -134,6 +135,7 @@
 			class:qr-selected={qrMode && isSelected}
 			class:flash-on={qrMode}
 			class:flash-off={!qrMode}
+			style={qrMode && isSelected ? `--icon-color: ${primaryColor}` : ''}
 			onclick={(e) => handleClick(title, url, e)}
 			ontouchstart={(e) => {
 				e.preventDefault();
@@ -158,9 +160,6 @@
 			{#if icon}
 				{@const Icon = icon}
 				<Icon
-					style="color: {(qrMode && isSelected) || title === selected
-						? 'var(--highlight)'
-						: 'var(--default)'}"
 					width={iconSize}
 					height={iconSize}
 				/>
@@ -193,6 +192,7 @@
 		width: auto;
 		position: relative;
 		transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+		color: var(--default);
 	}
 
 	.active {
@@ -201,7 +201,7 @@
 
 	.qr-selected {
 		transform: scale(1.15);
-		color: var(--highlight);
+		color: var(--icon-color, var(--highlight));
 	}
 
 	.qr-mode a:not(.qr-selected) {
