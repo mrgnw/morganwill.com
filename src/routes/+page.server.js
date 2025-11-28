@@ -61,10 +61,10 @@ function generateAnimatedQRSvg(text, size = 164) {
 	// Build SVG string with shuffled order
 	let rects = '';
 	shuffledRects.forEach((rect, index) => {
-		rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}"/>`;
+		rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}" fill="currentColor"/>`;
 	});
 	
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible" fill="currentColor">${rects}</svg>`;
+	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${rects}</svg>`;
 }
 
 const all_links = [

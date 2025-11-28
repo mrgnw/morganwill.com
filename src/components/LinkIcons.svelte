@@ -439,7 +439,7 @@
 
 	/* Animate individual QR modules (rects) with radial bloom effect */
 	.qr-card-code :global(svg rect) {
-		fill: var(--qr, var(--primary));
+		fill: currentColor;
 		opacity: 0;
 		transform-origin: center center;
 		transform: scale(0) rotate(180deg);
@@ -497,18 +497,24 @@
 	}
 
 	.qr-card-url {
+		position: absolute;
+		bottom: -1.2em;
+		left: 50%;
+		transform: translateX(-50%);
 		font-size: clamp(0.5rem, 1.5vw, 0.65rem);
 		color: var(--default);
-		max-width: 100%;
+		max-width: 90%;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		opacity: 0;
+		pointer-events: none;
 		transition: opacity 0.2s ease;
 	}
 
 	.qr-card:hover .qr-card-url {
 		opacity: 1;
+		pointer-events: auto;
 	}
 
 	.qr-card-code :global(svg path:first-child) {
@@ -524,7 +530,7 @@
 	}
 
 	.qr-card:hover .qr-card-code :global(svg rect) {
-		fill: var(--highlight);
+		fill: currentColor;
 	}
 
 	.qr-card:hover .qr-card-title,
