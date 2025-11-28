@@ -6,10 +6,11 @@
 	 *   icon: import('svelte').Component,
 	 *   colors: string[],
 	 *   size?: string,
+	 *   strokeIcon?: boolean,
 	 *   class?: string
 	 * }}
 	 */
-	let { icon: Icon, colors, size = "1em", class: className = '' } = $props();
+	let { icon: Icon, colors, size = "1em", strokeIcon = false, class: className = '' } = $props();
 
 	let gradient = $derived(
 		colors.length > 1 
@@ -30,16 +31,31 @@
 			const svg = wrapper.querySelector('svg');
 			if (!svg) return;
 
-			// Clone SVG and set fills to white for mask
+			// Clone SVG and set colors to white for mask
 			const clone = /** @type {SVGElement} */ (svg.cloneNode(true));
-			clone.setAttribute('fill', 'white');
 			clone.style.color = 'white';
 			
-			// Set all paths/shapes to white
-			clone.querySelectorAll('path, circle, rect, polygon, ellipse').forEach(el => {
-				el.setAttribute('fill', 'white');
-				el.removeAttribute('stroke');
-			});
+			if (strokeIcon) {
+				// Stroke-based icons: set stroke to white, keep fill as-is
+				clone.setAttribute('stroke', 'white');
+				clone.querySelectorAll('path, circle, rect, polygon, ellipse, line, polyline').forEach(el => {
+					if (el.hasAttribute('stroke') || el.getAttribute('stroke') !== 'none') {
+						el.setAttribute('stroke', 'white');
+					}
+					// Only set fill to white if it's actually filled (not 'none')
+					const fill = el.getAttribute('fill');
+					if (fill && fill !== 'none') {
+						el.setAttribute('fill', 'white');
+					}
+				});
+			} else {
+				// Fill-based icons: set fill to white, remove strokes
+				clone.setAttribute('fill', 'white');
+				clone.querySelectorAll('path, circle, rect, polygon, ellipse').forEach(el => {
+					el.setAttribute('fill', 'white');
+					el.removeAttribute('stroke');
+				});
+			}
 
 			// Serialize to data URL
 			const svgString = new XMLSerializer().serializeToString(clone);

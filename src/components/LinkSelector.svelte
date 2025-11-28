@@ -34,6 +34,7 @@
 	 * @property {string} blurb
 	 * @property {string} [qr]
 	 * @property {string[]} [colors]
+	 * @property {boolean} [strokeIcon]
 	 */
 
 	/**
@@ -123,7 +124,7 @@
 		}
 	}}
 >
-	{#each links as { url, blurb, title, colors }, index (title)}
+	{#each links as { url, blurb, title, colors, strokeIcon }, index (title)}
 		{@const icon = getIcon(title)}
 		{@const isSelected = selectedQrs.has(title)}
 		{@const primaryColor = colors?.[0] ?? 'var(--highlight)'}
@@ -162,7 +163,7 @@
 				{@const Icon = icon}
 				{@const iconColors = colors ?? ['var(--default)']}
 				{#if qrMode && isSelected}
-					<ColoredIcon icon={Icon} colors={iconColors} size={iconSize} />
+					<ColoredIcon icon={Icon} colors={iconColors} size={iconSize} strokeIcon={strokeIcon} />
 				{:else}
 					<Icon
 						width={iconSize}

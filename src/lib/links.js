@@ -7,6 +7,7 @@
  * @property {string} blurb
  * @property {string[]} colors
  * @property {string} [qr]
+ * @property {boolean} [strokeIcon] - Icon uses stroke instead of fill
  */
 
 /** @type {Link[]} */
@@ -34,6 +35,7 @@ export const links = [
 		shortUrl: 'https://a.xcc.es/gh',
 		blurb: 'GitHub profile',
 		colors: ['#6e5494', '#24292e'],
+		strokeIcon: true,
 	},
 	{
 		title: 'blog',
@@ -58,6 +60,7 @@ export const links = [
 		shortUrl: 'https://t.me/mrgnw',
 		blurb: 'Message on Telegram',
 		colors: ['#26A5E4', '#0088cc'],
+		strokeIcon: true,
 	},
 	{
 		title: 'resume',
