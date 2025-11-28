@@ -44,9 +44,11 @@
 	 *   qrMode?: boolean,
 	 *   iconSize?: string,
 	 *   selectedQrs?: Set<string>,
+	 *   hoveredLink?: string | null,
 	 *   onselect?: (title: string | null) => void,
 	 *   ontoggleqr?: (title: string) => void,
-	 *   ondeactivate?: () => void
+	 *   ondeactivate?: () => void,
+	 *   onhover?: (title: string | null) => void
 	 * }}
 	 */
 	let {
@@ -55,9 +57,11 @@
 		qrMode = false,
 		iconSize = "clamp(3.5em, 8vw, 5.5em)",
 		selectedQrs = new Set(),
+		hoveredLink = null,
 		onselect,
 		ontoggleqr,
-		ondeactivate
+		ondeactivate,
+		onhover
 	} = $props();
 
 	/**
@@ -153,10 +157,10 @@
 					}, 100);
 				}
 			}}
-			onmouseover={() => handleSelect(title)}
-			onmouseout={() => !qrMode && handleSelect(null)}
-			onfocus={() => handleSelect(title)}
-			onblur={() => !qrMode && handleSelect(null)}
+			onmouseover={() => { handleSelect(title); onhover?.(title); }}
+			onmouseout={() => { if (!qrMode) handleSelect(null); onhover?.(null); }}
+			onfocus={() => { handleSelect(title); onhover?.(title); }}
+			onblur={() => { if (!qrMode) handleSelect(null); onhover?.(null); }}
 			transition:fade={{ duration: 800, delay: 150 * index }}
 		>
 			{#if icon}

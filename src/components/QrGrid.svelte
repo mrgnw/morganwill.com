@@ -16,10 +16,11 @@
 
 	/**
 	 * @type {{
-	 *   links: Link[]
+	 *   links: Link[],
+	 *   hoveredLink?: string | null
 	 * }}
 	 */
-	let { links = [] } = $props();
+	let { links = [], hoveredLink = null } = $props();
 
 	// Container dimensions (updated via ResizeObserver)
 	let containerWidth = $state(0);
@@ -169,8 +170,17 @@
 		return orderMap;
 	});
 
-	// Track which QR card is being hovered
-	let hoveredCard = $state(/** @type {number | null} */ (null));
+	// Track which QR card is being hovered (internal state)
+	let internalHover = $state(/** @type {number | null} */ (null));
+	
+	// Compute hovered index from external hoveredLink prop or internal hover
+	let hoveredCard = $derived.by(() => {
+		if (hoveredLink) {
+			const idx = links.findIndex(l => l.title === hoveredLink);
+			return idx >= 0 ? idx : null;
+		}
+		return internalHover;
+	});
 
 	/**
 	 * Svelte action to apply wave animation when element mounts
@@ -219,8 +229,8 @@
 			target="_blank" 
 			class="qr-card"
 			class:shrink={hoveredCard !== null && hoveredCard !== index}
-			onmouseenter={() => hoveredCard = index}
-			onmouseleave={() => hoveredCard = null}
+			onmouseenter={() => internalHover = index}
+			onmouseleave={() => internalHover = null}
 			animate:flip={{ duration: 300 }}
 			in:scale={{ duration: 250, delay: 50, start: 0.8 }}
 			out:scale={{ duration: 250, start: 0.8 }}

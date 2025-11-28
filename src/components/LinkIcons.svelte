@@ -33,6 +33,9 @@
 	// Set of link titles to show QRs for (when in qrMode)
 	let selectedQrs = $state(/** @type {Set<string>} */ (new Set()));
 
+	// Shared hover state between icon selector and QR grid
+	let hoveredLink = $state(/** @type {string | null} */ (null));
+
 	// Links to display in the QR grid
 	let qrLinks = $derived.by(() => {
 		if (selectedQrs.size === 0) {
@@ -102,7 +105,7 @@
 <div class="link-icons" class:qr-mode={qrMode}>
 	{#if qrMode}
 		<div class="qr-area">
-			<QrGrid links={qrLinks} />
+			<QrGrid links={qrLinks} {hoveredLink} />
 		</div>
 	{:else}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -117,9 +120,11 @@
 		{qrMode}
 		{iconSize}
 		selectedQrs={selectedQrs}
+		{hoveredLink}
 		onselect={handleSelect}
 		ontoggleqr={toggleQr}
 		ondeactivate={deactivateQrMode}
+		onhover={(title) => hoveredLink = title}
 	/>
 </div>
 
