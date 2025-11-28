@@ -47,6 +47,17 @@
 
 		const gap = 2; // pixels between cards
 
+		// Special case: 3 or fewer items - single row or column
+		if (n <= 3) {
+			const useRow = landscape || aspectRatio >= 0.8; // Prefer row unless very tall
+			const cols = useRow ? n : 1;
+			const rows = useRow ? 1 : n;
+			const availW = w - (cols - 1) * gap;
+			const availH = h - (rows - 1) * gap;
+			const size = Math.min(availW / cols, availH / rows);
+			return { cols, size: Math.floor(size), ready: true, landscape };
+		}
+
 		let best = 0;
 		let bestCols = 1;
 
@@ -212,7 +223,7 @@
 			onmouseleave={() => hoveredCard = null}
 			animate:flip={{ duration: 300 }}
 			in:scale={{ duration: 250, delay: 50, start: 0.8 }}
-			out:scale={{ duration: 200, start: 0.8 }}
+			out:scale={{ duration: 250, start: 0.8 }}
 		>
 			<div 
 				class="qr-card-code"
@@ -245,6 +256,7 @@
 		opacity: 0;
 		gap: 2px;
 		place-content: center;
+		justify-items: center;
 	}
 
 	.qrs-grid.ready {
