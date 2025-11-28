@@ -454,11 +454,11 @@
 		padding: 0.15em 0;
 	}
 
-	/* Landscape: rotate title 90deg on left side */
-	.qrs-grid.landscape .qr-card-title {
-		writing-mode: vertical-rl;
+	/* Landscape: rotate title on left side - text reads bottom to top */
+	.qrs-grid.landscape .qr-card .qr-card-title {
+		writing-mode: vertical-rl !important;
+		transform: rotate(180deg) !important;
 		text-orientation: mixed;
-		transform: rotate(180deg);
 		padding: 0 0.15em;
 		align-self: center;
 		order: -1;
