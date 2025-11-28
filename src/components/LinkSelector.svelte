@@ -85,17 +85,24 @@
 		// In non-qrMode, let the link navigate naturally
 	}
 
-	// Double-tap detection for deactivating QR mode
+	// Double-tap detection for deactivating QR mode (must tap same icon twice)
 	let lastTap = 0;
-	function handleDoubleTap() {
+	let lastTappedIcon = /** @type {string | null} */ (null);
+	
+	/**
+	 * Handle double-tap to deactivate QR mode
+	 * @param {string} title
+	 */
+	function handleDoubleTap(title) {
 		const now = Date.now();
-		if (now - lastTap < 300) {
-			// Double tap detected
+		if (now - lastTap < 300 && lastTappedIcon === title) {
+			// Double tap on same icon detected
 			if (qrMode) {
 				ondeactivate?.();
 			}
 		}
 		lastTap = now;
+		lastTappedIcon = title;
 	}
 
 	/**
@@ -111,8 +118,6 @@
 <div
 	class="links"
 	class:qr-mode={qrMode}
-	onclick={handleDoubleTap}
-	ontouchend={handleDoubleTap}
 	ontouchmove={(e) => {
 		e.preventDefault();
 		const touch = e.touches[0];
@@ -141,14 +146,15 @@
 			class:qr-selected={qrMode && isSelected}
 			class:flash-on={qrMode}
 			class:flash-off={!qrMode}
-			style={qrMode && isSelected ? `--icon-color: ${primaryColor}` : ''}
-			onclick={(e) => handleClick(title, url, e)}
+			style="--icon-color: {primaryColor}"
+			onclick={(e) => { handleClick(title, url, e); handleDoubleTap(title); }}
 			ontouchstart={(e) => {
 				e.preventDefault();
 				handleSelect(title);
 			}}
 			ontouchend={(e) => {
 				e.preventDefault();
+				handleDoubleTap(title);
 				if (qrMode) {
 					ontoggleqr?.(title);
 				} else if (selected === title) {
@@ -182,14 +188,14 @@
 <style>
 	.links {
 		display: flex;
-		gap: clamp(0.75rem, 3vw, 1.5rem);
+		gap: clamp(0.5rem, 2vw, 1.5rem);
 		align-items: center;
 		justify-content: center;
 		padding: 0.5rem 1rem;
-		flex-wrap: nowrap;
+		flex-wrap: wrap;
 		max-width: 100%;
 		margin: 0 auto;
-		overflow-x: auto;
+		overflow: hidden;
 		flex-shrink: 0;
 	}
 
@@ -202,8 +208,15 @@
 		color: var(--default);
 	}
 
+	/* When any icon is hovered, dim the others */
+	.links:hover a:not(.active) {
+		opacity: 0.5;
+	}
+
 	.active {
-		color: var(--highlight);
+		color: var(--icon-color, var(--highlight));
+		opacity: 1;
+		transform: scale(1.1);
 	}
 
 	.qr-selected {

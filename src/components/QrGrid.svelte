@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from "svelte";
 	import { flip } from "svelte/animate";
-	import { scale, fade } from "svelte/transition";
+	import { scale } from "svelte/transition";
 	import ColoredQr from "./ColoredQr.svelte";
 
 	/**
@@ -232,8 +232,7 @@
 			onmouseenter={() => internalHover = index}
 			onmouseleave={() => internalHover = null}
 			animate:flip={{ duration: 300 }}
-			in:scale={{ duration: 250, delay: 50, start: 0.8 }}
-			out:scale={{ duration: 250, start: 0.8 }}
+			transition:scale={{ duration: 250, start: 0.8 }}
 		>
 			<div 
 				class="qr-card-code"
@@ -332,17 +331,21 @@
 	}
 
 	.qr-card:hover .qr-card-title {
-		color: #3b82f6 !important;
+		color: #3b82f6;
 	}
 
 	/* Landscape: rotate title on left side - text reads bottom to top */
 	.qrs-grid.landscape .qr-card .qr-card-title {
-		writing-mode: vertical-rl !important;
-		transform: rotate(180deg) !important;
+		writing-mode: vertical-rl;
 		text-orientation: mixed;
 		padding: 0.4em 0.2em;
 		align-self: center;
 		order: -1;
+	}
+
+	/* Ensure hover doesn't affect transform in landscape */
+	.qrs-grid.landscape .qr-card:hover .qr-card-title {
+		color: #3b82f6;
 	}
 
 	/* Animate individual QR modules (rects) with radial bloom effect */
