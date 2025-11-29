@@ -58,6 +58,7 @@
 	.colored-qr :global(svg) {
 		width: 100%;
 		height: 100%;
+		shape-rendering: crispEdges;
 	}
 
 	.colored-qr.animate :global(rect) {
