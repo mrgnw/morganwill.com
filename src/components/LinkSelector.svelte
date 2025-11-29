@@ -218,6 +218,7 @@
 		color: var(--icon-color, var(--highlight));
 		opacity: 1;
 		transform: scale(1.05);
+		filter: brightness(1.1);
 	}
 
 	.active {
@@ -231,7 +232,7 @@
 		color: var(--icon-color, var(--highlight));
 	}
 
-	.qr-mode a:not(.qr-selected) {
+	.qr-mode a:not(.qr-selected):not(:hover) {
 		opacity: 0.5;
 		transform: scale(0.9);
 	}
