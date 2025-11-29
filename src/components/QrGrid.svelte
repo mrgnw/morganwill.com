@@ -232,7 +232,7 @@
 			onmouseenter={() => internalHover = index}
 			onmouseleave={() => internalHover = null}
 			animate:flip={{ duration: 300 }}
-			transition:scale|global={{ duration: 250, start: 0.8 }}
+			transition:scale={{ duration: 250, start: 0.8 }}
 		>
 			<div 
 				class="qr-card-code"

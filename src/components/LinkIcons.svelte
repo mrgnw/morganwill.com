@@ -2,6 +2,7 @@
 	import { onMount, tick } from "svelte";
 	import { Tween } from "svelte/motion";
 	import { cubicOut } from "svelte/easing";
+	import { fade } from "svelte/transition";
 	import QrGrid from "./QrGrid.svelte";
 	import LinkSelector from "./LinkSelector.svelte";
 
@@ -97,10 +98,8 @@
 	}
 
 	async function deactivateQrMode() {
-		// Capture position before
-		if (selectorWrapper) {
-			lastY = selectorWrapper.getBoundingClientRect().top;
-		}
+		// Capture position before layout change
+		const startY = selectorWrapper?.getBoundingClientRect().top ?? 0;
 		
 		qrMode = false;
 		selectedQrs = new Set();
@@ -109,17 +108,22 @@
 		url.searchParams.delete('qr');
 		window.history.pushState({}, '', url);
 		
-		// Wait for outro transitions to complete (QR cards have 250ms transition)
-		// Then measure new position and animate
-		setTimeout(async () => {
-			await tick();
-			if (selectorWrapper) {
-				const newY = selectorWrapper.getBoundingClientRect().top;
-				const deltaY = lastY - newY;
-				selectorY.set(deltaY, { duration: 0 }); // Start at old position
-				selectorY.set(0); // Animate to new position
-			}
-		}, 260); // Slightly longer than the QR card transition duration
+		// The qr-area fades out over 250ms but layout won't change until it's gone.
+		// We need to animate the selector from bottom to center during this time.
+		// Calculate where it will end up (roughly center of viewport)
+		const viewportHeight = window.innerHeight;
+		const selectorHeight = selectorWrapper?.getBoundingClientRect().height ?? 80;
+		const endY = (viewportHeight - selectorHeight) / 2 + 64; // Account for title
+		const deltaY = startY - endY;
+		
+		// Animate from current position (0 offset) to negative delta (moving up)
+		selectorY.set(0, { duration: 0 });
+		selectorY.set(-deltaY, { duration: 350 });
+		
+		// After animation completes, reset offset since layout will have changed
+		setTimeout(() => {
+			selectorY.set(0, { duration: 0 });
+		}, 360);
 	}
 
 	onMount(() => {
@@ -143,7 +147,7 @@
 
 <div class="link-icons" class:qr-mode={qrMode}>
 	{#if qrMode}
-		<div class="qr-area">
+		<div class="qr-area" out:fade={{ duration: 250 }}>
 			<QrGrid links={qrLinks} {hoveredLink} />
 		</div>
 	{:else}
