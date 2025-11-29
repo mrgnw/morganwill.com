@@ -152,7 +152,7 @@
 		</div>
 	{:else}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<h1 class="title" ondblclick={activateQrMode}>
+		<h1 class="title" ondblclick={activateQrMode} in:fade={{ duration: 200, delay: 250 }}>
 			{selected ?? defaultTitle}
 		</h1>
 	{/if}
