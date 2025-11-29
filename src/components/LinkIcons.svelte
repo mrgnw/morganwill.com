@@ -1,5 +1,7 @@
 <script>
-	import { onMount } from "svelte";
+	import { onMount, tick } from "svelte";
+	import { Tween } from "svelte/motion";
+	import { cubicOut } from "svelte/easing";
 	import QrGrid from "./QrGrid.svelte";
 	import LinkSelector from "./LinkSelector.svelte";
 
@@ -36,6 +38,12 @@
 	// Shared hover state between icon selector and QR grid
 	let hoveredLink = $state(/** @type {string | null} */ (null));
 
+	// FLIP animation for LinkSelector
+	/** @type {HTMLDivElement | null} */
+	let selectorWrapper = $state(null);
+	let selectorY = new Tween(0, { duration: 300, easing: cubicOut });
+	let lastY = $state(0);
+
 	// Links to display in the QR grid
 	let qrLinks = $derived.by(() => {
 		if (selectedQrs.size === 0) {
@@ -66,21 +74,49 @@
 		selectedQrs = new Set(selectedQrs);
 	}
 
-	function activateQrMode() {
+	async function activateQrMode() {
+		// Capture position before
+		if (selectorWrapper) {
+			lastY = selectorWrapper.getBoundingClientRect().top;
+		}
+		
 		qrMode = true;
 		// Update URL without navigation
 		const url = new URL(window.location.href);
 		url.searchParams.set('qr', '');
 		window.history.pushState({}, '', url);
+		
+		// After layout updates, calculate offset and animate
+		await tick();
+		if (selectorWrapper) {
+			const newY = selectorWrapper.getBoundingClientRect().top;
+			const deltaY = lastY - newY;
+			selectorY.set(deltaY, { duration: 0 }); // Start at old position
+			selectorY.set(0); // Animate to new position
+		}
 	}
 
-	function deactivateQrMode() {
+	async function deactivateQrMode() {
+		// Capture position before
+		if (selectorWrapper) {
+			lastY = selectorWrapper.getBoundingClientRect().top;
+		}
+		
 		qrMode = false;
 		selectedQrs = new Set();
 		// Update URL without navigation
 		const url = new URL(window.location.href);
 		url.searchParams.delete('qr');
 		window.history.pushState({}, '', url);
+		
+		// After layout updates, calculate offset and animate
+		await tick();
+		if (selectorWrapper) {
+			const newY = selectorWrapper.getBoundingClientRect().top;
+			const deltaY = lastY - newY;
+			selectorY.set(deltaY, { duration: 0 }); // Start at old position
+			selectorY.set(0); // Animate to new position
+		}
 	}
 
 	onMount(() => {
@@ -114,18 +150,24 @@
 		</h1>
 	{/if}
 
-	<LinkSelector 
-		{links} 
-		{selected} 
-		{qrMode}
-		{iconSize}
-		selectedQrs={selectedQrs}
-		{hoveredLink}
-		onselect={handleSelect}
-		ontoggleqr={toggleQr}
-		ondeactivate={deactivateQrMode}
-		onhover={(title) => hoveredLink = title}
-	/>
+	<div 
+		class="selector-wrapper" 
+		bind:this={selectorWrapper}
+		style:transform="translateY({selectorY.current}px)"
+	>
+		<LinkSelector 
+			{links} 
+			{selected} 
+			{qrMode}
+			{iconSize}
+			selectedQrs={selectedQrs}
+			{hoveredLink}
+			onselect={handleSelect}
+			ontoggleqr={toggleQr}
+			ondeactivate={deactivateQrMode}
+			onhover={(title) => hoveredLink = title}
+		/>
+	</div>
 </div>
 
 <style>
@@ -153,6 +195,11 @@
 		width: 100%;
 		min-height: 0;
 		overflow: hidden;
+	}
+
+	.selector-wrapper {
+		width: 100%;
+		will-change: transform;
 	}
 
 	.title {
