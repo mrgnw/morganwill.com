@@ -276,7 +276,7 @@
 		grid-template-rows: 1fr auto;
 		text-decoration: none;
 		box-sizing: border-box;
-		transition: transform 0.25s ease, opacity 0.25s ease;
+		transition: transform 0.25s ease, opacity 0.25s ease, filter 0.25s ease;
 		overflow: hidden;
 		position: relative;
 		width: var(--card-size);
@@ -293,6 +293,7 @@
 	.qr-card.shrink {
 		transform: scale(0.92);
 		opacity: 0.7;
+		filter: saturate(0.3);
 	}
 
 	/* QR code container */
