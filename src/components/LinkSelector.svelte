@@ -208,8 +208,8 @@
 		color: var(--default);
 	}
 
-	/* When any icon is hovered, dim the others */
-	.links:hover a:not(.active) {
+	/* When any icon is hovered, dim the others but keep hovered at full opacity */
+	.links:hover a:not(:hover):not(.active) {
 		opacity: 0.5;
 	}
 

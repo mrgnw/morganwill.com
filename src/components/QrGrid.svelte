@@ -254,18 +254,17 @@
 
 <style>
 	.qrs-grid {
-		display: grid;
-		grid-template-columns: repeat(var(--cols), var(--card-size));
-		grid-auto-rows: var(--card-size);
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-content: center;
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
 		box-sizing: border-box;
-		transition: opacity 0.2s ease, grid-template-columns 0.3s ease;
+		transition: opacity 0.2s ease;
 		opacity: 0;
 		gap: 2px;
-		place-content: center;
-		justify-items: center;
 	}
 
 	.qrs-grid.ready {
@@ -280,8 +279,9 @@
 		transition: transform 0.25s ease, opacity 0.25s ease;
 		overflow: hidden;
 		position: relative;
-		width: 100%;
-		height: 100%;
+		width: var(--card-size);
+		height: var(--card-size);
+		flex-shrink: 0;
 	}
 
 	/* Landscape: title on left side */
