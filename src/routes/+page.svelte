@@ -39,8 +39,8 @@
 	@media (prefers-color-scheme: dark) {
 		:root {
 			--primary: white;
-			--highlight: white;
-			--default: rgb(30, 255, 139);
+			--highlight: rgb(120, 180, 255);
+			--default: rgba(255, 255, 255, 0.8);
 			--qr: white;
 			--bg: #000000;
 		}

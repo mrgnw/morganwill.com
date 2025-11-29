@@ -109,14 +109,17 @@
 		url.searchParams.delete('qr');
 		window.history.pushState({}, '', url);
 		
-		// After layout updates, calculate offset and animate
-		await tick();
-		if (selectorWrapper) {
-			const newY = selectorWrapper.getBoundingClientRect().top;
-			const deltaY = lastY - newY;
-			selectorY.set(deltaY, { duration: 0 }); // Start at old position
-			selectorY.set(0); // Animate to new position
-		}
+		// Wait for outro transitions to complete (QR cards have 250ms transition)
+		// Then measure new position and animate
+		setTimeout(async () => {
+			await tick();
+			if (selectorWrapper) {
+				const newY = selectorWrapper.getBoundingClientRect().top;
+				const deltaY = lastY - newY;
+				selectorY.set(deltaY, { duration: 0 }); // Start at old position
+				selectorY.set(0); // Animate to new position
+			}
+		}, 260); // Slightly longer than the QR card transition duration
 	}
 
 	onMount(() => {
