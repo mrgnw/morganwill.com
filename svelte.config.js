@@ -1,11 +1,10 @@
 import { mdsvex } from "mdsvex";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import preprocess from "svelte-preprocess";
-import adapter from '@sveltejs/adapter-cloudflare';
-import { fileURLToPath } from 'url';
-import { codeToHtml } from 'shiki';
-import { addCopyButton } from 'shiki-transformer-copy-button';
-
+import adapter from "@sveltejs/adapter-cloudflare";
+import { fileURLToPath } from "url";
+import { codeToHtml } from "shiki";
+import { addCopyButton } from "shiki-transformer-copy-button";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -34,29 +33,29 @@ const config = {
       postcss: true,
     }),
     mdsvex({
-      extensions: ['.md'],
+      extensions: [".md"],
       highlight: {
         highlighter: async (code, lang) => {
           const html = await codeToHtml(code, {
             lang,
-            theme: 'github-dark',
+            theme: "github-dark",
             transformers: [
               addCopyButton({
-                copy: 'Copy',
-                copied: 'Copied!',
-                copyIcon: '<svg>...</svg>',
-                checkIcon: '<svg>...</svg>'
-              })
-            ]
+                copy: "Copy",
+                copied: "Copied!",
+                copyIcon: "<svg>...</svg>",
+                checkIcon: "<svg>...</svg>",
+              }),
+            ],
           });
           return `{@html \`${html}\`}`;
-        }
-      }
+        },
+      },
     }),
-    vitePreprocess({})
+    vitePreprocess({}),
   ],
 
-  extensions: [".svelte", ".svx"]
+  extensions: [".svelte", ".svx"],
 };
 
 export default config;
