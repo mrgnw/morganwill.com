@@ -1,6 +1,6 @@
-import QRCode from 'qrcode';
-import { env } from '$env/dynamic/private';
-import { links as all_links } from '$lib/links.js';
+import QRCode from "qrcode";
+import { env } from "$env/dynamic/private";
+import { links as all_links } from "$lib/links.js";
 
 /** @typedef {import('$lib/links.js').Link} Link */
 
@@ -10,10 +10,10 @@ import { links as all_links } from '$lib/links.js';
  * @returns {function(): number}
  */
 function seededRandom(seed) {
-	return function() {
-		seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-		return seed / 0x7fffffff;
-	};
+  return function () {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
 }
 
 /**
@@ -23,12 +23,12 @@ function seededRandom(seed) {
  * @returns {Array}
  */
 function shuffleArray(array, random) {
-	const shuffled = [...array];
-	for (let i = shuffled.length - 1; i > 0; i--) {
-		const j = Math.floor(random() * (i + 1));
-		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-	}
-	return shuffled;
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 /**
@@ -38,36 +38,38 @@ function shuffleArray(array, random) {
  * @returns {string} SVG string with individual rect elements
  */
 function generateAnimatedQRSvg(text, size = 164) {
-	const qr = QRCode.create(text);
-	const modules = qr.modules;
-	const moduleCount = modules.size;
-	const moduleSize = size / moduleCount;
-	
-	// Collect all filled rects first
-	const allRects = [];
-	for (let row = 0; row < moduleCount; row++) {
-		for (let col = 0; col < moduleCount; col++) {
-			const idx = row * moduleCount + col;
-			if (modules.data[idx]) {
-				const x = col * moduleSize;
-				const y = row * moduleSize;
-				allRects.push({ x, y });
-			}
-		}
-	}
-	
-	// Shuffle rects using seeded random (seed from text hash for consistency)
-	const seed = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-	const random = seededRandom(seed);
-	const shuffledRects = shuffleArray(allRects, random);
-	
-	// Build SVG string with shuffled order
-	let rects = '';
-	shuffledRects.forEach((rect, index) => {
-		rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}" fill="currentColor"/>`;
-	});
-	
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${rects}</svg>`;
+  const qr = QRCode.create(text);
+  const modules = qr.modules;
+  const moduleCount = modules.size;
+  const moduleSize = size / moduleCount;
+
+  // Collect all filled rects first
+  const allRects = [];
+  for (let row = 0; row < moduleCount; row++) {
+    for (let col = 0; col < moduleCount; col++) {
+      const idx = row * moduleCount + col;
+      if (modules.data[idx]) {
+        const x = col * moduleSize;
+        const y = row * moduleSize;
+        allRects.push({ x, y });
+      }
+    }
+  }
+
+  // Shuffle rects using seeded random (seed from text hash for consistency)
+  const seed = text
+    .split("")
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const random = seededRandom(seed);
+  const shuffledRects = shuffleArray(allRects, random);
+
+  // Build SVG string with shuffled order
+  let rects = "";
+  shuffledRects.forEach((rect, index) => {
+    rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}" fill="currentColor"/>`;
+  });
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${rects}</svg>`;
 }
 
 /**
@@ -76,8 +78,8 @@ function generateAnimatedQRSvg(text, size = 164) {
  * @returns {Link[]}
  */
 function getPrivateLinks() {
-	/** @type {Link[]} */
-	const privateLinks = [];
+  /** @type {Link[]} */
+  const privateLinks = [];
 
 	if (env.PHONE_NUMBER) {
 		privateLinks.push({
@@ -90,20 +92,20 @@ function getPrivateLinks() {
 		});
 	}
 
-	if (env.WHATSAPP_NUMBER) {
-		// WhatsApp uses number without + or spaces
-		const waNumber = env.WHATSAPP_NUMBER.replace(/[^0-9]/g, '');
-		privateLinks.push({
-			title: 'whatsapp',
-			alias: 'wa',
-			url: `https://wa.me/${waNumber}`,
-			shortUrl: `https://wa.me/${waNumber}`,
-			blurb: 'Message on WhatsApp',
-			colors: ['#25D366', '#128C7E'],
-		});
-	}
+  if (env.WHATSAPP_NUMBER) {
+    // WhatsApp uses number without + or spaces
+    const waNumber = env.WHATSAPP_NUMBER.replace(/[^0-9]/g, "");
+    privateLinks.push({
+      title: "whatsapp",
+      alias: "wa",
+      url: `https://wa.me/${waNumber}`,
+      shortUrl: `https://wa.me/${waNumber}`,
+      blurb: "Message on WhatsApp",
+      colors: ["#25D366", "#128C7E"],
+    });
+  }
 
-	return privateLinks;
+  return privateLinks;
 }
 
 /**
@@ -114,73 +116,85 @@ function getPrivateLinks() {
  * @returns {{ links: Link[], qrMode: boolean }}
  */
 function getFilteredLinks(allLinks, hostname, urlParams) {
-	const linksParam = urlParams.get("links");
-	
-	// Check for ?links=li.tg.ig OR just ?li&tg&ig OR ?wa.li (keys as link identifiers)
-	const paramKeys = [...urlParams.keys()];
-	
-	// Split any keys that contain . or , (e.g., ?wa.li becomes ["wa", "li"])
-	const expandedKeys = paramKeys.flatMap(key => key.split(/[.,]/));
-	
-	// Check if qr mode is requested (via ?qr or ?li.tg.qr)
-	const qrMode = urlParams.has("qr") || expandedKeys.includes("qr");
-	
-	// Filter out "qr" from matching keys
-	const matchingKeys = expandedKeys.filter(key => 
-		key !== "qr" && allLinks.some(link => link.title === key || link.alias === key)
-	);
-	
-	let links;
-	if (linksParam) {
-		// Explicit ?links=li.tg.ig or ?links=li,tg,ig format
-		const requestedLinks = linksParam.split(/[.,]/).map(s => s.trim().toLowerCase()).filter(s => s !== "qr");
-		links = requestedLinks
-			.map(key => allLinks.find(link => link.title === key || link.alias === key))
-			.filter(Boolean);
-	} else if (matchingKeys.length > 0) {
-		// Shorthand ?li&tg&ig or ?wa.li format
-		links = matchingKeys
-			.map(key => allLinks.find(link => link.title === key || link.alias === key))
-			.filter(Boolean);
-	} else if (hostname === "morganwill.com") {
-		links = ["linkedin", "github", "bluesky", "telegram", "cv"]
-			.map(title => allLinks.find(link => link.title === title))
-			.filter(Boolean);
-	} else if (hostname === "zenfo.co") {
-		links = ["instagram", "blog", "bluesky", "telegram"]
-			.map(title => allLinks.find(link => link.title === title))
-			.filter(Boolean);
-	} else {
-		links = allLinks.filter(link => link.title !== "cv");
-	}
-	
-	return { links, qrMode };
+  const linksParam = urlParams.get("links");
+
+  // Check for ?links=li.tg.ig OR just ?li&tg&ig OR ?wa.li (keys as link identifiers)
+  const paramKeys = [...urlParams.keys()];
+
+  // Split any keys that contain . or , (e.g., ?wa.li becomes ["wa", "li"])
+  const expandedKeys = paramKeys.flatMap((key) => key.split(/[.,]/));
+
+  // Check if qr mode is requested (via ?qr or ?li.tg.qr)
+  const qrMode = urlParams.has("qr") || expandedKeys.includes("qr");
+
+  // Filter out "qr" from matching keys
+  const matchingKeys = expandedKeys.filter(
+    (key) =>
+      key !== "qr" &&
+      allLinks.some((link) => link.title === key || link.alias === key),
+  );
+
+  let links;
+  if (linksParam) {
+    // Explicit ?links=li.tg.ig or ?links=li,tg,ig format
+    const requestedLinks = linksParam
+      .split(/[.,]/)
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s !== "qr");
+    links = requestedLinks
+      .map((key) =>
+        allLinks.find((link) => link.title === key || link.alias === key),
+      )
+      .filter(Boolean);
+  } else if (matchingKeys.length > 0) {
+    // Shorthand ?li&tg&ig or ?wa.li format
+    links = matchingKeys
+      .map((key) =>
+        allLinks.find((link) => link.title === key || link.alias === key),
+      )
+      .filter(Boolean);
+  } else if (hostname === "morganwill.com") {
+    links = ["linkedin", "github", "bluesky", "telegram", "cv"]
+      .map((title) => allLinks.find((link) => link.title === title))
+      .filter(Boolean);
+  } else if (hostname === "zenfo.co") {
+    links = ["instagram", "blog", "bluesky", "telegram"]
+      .map((title) => allLinks.find((link) => link.title === title))
+      .filter(Boolean);
+  } else {
+    links = allLinks.filter((link) => link.title !== "cv");
+  }
+
+  return { links, qrMode };
 }
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ request, url }) {
-	// Get hostname from request headers (works with Cloudflare, proxies, etc.)
-	const hostname = request.headers.get('host')?.split(':')[0] 
-		?? url.hostname 
-		?? 'localhost';
-	
-	const combinedLinks = [...all_links, ...getPrivateLinks()];
+  // Get hostname from request headers (works with Cloudflare, proxies, etc.)
+  const hostname =
+    request.headers.get("host")?.split(":")[0] ?? url.hostname ?? "localhost";
 
-	const linksWithQr = await Promise.all(
-		combinedLinks.map(async (link) => {
-			const qrUrl = link.shortUrl ?? link.url;
-			// Always use our custom SVG format with fill="currentColor" for consistent styling
-			const qr = generateAnimatedQRSvg(qrUrl, 164);
-			return { ...link, qr };
-		})
-	);
+  const combinedLinks = [...all_links, ...getPrivateLinks()];
 
-	const { links, qrMode } = getFilteredLinks(linksWithQr, hostname, url.searchParams);
+  const linksWithQr = await Promise.all(
+    combinedLinks.map(async (link) => {
+      const qrUrl = link.shortUrl ?? link.url;
+      // Always use our custom SVG format with fill="currentColor" for consistent styling
+      const qr = generateAnimatedQRSvg(qrUrl, 164);
+      return { ...link, qr };
+    }),
+  );
 
-	return {
-		links,
-		qrMode,
-		hostname,
-		all_links: linksWithQr
-	};
+  const { links, qrMode } = getFilteredLinks(
+    linksWithQr,
+    hostname,
+    url.searchParams,
+  );
+
+  return {
+    links,
+    qrMode,
+    hostname,
+    all_links: linksWithQr,
+  };
 }

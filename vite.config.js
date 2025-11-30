@@ -13,5 +13,8 @@ export default defineConfig({
       scale: 1, // Scale factor
       jsx: 'react' // For potential React compatibility
     })
-  ]
+  ],
+  server: {
+    allowedHosts: ['m4.skate-in.ts.net']
+  }
 })
