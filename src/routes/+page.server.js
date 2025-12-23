@@ -13,46 +13,64 @@ const hostDefaults = {
 };
 
 /**
+ * Helper to split a string by dots or commas and extract titles/qrMode
+ * @param {string} str
+ * @returns {{ titles: string[], hasQr: boolean }}
+ */
+function extractTitlesAndQr(str) {
+  const parts = str
+    .split(/[.,]/)
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const titles = [];
+  let hasQr = false;
+
+  for (const part of parts) {
+    if (part === "qr") {
+      hasQr = true;
+    } else {
+      titles.push(part);
+    }
+  }
+
+  return { titles, hasQr };
+}
+
+/**
  * Parse URL params to extract requested links and param overrides
  * Returns both the links to display and any value overrides
- * Handles ?wa=+1234567890&li or ?wa.li=value or ?links=li,tg formats
+ * Handles ?wa=+1234567890&li or ?wa.li=value or ?links=li,tg or ?ig.tg.qr formats
  * @param {URLSearchParams} urlParams
  * @returns {{ requestedTitles: string[] | null, overrides: Map<string, string>, qrMode: boolean }}
  */
 function parseUrlParams(urlParams) {
   const overrides = new Map();
-  const qrMode = urlParams.has("qr");
-
-  // Check for explicit ?links=li,tg,ig format
-  const linksParam = urlParams.get("links");
-  if (linksParam) {
-    const requestedTitles = linksParam
-      .split(/[.,]/)
-      .map((s) => s.trim().toLowerCase())
-      .filter((s) => s && s !== "qr");
-    return { requestedTitles, overrides, qrMode };
-  }
-
-  // Parse other params for values and titles
-  const paramKeys = [...urlParams.keys()];
+  let qrMode = false;
   const requestedTitles = [];
 
-  for (const key of paramKeys) {
-    if (key === "qr") continue;
+  // Handle ?links=li,tg,ig format
+  const linksParam = urlParams.get("links");
+  if (linksParam) {
+    const { titles, hasQr } = extractTitlesAndQr(linksParam);
+    requestedTitles.push(...titles);
+    qrMode ||= hasQr;
+  }
 
-    // Handle dot-separated keys like ?wa.li=value
-    const keys = key.split(".");
+  // Handle dot-separated param keys like ?ig.tg.qr or regular keys like ?wa=value
+  for (const key of urlParams.keys()) {
+    if (key === "links" || key === "qr") continue;
+
+    const { titles, hasQr } = extractTitlesAndQr(key);
     const value = urlParams.get(key) || "";
 
-    for (const k of keys) {
-      if (k && k !== "qr") {
-        requestedTitles.push(k);
-        // Only store override if it has a value
-        if (value) {
-          overrides.set(k, value);
-        }
+    for (const title of titles) {
+      requestedTitles.push(title);
+      if (value) {
+        overrides.set(title, value);
       }
     }
+
+    qrMode ||= hasQr;
   }
 
   // Return null for requestedTitles if no params (use defaults)
