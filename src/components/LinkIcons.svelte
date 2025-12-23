@@ -103,10 +103,6 @@
 
         qrMode = false;
         selectedQrs = new Set();
-        // Update URL without navigation
-        const url = new URL(window.location.href);
-        url.searchParams.delete("qr");
-        window.history.pushState({}, "", url);
 
         // The qr-area fades out over 250ms but layout won't change until it's gone.
         // We need to animate the selector from bottom to center during this time.
