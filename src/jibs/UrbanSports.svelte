@@ -1,37 +1,42 @@
 <script>
-    import { Copy } from 'lucide-svelte';
-    let inputText = $state('');
+    import { Copy } from "lucide-svelte";
+    let inputText = $state("");
     let links = $state([]);
 
     function parseUrbanSportsText(text) {
-        console.log('Input text (with char codes):', Array.from(text).map(c => `${c} (${c.charCodeAt(0)})`));
-        
-        const pattern = /.*?(.+?) wants you to check out (.+?) at (.+?)! Here['']s the link for more info: (.+)/;
+        console.log(
+            "Input text (with char codes):",
+            Array.from(text).map((c) => `${c} (${c.charCodeAt(0)})`),
+        );
+
+        const pattern =
+            /.*?(.+?) wants you to check out (.+?) at (.+?)! Here['']s the link for more info: (.+)/;
         const match = text.trim().match(pattern);
-        console.log('Pattern match result:', match);
+        console.log("Pattern match result:", match);
 
         if (match) {
             const [_, name, activity, gym, url] = match;
-            console.log('Parsed values:', { name, activity, gym, url });
+            console.log("Parsed values:", { name, activity, gym, url });
             const htmlLink = `<a href="${url}">${activity} at ${gym}</a>`;
             const plainTextLink = `${activity} at ${gym}\n${url}`;
-            console.log('Generated HTML:', htmlLink);
+            console.log("Generated HTML:", htmlLink);
             links = [...links, { html: htmlLink, text: plainTextLink }];
-            inputText = '';
+            inputText = "";
         } else {
-            console.log('No match found - text does not match expected pattern');
+            console.log(
+                "No match found - text does not match expected pattern",
+            );
         }
     }
 
     function handlePaste(event) {
-        const text = event.clipboardData.getData('text');
+        const text = event.clipboardData.getData("text");
         parseUrbanSportsText(text);
     }
     function handleCopy(link) {
-        console.log(link)
+        console.log(link);
         navigator.clipboard.writeText(link.text);
     }
-
 </script>
 
 <div class="container">
@@ -40,7 +45,7 @@
         onpaste={handlePaste}
         placeholder="Paste Urban Sports Club share text here..."
         rows="3"
-></textarea>
+    ></textarea>
 
     {#if links.length > 0}
         <div class="links">
@@ -48,7 +53,10 @@
             {#each links as link}
                 <div class="link-item">
                     <div class="link-item-content">
-                        <button class="copy-button" onclick={() => handleCopy(link)}>
+                        <button
+                            class="copy-button"
+                            onclick={() => handleCopy(link)}
+                        >
                             <Copy size={16} />
                         </button>
                         <div class="link-preview">
@@ -81,21 +89,6 @@
         padding: 0.5rem;
         background: #f5f5f5;
         border-radius: 4px;
-    }
-
-    .copy-section {
-        margin-top: 0.5rem;
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    pre {
-        margin: 0;
-        padding: 0.5rem;
-        background: #eee;
-        border-radius: 4px;
-        flex: 1;
     }
 
     button {

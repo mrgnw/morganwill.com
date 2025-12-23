@@ -440,10 +440,6 @@
         margin-bottom: 1rem;
     }
 
-    .copy-all-button {
-        width: 100%;
-    }
-
     .command-section {
         margin-bottom: 1rem;
         position: relative;
@@ -462,28 +458,5 @@
         word-wrap: break-word;
         overflow-wrap: break-word;
         color: #c9d1d9;
-    }
-
-    .section-copy-button {
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 10;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        pointer-events: none;
-        margin: 0.5rem;
-    }
-
-    .code-container:hover .section-copy-button {
-        opacity: 1;
-        pointer-events: all;
-    }
-
-    /* Remove unused styles */
-    .section-header,
-    .copy-section-button,
-    .copy-button {
-        display: none;
     }
 </style>
