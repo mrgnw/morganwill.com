@@ -113,80 +113,26 @@
     });
 
     /**
-     * Apply radial wave animation - expands from center outward
+     * Calculate animation delays for rects based on their position
+     * Uses a simple linear stagger based on rect index
      * @param {HTMLElement} container
      * @param {number} baseDelay
      */
-    function applyWaveAnimation(container, baseDelay) {
+    function applyStaggeredDelays(container, baseDelay) {
         const svg = container.querySelector("svg");
         if (!svg) return;
 
         const rects = svg.querySelectorAll("rect");
         if (rects.length === 0) return;
 
-        // Find the center of the QR code
-        let minX = Infinity,
-            maxX = -Infinity,
-            minY = Infinity,
-            maxY = -Infinity;
-
-        rects.forEach((rect) => {
-            const x = parseFloat(rect.getAttribute("x") ?? "0");
-            const y = parseFloat(rect.getAttribute("y") ?? "0");
-            const w = parseFloat(rect.getAttribute("width") ?? "1");
-            const h = parseFloat(rect.getAttribute("height") ?? "1");
-            minX = Math.min(minX, x);
-            maxX = Math.max(maxX, x + w);
-            minY = Math.min(minY, y);
-            maxY = Math.max(maxY, y + h);
-        });
-
-        const centerX = (minX + maxX) / 2;
-        const centerY = (minY + maxY) / 2;
-        const maxDistance = Math.sqrt(
-            Math.pow(maxX - centerX, 2) + Math.pow(maxY - centerY, 2),
-        );
-
-        // Calculate distance from center for each rect and apply delay
-        rects.forEach((rect) => {
-            const x = parseFloat(rect.getAttribute("x") ?? "0");
-            const y = parseFloat(rect.getAttribute("y") ?? "0");
-            const w = parseFloat(rect.getAttribute("width") ?? "1");
-            const h = parseFloat(rect.getAttribute("height") ?? "1");
-
-            // Distance from rect center to QR center
-            const rectCenterX = x + w / 2;
-            const rectCenterY = y + h / 2;
-            const distance = Math.sqrt(
-                Math.pow(rectCenterX - centerX, 2) +
-                    Math.pow(rectCenterY - centerY, 2),
-            );
-
-            // Normalize distance to 0-1 range and convert to delay
-            const normalizedDistance = distance / maxDistance;
-            const delay = baseDelay + normalizedDistance * 300; // 300ms spread from center to edge
-
-            // @ts-ignore
-            rect.style.animationDelay = `${delay}ms`;
+        // Simple linear stagger: each rect gets a delay based on its index
+        // This avoids expensive DOM measurements while still creating a visual wave
+        rects.forEach((rect, index) => {
+            const staggerAmount = Math.min(index * 6, 200); // Max 200ms of stagger
+            const delay = baseDelay + staggerAmount;
+            rect.style.setProperty("--rect-delay", `${delay}ms`);
         });
     }
-
-    // Generate random order for QR cards (shuffled indices)
-    let cardOrder = $derived.by(() => {
-        const indices = links.map((_, i) => i);
-        // Fisher-Yates shuffle
-        for (let i = indices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [indices[i], indices[j]] = [indices[j], indices[i]];
-        }
-        // Return a map of original index -> animation order
-        /** @type {Map<number, number>} */
-        const orderMap = new Map();
-        indices.forEach((originalIndex, animationOrder) => {
-            orderMap.set(originalIndex, animationOrder);
-        });
-        return orderMap;
-    });
 
     // Track which QR card is being hovered (internal state)
     let internalHover = $state(/** @type {number | null} */ (null));
@@ -201,30 +147,20 @@
     });
 
     /**
-     * Svelte action to apply wave animation when element mounts
+     * Svelte action to apply staggered animation delays efficiently
      * @param {HTMLElement} node
      * @param {number} baseDelay
      */
-    function waveAction(node, baseDelay) {
-        // Use requestAnimationFrame to ensure SVG is rendered
-        requestAnimationFrame(() => {
-            applyWaveAnimation(node, baseDelay);
-
-            // Also set delays for title element
-            const card = node.closest(".qr-card");
-            if (card) {
-                const title = card.querySelector(".qr-card-title");
-                // @ts-ignore
-                if (title) title.style.animationDelay = `${baseDelay + 200}ms`;
-            }
-        });
+    function staggerAction(node, baseDelay) {
+        // Set initial delays immediately
+        applyStaggeredDelays(node, baseDelay);
 
         return {
             /**
              * @param {number} newDelay
              */
             update(newDelay) {
-                applyWaveAnimation(node, newDelay);
+                applyStaggeredDelays(node, newDelay);
             },
         };
     }
@@ -241,7 +177,6 @@
     bind:this={containerEl}
 >
     {#each links as link, index (link.title)}
-        {@const animOrder = cardOrder.get(index) ?? index}
         <a
             href={link.url}
             target="_blank"
@@ -252,7 +187,7 @@
             animate:flip={{ duration: 300 }}
             transition:scale={{ duration: 250, start: 0.8 }}
         >
-            <div class="qr-card-code" use:waveAction={100 + animOrder * 80}>
+            <div class="qr-card-code" use:staggerAction={100 + index * 80}>
                 {#if link.qr}
                     <ColoredQr
                         qr={link.qr}
@@ -348,7 +283,7 @@
         position: relative;
         opacity: 0;
         animation: fadeSlideIn 0.4s ease-out forwards;
-        animation-delay: 0ms; /* Will be overridden by JS */
+        animation-delay: var(--title-delay, 0ms);
     }
 
     .qr-card:hover .qr-card-title {
@@ -369,14 +304,13 @@
         color: #3b82f6;
     }
 
-    /* Animate individual QR modules (rects) with radial bloom effect */
+    /* Animate individual QR modules (rects) with staggered timing */
     .qr-card-code :global(svg rect) {
         opacity: 0;
         transform-origin: center center;
         transform: scale(0) rotate(180deg);
         animation: radialBloom 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        /* Default delay - will be overridden by JS for radial staggering */
-        animation-delay: 0ms;
+        animation-delay: var(--rect-delay, 0ms);
     }
 
     @keyframes radialBloom {

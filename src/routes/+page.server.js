@@ -1,76 +1,7 @@
-import QRCode from "qrcode";
 import { env } from "$env/dynamic/private";
 import { linkTemplates, buildLink } from "$lib/links.js";
 
 /** @typedef {import('$lib/links.js').Link} Link */
-
-/**
- * Seeded random number generator for consistent shuffling
- * @param {number} seed
- * @returns {function(): number}
- */
-function seededRandom(seed) {
-  return function () {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x7fffffff;
-  };
-}
-
-/**
- * Shuffle array using Fisher-Yates with seeded random
- * @param {Array} array
- * @param {function(): number} random
- * @returns {Array}
- */
-function shuffleArray(array, random) {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
-/**
- * Generate an SVG with individual rects for animation (randomized order)
- * @param {string} text - Text to encode
- * @param {number} size - SVG size in pixels
- * @returns {string} SVG string with individual rect elements
- */
-function generateAnimatedQRSvg(text, size = 164) {
-  const qr = QRCode.create(text);
-  const modules = qr.modules;
-  const moduleCount = modules.size;
-  const moduleSize = size / moduleCount;
-
-  // Collect all filled rects first
-  const allRects = [];
-  for (let row = 0; row < moduleCount; row++) {
-    for (let col = 0; col < moduleCount; col++) {
-      const idx = row * moduleCount + col;
-      if (modules.data[idx]) {
-        const x = col * moduleSize;
-        const y = row * moduleSize;
-        allRects.push({ x, y });
-      }
-    }
-  }
-
-  // Shuffle rects using seeded random (seed from text hash for consistency)
-  const seed = text
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const random = seededRandom(seed);
-  const shuffledRects = shuffleArray(allRects, random);
-
-  // Build SVG string with shuffled order
-  let rects = "";
-  shuffledRects.forEach((rect, index) => {
-    rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}" fill="currentColor"/>`;
-  });
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${rects}</svg>`;
-}
 
 /**
  * Default links to show for each hostname
@@ -147,12 +78,13 @@ function getTitlesToDisplay(hostname, requestedTitles) {
 }
 
 /**
- * Filter and build links with QR codes
+ * Attach pre-generated QR codes to links (lazy loads the QR file)
  * @param {Link[]} allLinks
  * @param {string[]} titlesToShow
+ * @param {boolean} qrMode - Whether QR mode is active
  * @returns {Promise<Link[]>}
  */
-async function buildLinksWithQr(allLinks, titlesToShow) {
+async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
   // Filter to only requested titles
   const filteredLinks = titlesToShow
     .map((title) =>
@@ -160,13 +92,24 @@ async function buildLinksWithQr(allLinks, titlesToShow) {
     )
     .filter(Boolean);
 
-  // Generate QR codes only for displayed links
-  const linksWithQr = await Promise.all(
-    filteredLinks.map(async (link) => {
-      const qr = generateAnimatedQRSvg(link.url, 164);
-      return { ...link, qr };
-    }),
-  );
+  // Only import QR codes if in QR mode
+  // This defers the 35ms+ import cost until actually needed
+  let preGeneratedQRCodes = {};
+
+  if (qrMode) {
+    try {
+      const qrModule = await import("$lib/generated-qr-codes.js");
+      preGeneratedQRCodes = qrModule.preGeneratedQRCodes || {};
+    } catch (err) {
+      console.warn("Failed to load pre-generated QR codes", err);
+    }
+  }
+
+  // Attach pre-generated QR codes to links
+  const linksWithQr = filteredLinks.map((link) => {
+    const qr = preGeneratedQRCodes[link.title];
+    return { ...link, qr };
+  });
 
   return linksWithQr;
 }
@@ -201,8 +144,8 @@ export async function load({ request, url }) {
   // Determine which titles to display
   const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
 
-  // Build links with QR codes (only for displayed links)
-  const links = await buildLinksWithQr(allLinks, titlesToShow);
+  // Build links with QR codes (lazy loads QR file only in qrMode)
+  const links = await buildLinksWithQr(allLinks, titlesToShow, qrMode);
 
   return {
     links,
