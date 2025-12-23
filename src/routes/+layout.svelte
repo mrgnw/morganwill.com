@@ -10,3 +10,10 @@
         {@render children?.()}
     </div>
 {/key}
+
+<style>
+    .page-transition {
+        width: 100%;
+        height: 100%;
+    }
+</style>

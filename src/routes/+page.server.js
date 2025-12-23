@@ -1,76 +1,8 @@
-import QRCode from "qrcode";
 import { env } from "$env/dynamic/private";
 import { linkTemplates, buildLink } from "$lib/links.js";
+import { preGeneratedQRCodes } from "$lib/generated-qr-codes.js";
 
 /** @typedef {import('$lib/links.js').Link} Link */
-
-/**
- * Seeded random number generator for consistent shuffling
- * @param {number} seed
- * @returns {function(): number}
- */
-function seededRandom(seed) {
-  return function () {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x7fffffff;
-  };
-}
-
-/**
- * Shuffle array using Fisher-Yates with seeded random
- * @param {Array} array
- * @param {function(): number} random
- * @returns {Array}
- */
-function shuffleArray(array, random) {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
-/**
- * Generate an SVG with individual rects for animation (randomized order)
- * @param {string} text - Text to encode
- * @param {number} size - SVG size in pixels
- * @returns {string} SVG string with individual rect elements
- */
-function generateAnimatedQRSvg(text, size = 164) {
-  const qr = QRCode.create(text);
-  const modules = qr.modules;
-  const moduleCount = modules.size;
-  const moduleSize = size / moduleCount;
-
-  // Collect all filled rects first
-  const allRects = [];
-  for (let row = 0; row < moduleCount; row++) {
-    for (let col = 0; col < moduleCount; col++) {
-      const idx = row * moduleCount + col;
-      if (modules.data[idx]) {
-        const x = col * moduleSize;
-        const y = row * moduleSize;
-        allRects.push({ x, y });
-      }
-    }
-  }
-
-  // Shuffle rects using seeded random (seed from text hash for consistency)
-  const seed = text
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const random = seededRandom(seed);
-  const shuffledRects = shuffleArray(allRects, random);
-
-  // Build SVG string with shuffled order
-  let rects = "";
-  shuffledRects.forEach((rect, index) => {
-    rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}" fill="currentColor"/>`;
-  });
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${rects}</svg>`;
-}
 
 /**
  * Default links to show for each hostname
@@ -147,12 +79,12 @@ function getTitlesToDisplay(hostname, requestedTitles) {
 }
 
 /**
- * Filter and build links with QR codes
+ * Attach pre-generated QR codes to links
  * @param {Link[]} allLinks
  * @param {string[]} titlesToShow
- * @returns {Promise<Link[]>}
+ * @returns {Link[]}
  */
-async function buildLinksWithQr(allLinks, titlesToShow) {
+function buildLinksWithQr(allLinks, titlesToShow) {
   // Filter to only requested titles
   const filteredLinks = titlesToShow
     .map((title) =>
@@ -160,13 +92,11 @@ async function buildLinksWithQr(allLinks, titlesToShow) {
     )
     .filter(Boolean);
 
-  // Generate QR codes only for displayed links
-  const linksWithQr = await Promise.all(
-    filteredLinks.map(async (link) => {
-      const qr = generateAnimatedQRSvg(link.url, 164);
-      return { ...link, qr };
-    }),
-  );
+  // Attach pre-generated QR codes to links
+  const linksWithQr = filteredLinks.map((link) => {
+    const qr = preGeneratedQRCodes[link.title];
+    return { ...link, qr };
+  });
 
   return linksWithQr;
 }
@@ -202,7 +132,7 @@ export async function load({ request, url }) {
   const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
 
   // Build links with QR codes (only for displayed links)
-  const links = await buildLinksWithQr(allLinks, titlesToShow);
+  const links = buildLinksWithQr(allLinks, titlesToShow);
 
   return {
     links,
