@@ -178,7 +178,7 @@
                 if (!qrMode) handleSelect(null);
                 onhover?.(null);
             }}
-            transition:fade={{ duration: 800, delay: 150 * index }}
+            transition:fade={{ duration: 400, delay: 80 * index }}
         >
             {#if icon}
                 {@const Icon = icon}
@@ -222,6 +222,9 @@
             opacity 0.2s ease,
             color 0.2s ease;
         color: var(--default);
+        will-change: transform, opacity;
+        transform: translateZ(0);
+        backface-visibility: hidden;
     }
 
     /* When any icon is hovered, dim the others but keep hovered at full opacity */

@@ -65,9 +65,11 @@
     }
 
     async function activateQrMode() {
-        // Capture position before
+        // Capture position before - batch DOM reads
+        let initialY = 0;
         if (selectorWrapper) {
-            lastY = selectorWrapper.getBoundingClientRect().top;
+            initialY = selectorWrapper.getBoundingClientRect().top;
+            lastY = initialY;
         }
 
         qrMode = true;
@@ -81,14 +83,23 @@
         if (selectorWrapper) {
             const newY = selectorWrapper.getBoundingClientRect().top;
             const deltaY = lastY - newY;
-            selectorY.set(deltaY, { duration: 0 }); // Start at old position
-            selectorY.set(0, { duration: 300 }); // Animate to new position
+            // Use requestAnimationFrame to batch with other DOM operations
+            requestAnimationFrame(() => {
+                selectorY.set(deltaY, { duration: 0 }); // Start at old position
+                selectorY.set(0, { duration: 300 }); // Animate to new position
+            });
         }
     }
 
     async function deactivateQrMode() {
-        // Capture position before layout change
-        const startY = selectorWrapper?.getBoundingClientRect().top ?? 0;
+        // Batch DOM reads together to prevent forced reflow
+        let startY = 0;
+        let selectorHeight = 80;
+        if (selectorWrapper) {
+            const rect = selectorWrapper.getBoundingClientRect();
+            startY = rect.top;
+            selectorHeight = rect.height;
+        }
 
         qrMode = false;
         selectedQrs = new Set();
@@ -101,14 +112,14 @@
         // We need to animate the selector from bottom to center during this time.
         // Calculate where it will end up (roughly center of viewport)
         const viewportHeight = window.innerHeight;
-        const selectorHeight =
-            selectorWrapper?.getBoundingClientRect().height ?? 80;
         const endY = (viewportHeight - selectorHeight) / 2 + 64; // Account for title
         const deltaY = startY - endY;
 
         // Animate from current position (0 offset) to negative delta (moving up)
-        selectorY.set(0, { duration: 0 });
-        selectorY.set(-deltaY, { duration: 350 });
+        requestAnimationFrame(() => {
+            selectorY.set(0, { duration: 0 });
+            selectorY.set(-deltaY, { duration: 350 });
+        });
 
         // After animation completes, reset offset since layout will have changed
         setTimeout(() => {
