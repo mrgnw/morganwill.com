@@ -66,8 +66,8 @@ export const linkTemplates = [
   {
     title: "phone",
     alias: "phone",
-    urlTemplate: "tel:{value}",
-    blurb: "Call me",
+    urlTemplate: "sms:{value}",
+    blurb: "Text me",
     colors: ["#34c759", "#28a745"],
     envVar: "PHONE_NUMBER",
   },
