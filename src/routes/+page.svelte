@@ -15,7 +15,7 @@
 </svelte:head>
 
 <div class="container">
-    <LinkIcons links={data.links} defaultTitle="Morgan" qrMode />
+    <LinkIcons links={data.links} defaultTitle="Morgan" bind:qrMode />
 </div>
 
 <style>
