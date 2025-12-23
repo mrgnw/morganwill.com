@@ -1,4 +1,15 @@
 /**
+ * @typedef {Object} Link
+ * @property {string} title
+ * @property {string} alias
+ * @property {string} url
+ * @property {string} blurb
+ * @property {string[]} colors
+ * @property {string} [qr]
+ * @property {boolean} [strokeIcon]
+ */
+
+/**
  * @typedef {Object} LinkTemplate
  * @property {string} title - Unique identifier for the link type
  * @property {string} alias - Short alias for URL params

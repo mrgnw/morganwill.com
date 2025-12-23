@@ -16,6 +16,8 @@
     import StreamlineLogosLineAppLogo from "~icons/streamline-logos/line-app-logo";
     import ArcticsSignal from "~icons/arcticons/signal";
 
+    /** @typedef {import('$lib/links.js').Link} Link */
+
     /** @type {Record<string, import('svelte').Component>} */
     const iconMap = {
         instagram: RiInstagramLine,
@@ -30,17 +32,6 @@
         line: StreamlineLogosLineAppLogo,
         signal: ArcticsSignal,
     };
-
-    /**
-     * @typedef {Object} Link
-     * @property {string} title
-     * @property {string} alias
-     * @property {string} url
-     * @property {string} blurb
-     * @property {string} [qr]
-     * @property {string[]} [colors]
-     * @property {boolean} [strokeIcon]
-     */
 
     /**
      * @type {{

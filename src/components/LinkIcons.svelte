@@ -6,15 +6,7 @@
     import QrGrid from "./QrGrid.svelte";
     import LinkSelector from "./LinkSelector.svelte";
 
-    /**
-     * @typedef {Object} Link
-     * @property {string} title
-     * @property {string} alias
-     * @property {string} url
-     * @property {string} blurb
-     * @property {string} [qr]
-     * @property {string[]} [colors]
-     */
+    /** @typedef {import('$lib/links.js').Link} Link */
 
     /**
      * @type {{
@@ -66,12 +58,9 @@
      * @param {string} title
      */
     function toggleQr(title) {
-        if (selectedQrs.has(title)) {
-            selectedQrs.delete(title);
-        } else {
-            selectedQrs.add(title);
-        }
-        // Trigger reactivity
+        selectedQrs.has(title)
+            ? selectedQrs.delete(title)
+            : selectedQrs.add(title);
         selectedQrs = new Set(selectedQrs);
     }
 
@@ -93,7 +82,7 @@
             const newY = selectorWrapper.getBoundingClientRect().top;
             const deltaY = lastY - newY;
             selectorY.set(deltaY, { duration: 0 }); // Start at old position
-            selectorY.set(0); // Animate to new position
+            selectorY.set(0, { duration: 300 }); // Animate to new position
         }
     }
 
