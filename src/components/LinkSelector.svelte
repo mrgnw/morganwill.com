@@ -1,7 +1,38 @@
 <script>
     import { fade } from "svelte/transition";
+    import {
+        Instagram,
+        Linkedin,
+        Github,
+        Bluesky,
+        Telegram,
+        Blog,
+        Cv,
+        Phone,
+        Whatsapp,
+        Line,
+        Signal,
+    } from "$lib/icons/index.js";
 
     /** @typedef {import('$lib/links.js').Link} Link */
+
+    /**
+     * Map of link titles to their icon components
+     * @type {Record<string, import('svelte').Component>}
+     */
+    const iconComponents = {
+        instagram: Instagram,
+        linkedin: Linkedin,
+        github: Github,
+        bluesky: Bluesky,
+        telegram: Telegram,
+        blog: Blog,
+        cv: Cv,
+        phone: Phone,
+        whatsapp: Whatsapp,
+        line: Line,
+        signal: Signal,
+    };
 
     /**
      * @type {{
@@ -91,8 +122,9 @@
         }
     }}
 >
-    {#each links as { url, blurb, title, icon }, index (title)}
+    {#each links as { url, blurb, title }, index (title)}
         {@const isSelected = selectedQrs.has(title)}
+        {@const IconComponent = iconComponents[title]}
         <a
             href={qrMode ? undefined : url}
             target="_blank"
@@ -139,13 +171,8 @@
             }}
             transition:fade={{ duration: 400, delay: 80 * index }}
         >
-            {#if icon}
-                <div
-                    class="icon-wrapper"
-                    style="width: {iconSize}; height: {iconSize};"
-                >
-                    {@html icon}
-                </div>
+            {#if IconComponent}
+                <IconComponent size={iconSize} />
             {/if}
         </a>
     {/each}
@@ -204,23 +231,6 @@
     .qr-mode a:not(.qr-selected):not(:hover) {
         opacity: 0.5;
         transform: scale(0.9);
-    }
-
-    .icon-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        pointer-events: none;
-    }
-
-    .icon-wrapper :global(svg) {
-        width: 100%;
-        height: 100%;
-        fill: inherit;
     }
 
     @keyframes flash-on {

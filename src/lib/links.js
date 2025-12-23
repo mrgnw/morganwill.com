@@ -6,7 +6,6 @@
  * @property {string} blurb
  * @property {string[]} colors
  * @property {string} [qr]
- * @property {string} [icon]
  * @property {boolean} [strokeIcon]
  */
 
@@ -119,7 +118,6 @@ export const linkTemplates = [
  * @property {string} blurb
  * @property {string[]} colors
  * @property {string} [qr]
- * @property {string} [icon]
  * @property {boolean} [strokeIcon]
  */
 

@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "vite dev --host",
     "generate-qr": "node scripts/generate-qr-codes.mjs",
-    "generate-icons": "node scripts/generate-icons.mjs",
-    "build": "bun run generate-qr && bun run generate-icons && vite build",
+    "build": "bun run generate-qr && vite build",
     "preview": "vite preview",
     "prev": "vite build && vite preview",
     "cfb": "bun run build && wrangler versions upload --preview-alias $(git branch --show-current | sed 's/[^a-zA-Z0-9-]/-/g')",
