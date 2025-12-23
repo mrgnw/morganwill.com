@@ -64,63 +64,65 @@
         selectedQrs = new Set(selectedQrs);
     }
 
-    async function activateQrMode() {
-        // Capture position before - batch DOM reads
-        let initialY = 0;
-        if (selectorWrapper) {
-            initialY = selectorWrapper.getBoundingClientRect().top;
-            lastY = initialY;
-        }
+    async function toggleQrMode() {
+        if (!qrMode) {
+            // Activating QR mode
+            // Capture position before - batch DOM reads
+            let initialY = 0;
+            if (selectorWrapper) {
+                initialY = selectorWrapper.getBoundingClientRect().top;
+                lastY = initialY;
+            }
 
-        qrMode = true;
-        // Update URL without navigation
-        const url = new URL(window.location.href);
-        url.searchParams.set("qr", "");
-        window.history.pushState({}, "", url);
+            qrMode = true;
+            // Update URL without navigation
+            const url = new URL(window.location.href);
+            url.searchParams.set("qr", "");
+            window.history.pushState({}, "", url);
 
-        // After layout updates, calculate offset and animate
-        await tick();
-        if (selectorWrapper) {
-            const newY = selectorWrapper.getBoundingClientRect().top;
-            const deltaY = lastY - newY;
-            // Use requestAnimationFrame to batch with other DOM operations
+            // After layout updates, calculate offset and animate
+            await tick();
+            if (selectorWrapper) {
+                const newY = selectorWrapper.getBoundingClientRect().top;
+                const deltaY = lastY - newY;
+                // Use requestAnimationFrame to batch with other DOM operations
+                requestAnimationFrame(() => {
+                    selectorY.set(deltaY, { duration: 0 }); // Start at old position
+                    selectorY.set(0, { duration: 300 }); // Animate to new position
+                });
+            }
+        } else {
+            // Deactivating QR mode
+            // Batch DOM reads together to prevent forced reflow
+            let startY = 0;
+            let selectorHeight = 80;
+            if (selectorWrapper) {
+                const rect = selectorWrapper.getBoundingClientRect();
+                startY = rect.top;
+                selectorHeight = rect.height;
+            }
+
+            qrMode = false;
+            selectedQrs = new Set();
+
+            // The qr-area fades out over 250ms but layout won't change until it's gone.
+            // We need to animate the selector from bottom to center during this time.
+            // Calculate where it will end up (roughly center of viewport)
+            const viewportHeight = window.innerHeight;
+            const endY = (viewportHeight - selectorHeight) / 2 + 64; // Account for title
+            const deltaY = startY - endY;
+
+            // Animate from current position (0 offset) to negative delta (moving up)
             requestAnimationFrame(() => {
-                selectorY.set(deltaY, { duration: 0 }); // Start at old position
-                selectorY.set(0, { duration: 300 }); // Animate to new position
+                selectorY.set(0, { duration: 0 });
+                selectorY.set(-deltaY, { duration: 350 });
             });
+
+            // After animation completes, reset offset since layout will have changed
+            setTimeout(() => {
+                selectorY.set(0, { duration: 0 });
+            }, 360);
         }
-    }
-
-    async function deactivateQrMode() {
-        // Batch DOM reads together to prevent forced reflow
-        let startY = 0;
-        let selectorHeight = 80;
-        if (selectorWrapper) {
-            const rect = selectorWrapper.getBoundingClientRect();
-            startY = rect.top;
-            selectorHeight = rect.height;
-        }
-
-        qrMode = false;
-        selectedQrs = new Set();
-
-        // The qr-area fades out over 250ms but layout won't change until it's gone.
-        // We need to animate the selector from bottom to center during this time.
-        // Calculate where it will end up (roughly center of viewport)
-        const viewportHeight = window.innerHeight;
-        const endY = (viewportHeight - selectorHeight) / 2 + 64; // Account for title
-        const deltaY = startY - endY;
-
-        // Animate from current position (0 offset) to negative delta (moving up)
-        requestAnimationFrame(() => {
-            selectorY.set(0, { duration: 0 });
-            selectorY.set(-deltaY, { duration: 350 });
-        });
-
-        // After animation completes, reset offset since layout will have changed
-        setTimeout(() => {
-            selectorY.set(0, { duration: 0 });
-        }, 360);
     }
 
     onMount(() => {
@@ -152,7 +154,7 @@
         <main>
             <h1
                 class="title"
-                ondblclick={activateQrMode}
+                ondblclick={toggleQrMode}
                 in:fade={{ duration: 200, delay: 250 }}
             >
                 {selected ?? defaultTitle}
@@ -174,7 +176,7 @@
             {hoveredLink}
             onselect={handleSelect}
             ontoggleqr={toggleQr}
-            ondeactivate={deactivateQrMode}
+            ondeactivate={toggleQrMode}
             onhover={(title) => (hoveredLink = title)}
         />
     </div>
