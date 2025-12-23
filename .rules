@@ -1,0 +1,2 @@
+- Use svelte 5
+- Don't use $effect unless I explicitly tell you to
