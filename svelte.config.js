@@ -9,6 +9,9 @@ import { addCopyButton } from "shiki-transformer-copy-button";
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   kit: {
+    experimental: {
+      remoteFunctions: true,
+    },
     alias: {
       $components: "./src/components",
       "@/*": "./src/lib/*",
