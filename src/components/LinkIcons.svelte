@@ -1,7 +1,6 @@
 <script>
     import { onMount } from "svelte";
     import { fade } from "svelte/transition";
-    import { flip } from "svelte/animate";
     import QrGrid from "./QrGrid.svelte";
     import LinkSelector from "./LinkSelector.svelte";
 
@@ -112,26 +111,20 @@
         </main>
     {/if}
 
-    {#each [0] as _ (0)}
-        <div
-            class="selector-wrapper"
-            bind:this={selectorWrapper}
-            animate:flip={{ duration: 300 }}
-        >
-            <LinkSelector
-                {links}
-                {selected}
-                {qrMode}
-                {iconSize}
-                {selectedQrs}
-                {hoveredLink}
-                onselect={handleSelect}
-                ontoggleqr={toggleQr}
-                ondeactivate={toggleQrMode}
-                onhover={(title) => (hoveredLink = title)}
-            />
-        </div>
-    {/each}
+    <div class="selector-wrapper" bind:this={selectorWrapper}>
+        <LinkSelector
+            {links}
+            {selected}
+            {qrMode}
+            {iconSize}
+            {selectedQrs}
+            {hoveredLink}
+            onselect={handleSelect}
+            ontoggleqr={toggleQr}
+            ondeactivate={toggleQrMode}
+            onhover={(title) => (hoveredLink = title)}
+        />
+    </div>
 </div>
 
 <style>
