@@ -9,9 +9,9 @@ const __dirname = dirname(__filename);
 
 /**
  * Shuffle array with seeded random for consistent results
- * @param {Array} array
+ * @param {string[]} array
  * @param {number} seed
- * @returns {Array}
+ * @returns {string[]}
  */
 function shuffleWithSeed(array, seed) {
   const shuffled = [...array];
@@ -32,7 +32,7 @@ function shuffleWithSeed(array, seed) {
  * Uses seeded shuffling for consistent animation order across reloads
  * @param {string} text - Text to encode
  * @param {number} size - SVG size in pixels
- * @returns {string} SVG string with rect elements
+ * @returns {string} SVG string with rect elements (fill="currentColor")
  */
 function generateOptimizedQRSvg(text, size = 164) {
   const qr = QRCode.create(text);
@@ -62,19 +62,6 @@ function generateOptimizedQRSvg(text, size = 164) {
   const shuffled = shuffleWithSeed(rects, seed);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${shuffled.join("")}</svg>`;
-}
-
-/**
- * Get hash of current link URLs to detect changes
- * @param {Object<string, string>} qrCodes
- * @returns {string}
- */
-function hashQRCodes(qrCodes) {
-  const urls = Object.entries(qrCodes)
-    .sort()
-    .map(([title, svg]) => title)
-    .join("|");
-  return urls;
 }
 
 /**

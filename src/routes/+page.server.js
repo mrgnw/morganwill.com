@@ -1,6 +1,5 @@
 import { env } from "$env/dynamic/private";
 import { linkTemplates, buildLink } from "$lib/links.js";
-import { preGeneratedQRCodes } from "$lib/generated-qr-codes.js";
 
 /** @typedef {import('$lib/links.js').Link} Link */
 
@@ -79,18 +78,32 @@ function getTitlesToDisplay(hostname, requestedTitles) {
 }
 
 /**
- * Attach pre-generated QR codes to links
+ * Attach pre-generated QR codes to links (lazy loads the QR file)
  * @param {Link[]} allLinks
  * @param {string[]} titlesToShow
- * @returns {Link[]}
+ * @param {boolean} qrMode - Whether QR mode is active
+ * @returns {Promise<Link[]>}
  */
-function buildLinksWithQr(allLinks, titlesToShow) {
+async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
   // Filter to only requested titles
   const filteredLinks = titlesToShow
     .map((title) =>
       allLinks.find((link) => link.title === title || link.alias === title),
     )
     .filter(Boolean);
+
+  // Only import QR codes if in QR mode
+  // This defers the 35ms+ import cost until actually needed
+  let preGeneratedQRCodes = {};
+
+  if (qrMode) {
+    try {
+      const qrModule = await import("$lib/generated-qr-codes.js");
+      preGeneratedQRCodes = qrModule.preGeneratedQRCodes || {};
+    } catch (err) {
+      console.warn("Failed to load pre-generated QR codes", err);
+    }
+  }
 
   // Attach pre-generated QR codes to links
   const linksWithQr = filteredLinks.map((link) => {
@@ -131,8 +144,8 @@ export async function load({ request, url }) {
   // Determine which titles to display
   const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
 
-  // Build links with QR codes (only for displayed links)
-  const links = buildLinksWithQr(allLinks, titlesToShow);
+  // Build links with QR codes (lazy loads QR file only in qrMode)
+  const links = await buildLinksWithQr(allLinks, titlesToShow, qrMode);
 
   return {
     links,
