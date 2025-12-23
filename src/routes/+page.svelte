@@ -1,15 +1,8 @@
 <script>
-    import { fade } from "svelte/transition";
     import LinkIcons from "$components/LinkIcons.svelte";
-    import { onMount } from "svelte";
 
     let { data } = $props();
-    let qrMode = $state();
-
-    // on mount set qrMode to data.qrMode.
-    onMount(() => {
-        data.qrMode = data.qrMode;
-    });
+    let qrMode = $state(false);
 </script>
 
 <svelte:head>
