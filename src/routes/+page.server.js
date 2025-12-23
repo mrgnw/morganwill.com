@@ -38,8 +38,7 @@ function extractTitlesAndQr(str) {
 
 /**
  * Parse URL params to extract requested links and param overrides
- * Returns both the links to display and any value overrides
- * Handles ?wa=+1234567890&li or ?wa.li=value or ?links=li,tg or ?ig.tg.qr formats
+ * Handles ?ig.tg.qr or ?wa=+1234567890 formats
  * @param {URLSearchParams} urlParams
  * @returns {{ requestedTitles: string[] | null, overrides: Map<string, string>, qrMode: boolean }}
  */
@@ -48,34 +47,28 @@ function parseUrlParams(urlParams) {
   let qrMode = false;
   const requestedTitles = [];
 
-  // Handle ?links=li,tg,ig format
-  const linksParam = urlParams.get("links");
-  if (linksParam) {
-    const { titles, hasQr } = extractTitlesAndQr(linksParam);
-    requestedTitles.push(...titles);
-    qrMode ||= hasQr;
-  }
-
-  // Handle dot-separated param keys like ?ig.tg.qr or regular keys like ?wa=value
   for (const key of urlParams.keys()) {
-    if (key === "links" || key === "qr") continue;
+    if (key === "qr") continue;
 
     const { titles, hasQr } = extractTitlesAndQr(key);
     const value = urlParams.get(key) || "";
 
+    requestedTitles.push(...titles);
+    qrMode ||= hasQr;
+
+    // Store overrides for titles that have values
     for (const title of titles) {
-      requestedTitles.push(title);
       if (value) {
         overrides.set(title, value);
       }
     }
-
-    qrMode ||= hasQr;
   }
 
-  // Return null for requestedTitles if no params (use defaults)
+  // Remove duplicates
+  const unique = [...new Set(requestedTitles)];
+
   return {
-    requestedTitles: requestedTitles.length > 0 ? requestedTitles : null,
+    requestedTitles: unique.length > 0 ? unique : null,
     overrides,
     qrMode,
   };
