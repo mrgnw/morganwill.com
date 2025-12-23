@@ -6,6 +6,7 @@ import { linkTemplates, buildLink } from "$lib/links.js";
 /**
  * Default links to show for each hostname
  */
+/** @type {Record<string, string[]>} */
 const hostDefaults = {
   "morganwill.com": ["linkedin", "github", "bluesky", "telegram", "cv"],
   "zenfo.co": ["instagram", "bluesky", "telegram"],
@@ -78,13 +79,12 @@ function getTitlesToDisplay(hostname, requestedTitles) {
 }
 
 /**
- * Attach pre-generated QR codes to links (lazy loads the QR file)
+ * Attach pre-generated QR codes to links
  * @param {Link[]} allLinks
  * @param {string[]} titlesToShow
- * @param {boolean} qrMode - Whether QR mode is active
  * @returns {Promise<Link[]>}
  */
-async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
+async function buildLinksWithQr(allLinks, titlesToShow) {
   // Filter to only requested titles
   const filteredLinks = titlesToShow
     .map((title) =>
@@ -92,21 +92,18 @@ async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
     )
     .filter(Boolean);
 
-  // Only import QR codes if in QR mode
-  // This defers the 35ms+ import cost until actually needed
+  // Always load QR codes (same as /qr page)
+  /** @type {Record<string, string>} */
   let preGeneratedQRCodes = {};
-
-  if (qrMode) {
-    try {
-      const qrModule = await import("$lib/generated-qr-codes.js");
-      preGeneratedQRCodes = qrModule.preGeneratedQRCodes || {};
-    } catch (err) {
-      console.warn("Failed to load pre-generated QR codes", err);
-    }
+  try {
+    const qrModule = await import("$lib/generated-qr-codes.js");
+    preGeneratedQRCodes = qrModule.preGeneratedQRCodes || {};
+  } catch (err) {
+    console.warn("Failed to load pre-generated QR codes", err);
   }
 
   // Attach pre-generated QR codes to links
-  const linksWithQr = filteredLinks.map((link) => {
+  const linksWithQr = /** @type {Link[]} */ (filteredLinks).map((link) => {
     const qr = preGeneratedQRCodes[link.title];
     return { ...link, qr };
   });
@@ -128,24 +125,28 @@ export async function load({ request, url }) {
   } = parseUrlParams(url.searchParams);
 
   // Build all links from templates with env/param values
-  const allLinks = linkTemplates
-    .map((template) => {
-      // Get value from params, then env, then defaults
-      const paramValue =
-        paramOverrides.get(template.title) ||
-        paramOverrides.get(template.alias) ||
-        null;
-      const envValue = template.envVar ? (env[template.envVar] ?? null) : null;
+  const allLinks = /** @type {Link[]} */ (
+    linkTemplates
+      .map((template) => {
+        // Get value from params, then env, then defaults
+        const paramValue =
+          paramOverrides.get(template.title) ||
+          paramOverrides.get(template.alias) ||
+          null;
+        const envValue = template.envVar
+          ? (env[template.envVar] ?? null)
+          : null;
 
-      return buildLink(template, paramValue, envValue);
-    })
-    .filter(Boolean); // Filter out null links (missing values)
+        return buildLink(template, paramValue, envValue);
+      })
+      .filter(Boolean) // Filter out null links (missing values)
+  );
 
   // Determine which titles to display
   const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
 
-  // Build links with QR codes (lazy loads QR file only in qrMode)
-  const links = await buildLinksWithQr(allLinks, titlesToShow, qrMode);
+  // Build links with QR codes (always load them, same as /qr page)
+  const links = await buildLinksWithQr(allLinks, titlesToShow);
 
   return {
     links,
