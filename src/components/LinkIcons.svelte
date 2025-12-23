@@ -1,6 +1,5 @@
 <script>
     import { onMount } from "svelte";
-    import { fade } from "svelte/transition";
     import QrGrid from "./QrGrid.svelte";
     import LinkSelector from "./LinkSelector.svelte";
 
@@ -95,23 +94,23 @@
 
 <div class="link-icons" class:qr-mode={qrMode}>
     {#if qrMode}
-        <div class="qr-area" out:fade={{ duration: 250 }}>
+        <div class="qr-area">
             <QrGrid links={qrLinks} {hoveredLink} />
         </div>
     {:else}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <main>
-            <h1
-                class="title"
-                ondblclick={toggleQrMode}
-                in:fade={{ duration: 200, delay: 250 }}
-            >
+            <h1 class="title" ondblclick={toggleQrMode}>
                 {selected ?? defaultTitle}
             </h1>
         </main>
     {/if}
 
-    <div class="selector-wrapper" bind:this={selectorWrapper}>
+    <div
+        class="selector-wrapper"
+        bind:this={selectorWrapper}
+        transition:fade={{ duration: 250 }}
+    >
         <LinkSelector
             {links}
             {selected}
@@ -156,6 +155,7 @@
 
     .selector-wrapper {
         width: 100%;
+        transition: all 0.3s ease;
     }
 
     .title {

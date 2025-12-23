@@ -142,7 +142,6 @@
                 if (!qrMode) handleSelect(null);
                 onhover?.(null);
             }}
-            transition:fade={{ duration: 400, delay: 80 * index }}
         >
             {#if icon}
                 <Icon
