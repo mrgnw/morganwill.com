@@ -1,37 +1,7 @@
 <script>
     import { fade } from "svelte/transition";
-    import ColoredIcon from "./ColoredIcon.svelte";
-
-    // Icon imports
-    import JamLinkedinCircle from "~icons/jam/linkedin-circle";
-    import IconoirGithubCircle from "~icons/iconoir/github-circle";
-    import IconoirTelegramCircle from "~icons/iconoir/telegram-circle";
-    import RiBlueskyLine from "~icons/ri/bluesky-line";
-    import TablerFileCv from "~icons/tabler/file-cv";
-    import PhBookmarkSimpleBold from "~icons/ph/bookmark-simple-bold";
-    import RiInstagramLine from "~icons/ri/instagram-line";
-    import IconoirPhone from "~icons/iconoir/phone";
-    import RiWhatsappLine from "~icons/ri/whatsapp-line";
-
-    import StreamlineLogosLineAppLogo from "~icons/streamline-logos/line-app-logo";
-    import ArcticsSignal from "~icons/arcticons/signal";
 
     /** @typedef {import('$lib/links.js').Link} Link */
-
-    /** @type {Record<string, import('svelte').Component>} */
-    const iconMap = {
-        instagram: RiInstagramLine,
-        linkedin: JamLinkedinCircle,
-        github: IconoirGithubCircle,
-        bluesky: RiBlueskyLine,
-        telegram: IconoirTelegramCircle,
-        blog: PhBookmarkSimpleBold,
-        cv: TablerFileCv,
-        phone: IconoirPhone,
-        whatsapp: RiWhatsappLine,
-        line: StreamlineLogosLineAppLogo,
-        signal: ArcticsSignal,
-    };
 
     /**
      * @type {{
@@ -100,14 +70,6 @@
         lastTap = now;
         lastTappedIcon = title;
     }
-
-    /**
-     * Get the icon component for a given link title
-     * @param {string} title
-     */
-    function getIcon(title) {
-        return iconMap[title] ?? null;
-    }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
@@ -129,10 +91,8 @@
         }
     }}
 >
-    {#each links as { url, blurb, title, colors, strokeIcon }, index (title)}
-        {@const icon = getIcon(title)}
+    {#each links as { url, blurb, title, icon }, index (title)}
         {@const isSelected = selectedQrs.has(title)}
-        {@const primaryColor = colors?.[0] ?? "var(--highlight)"}
         <a
             href={qrMode ? undefined : url}
             target="_blank"
@@ -142,7 +102,6 @@
             class:qr-selected={qrMode && isSelected}
             class:flash-on={qrMode}
             class:flash-off={!qrMode}
-            style="--icon-color: {primaryColor}"
             onclick={(e) => {
                 handleClick(title, url, e);
                 handleDoubleTap(title);
@@ -181,18 +140,12 @@
             transition:fade={{ duration: 400, delay: 80 * index }}
         >
             {#if icon}
-                {@const Icon = icon}
-                {@const iconColors = colors ?? ["var(--default)"]}
-                {#if qrMode && isSelected}
-                    <ColoredIcon
-                        icon={Icon}
-                        colors={iconColors}
-                        size={iconSize}
-                        {strokeIcon}
-                    />
-                {:else}
-                    <Icon width={iconSize} height={iconSize} />
-                {/if}
+                <div
+                    class="icon-wrapper"
+                    style="width: {iconSize}; height: {iconSize};"
+                >
+                    {@html icon}
+                </div>
             {/if}
         </a>
     {/each}
@@ -220,8 +173,8 @@
         transition:
             transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
             opacity 0.2s ease,
-            color 0.2s ease;
-        color: var(--default);
+            fill 0.2s ease;
+        fill: var(--default);
         will-change: transform, opacity;
         transform: translateZ(0);
         backface-visibility: hidden;
@@ -234,21 +187,18 @@
 
     /* Hovered icon gets its brand color and full opacity */
     a:hover {
-        color: var(--icon-color, var(--highlight));
         opacity: 1;
         transform: scale(1.05);
         filter: brightness(1.1);
     }
 
     .active {
-        color: var(--icon-color, var(--highlight));
         opacity: 1;
         transform: scale(1.1);
     }
 
     .qr-selected {
         transform: scale(1.15);
-        color: var(--icon-color, var(--highlight));
     }
 
     .qr-mode a:not(.qr-selected):not(:hover) {
@@ -256,39 +206,56 @@
         transform: scale(0.9);
     }
 
+    .icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        pointer-events: none;
+    }
+
+    .icon-wrapper :global(svg) {
+        width: 100%;
+        height: 100%;
+        fill: inherit;
+    }
+
     @keyframes flash-on {
         0% {
-            color: var(--default);
+            fill: var(--default);
         }
 
         50% {
-            color: var(--highlight);
+            fill: var(--highlight);
         }
 
         100% {
-            color: var(--default);
+            fill: var(--default);
         }
     }
 
     @keyframes flash-off {
         0% {
-            color: var(--default);
+            fill: var(--default);
         }
 
         50% {
-            color: rgba(128, 128, 128, 0.8);
+            fill: rgba(128, 128, 128, 0.8);
         }
 
         100% {
-            color: var(--default);
+            fill: var(--default);
         }
     }
 
-    .flash-on :global(svg) {
+    .flash-on {
         animation: flash-on 0.5s ease-in-out;
     }
 
-    .flash-off :global(svg) {
+    .flash-off {
         animation: flash-off 0.5s ease-in-out;
     }
 

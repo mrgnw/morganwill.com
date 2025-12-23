@@ -1,5 +1,6 @@
 import { env } from "$env/dynamic/private";
 import { linkTemplates, buildLink } from "$lib/links.js";
+import { preGeneratedIcons } from "$lib/generated-icons.js";
 
 /** @typedef {import('$lib/links.js').Link} Link */
 
@@ -78,13 +79,13 @@ function getTitlesToDisplay(hostname, requestedTitles) {
 }
 
 /**
- * Attach pre-generated QR codes to links (lazy loads the QR file)
+ * Attach pre-generated QR codes and icons to links
  * @param {Link[]} allLinks
  * @param {string[]} titlesToShow
  * @param {boolean} qrMode - Whether QR mode is active
  * @returns {Promise<Link[]>}
  */
-async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
+async function buildLinksWithQrAndIcons(allLinks, titlesToShow, qrMode) {
   // Filter to only requested titles
   const filteredLinks = titlesToShow
     .map((title) =>
@@ -105,13 +106,14 @@ async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
     }
   }
 
-  // Attach pre-generated QR codes to links
-  const linksWithQr = filteredLinks.map((link) => {
+  // Attach pre-generated QR codes and icons to links
+  const linksWithQrAndIcons = filteredLinks.map((link) => {
     const qr = preGeneratedQRCodes[link.title];
-    return { ...link, qr };
+    const icon = preGeneratedIcons[link.title];
+    return { ...link, qr, icon };
   });
 
-  return linksWithQr;
+  return linksWithQrAndIcons;
 }
 
 /** @type {import('./$types').PageServerLoad} */
@@ -144,8 +146,8 @@ export async function load({ request, url }) {
   // Determine which titles to display
   const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
 
-  // Build links with QR codes (lazy loads QR file only in qrMode)
-  const links = await buildLinksWithQr(allLinks, titlesToShow, qrMode);
+  // Build links with QR codes and icons
+  const links = await buildLinksWithQrAndIcons(allLinks, titlesToShow, qrMode);
 
   return {
     links,
