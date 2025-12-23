@@ -13,7 +13,7 @@
     import IconoirPhone from "~icons/iconoir/phone";
     import RiWhatsappLine from "~icons/ri/whatsapp-line";
 
-    import CibLine from "~icons/cib/line";
+    import StreamlineLogosLineAppLogo from "~icons/streamline-logos/line-app-logo";
     import ArcticsSignal from "~icons/arcticons/signal";
 
     /** @type {Record<string, import('svelte').Component>} */
@@ -27,7 +27,7 @@
         cv: TablerFileCv,
         phone: IconoirPhone,
         whatsapp: RiWhatsappLine,
-        line: CibLine,
+        line: StreamlineLogosLineAppLogo,
         signal: ArcticsSignal,
     };
 
