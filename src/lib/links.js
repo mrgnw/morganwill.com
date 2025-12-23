@@ -85,7 +85,6 @@ export const linkTemplates = [
     urlTemplate: "https://line.me/ti/p/~{value}",
     blurb: "Message on LINE",
     colors: ["#00B900", "#009C00"],
-    strokeIcon: true,
     envVar: "LINE_ID",
   },
   {

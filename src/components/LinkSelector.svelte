@@ -12,8 +12,9 @@
     import RiInstagramLine from "~icons/ri/instagram-line";
     import IconoirPhone from "~icons/iconoir/phone";
     import RiWhatsappLine from "~icons/ri/whatsapp-line";
-    import RiChat3Line from "~icons/ri/chat-3-line";
-    import RiShieldCheckLine from "~icons/ri/shield-check-line";
+
+    import CibLine from "~icons/cib/line";
+    import ArcticsSignal from "~icons/arcticons/signal";
 
     /** @type {Record<string, import('svelte').Component>} */
     const iconMap = {
@@ -26,8 +27,8 @@
         cv: TablerFileCv,
         phone: IconoirPhone,
         whatsapp: RiWhatsappLine,
-        line: RiChat3Line,
-        signal: RiShieldCheckLine,
+        line: CibLine,
+        signal: ArcticsSignal,
     };
 
     /**
