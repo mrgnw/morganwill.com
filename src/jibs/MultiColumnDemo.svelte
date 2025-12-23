@@ -1,6 +1,6 @@
 <script>
-    let text = '';
-    let showTextarea = true;
+    let text = $state('');
+    let showTextarea = $state(true);
 
     function reset() {
         text = '';

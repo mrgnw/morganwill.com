@@ -1,9 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
 
-	let loteData = null;
-	let loading = false;
-	let error = null;
+	let loteData = $state(null);
+	let loading = $state(false);
+	let error = $state(null);
 
 	async function fetchLote() {
 		loading = true;
@@ -48,7 +48,7 @@
 	{:else if error}
 		<div class="error">
 			<p>❌ Error: {error}</p>
-			<button on:click={fetchLote}>Try Again</button>
+			<button onclick={fetchLote}>Try Again</button>
 		</div>
 	{:else if loteData}
 		<div class="results" class:refreshing={loading}>
@@ -76,7 +76,7 @@
 			{/if}
 		</div>
 		
-		<button on:click={fetchLote} class="refresh-btn" disabled={loading}>
+		<button onclick={fetchLote} class="refresh-btn" disabled={loading}>
 			{#if loading}
 				<span class="refresh-spinner">🔄</span> Refreshing...
 			{:else}

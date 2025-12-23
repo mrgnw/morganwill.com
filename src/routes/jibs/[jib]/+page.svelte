@@ -4,6 +4,6 @@
 
 {#if data.component}
 	<div class="container mx-auto py-8">
-		<svelte:component this={data.component} />
+		<data.component />
 	</div>
 {/if}

@@ -40,7 +40,7 @@
         onpaste={handlePaste}
         placeholder="Paste Urban Sports Club share text here..."
         rows="3"
-    />
+></textarea>
 
     {#if links.length > 0}
         <div class="links">
