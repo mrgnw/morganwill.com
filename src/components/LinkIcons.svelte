@@ -112,24 +112,26 @@
         </main>
     {/if}
 
-    <div
-        class="selector-wrapper"
-        bind:this={selectorWrapper}
-        style:transform="translateY({selectorY.current}px)"
-    >
-        <LinkSelector
-            {links}
-            {selected}
-            {qrMode}
-            {iconSize}
-            {selectedQrs}
-            {hoveredLink}
-            onselect={handleSelect}
-            ontoggleqr={toggleQr}
-            ondeactivate={toggleQrMode}
-            onhover={(title) => (hoveredLink = title)}
-        />
-    </div>
+    {#each [0] as _ (0)}
+        <div
+            class="selector-wrapper"
+            bind:this={selectorWrapper}
+            animate:flip={{ duration: 300 }}
+        >
+            <LinkSelector
+                {links}
+                {selected}
+                {qrMode}
+                {iconSize}
+                {selectedQrs}
+                {hoveredLink}
+                onselect={handleSelect}
+                ontoggleqr={toggleQr}
+                ondeactivate={toggleQrMode}
+                onhover={(title) => (hoveredLink = title)}
+            />
+        </div>
+    {/each}
 </div>
 
 <style>
