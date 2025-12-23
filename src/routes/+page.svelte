@@ -2,7 +2,7 @@
     import LinkIcons from "$components/LinkIcons.svelte";
 
     let { data } = $props();
-    let qrMode = $state(false);
+    let qrMode = $state(data.qrMode ?? false);
 </script>
 
 <svelte:head>
