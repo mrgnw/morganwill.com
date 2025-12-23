@@ -132,38 +132,43 @@ function parseUrlParams(urlParams) {
 }
 
 /**
- * Get links to display based on hostname and URL params
- * @param {Link[]} allLinks
+ * Get titles to display based on hostname and URL params
  * @param {string} hostname
- * @param {URLSearchParams} urlParams
- * @returns {{ links: Link[], qrMode: boolean }}
+ * @param {string[] | null} requestedTitles
+ * @returns {string[]}
  */
-function getFilteredLinks(allLinks, hostname, urlParams) {
-  const { requestedTitles, qrMode } = parseUrlParams(urlParams);
-
-  // Determine which titles to show
-  let titlesToShow;
+function getTitlesToDisplay(hostname, requestedTitles) {
   if (requestedTitles) {
-    // URL params determine what's shown
-    titlesToShow = requestedTitles;
-  } else {
-    // Use hostname defaults
-    titlesToShow = hostDefaults[hostname] || [
-      "instagram",
-      "linkedin",
-      "bluesky",
-      "telegram",
-    ];
+    return requestedTitles;
   }
+  return (
+    hostDefaults[hostname] || ["instagram", "linkedin", "bluesky", "telegram"]
+  );
+}
 
-  // Filter allLinks to only show requested ones
-  const links = titlesToShow
+/**
+ * Filter and build links with QR codes
+ * @param {Link[]} allLinks
+ * @param {string[]} titlesToShow
+ * @returns {Promise<Link[]>}
+ */
+async function buildLinksWithQr(allLinks, titlesToShow) {
+  // Filter to only requested titles
+  const filteredLinks = titlesToShow
     .map((title) =>
       allLinks.find((link) => link.title === title || link.alias === title),
     )
     .filter(Boolean);
 
-  return { links, qrMode };
+  // Generate QR codes only for displayed links
+  const linksWithQr = await Promise.all(
+    filteredLinks.map(async (link) => {
+      const qr = generateAnimatedQRSvg(link.url, 164);
+      return { ...link, qr };
+    }),
+  );
+
+  return linksWithQr;
 }
 
 /** @type {import('./$types').PageServerLoad} */
@@ -172,7 +177,7 @@ export async function load({ request, url }) {
   const hostname =
     request.headers.get("host")?.split(":")[0] ?? url.hostname ?? "localhost";
 
-  // Parse URL params once for both filtering and overrides
+  // Parse URL params once
   const {
     requestedTitles,
     overrides: paramOverrides,
@@ -193,46 +198,15 @@ export async function load({ request, url }) {
     })
     .filter(Boolean); // Filter out null links (missing values)
 
-  // Generate QR codes for all links
-  const linksWithQr = await Promise.all(
-    allLinks.map(async (link) => {
-      const qr = generateAnimatedQRSvg(link.url, 164);
-      return { ...link, qr };
-    }),
-  );
+  // Determine which titles to display
+  const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
 
-  // Determine which links to show based on hostname and params
-  let links;
-  if (requestedTitles) {
-    // URL params determine what's shown
-    links = requestedTitles
-      .map((title) =>
-        linksWithQr.find(
-          (link) => link.title === title || link.alias === title,
-        ),
-      )
-      .filter(Boolean);
-  } else {
-    // Use hostname defaults
-    const titlesToShow = hostDefaults[hostname] || [
-      "instagram",
-      "linkedin",
-      "bluesky",
-      "telegram",
-    ];
-    links = titlesToShow
-      .map((title) =>
-        linksWithQr.find(
-          (link) => link.title === title || link.alias === title,
-        ),
-      )
-      .filter(Boolean);
-  }
+  // Build links with QR codes (only for displayed links)
+  const links = await buildLinksWithQr(allLinks, titlesToShow);
 
   return {
     links,
     qrMode,
     hostname,
-    all_links: linksWithQr,
   };
 }

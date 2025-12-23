@@ -1,2 +1,5 @@
 - Use svelte 5
 - Don't use $effect unless I explicitly tell you to
+
+
+Don't write summaries or guides unless I explicitly tell you to
