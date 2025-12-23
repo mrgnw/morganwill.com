@@ -1,6 +1,20 @@
-export function getJibComponents() {
-  const components = import.meta.glob("/src/jibs/*.svelte");
+// Static list of jibs - avoids import.meta.glob() which bundles everything
+const jibsList = [
+  "Lote",
+  "Matrix",
+  "MultiColumnDemo",
+  "Pkg",
+  "Rates",
+  "SalaryCalculator",
+  "Shiki",
+  "T90",
+  "TechStack",
+  "Units",
+  "UnixTime",
+  "UrbanSports",
+];
 
+export function getJibComponents() {
   // Define external jibs
   const externalJibs = [
     {
@@ -10,20 +24,17 @@ export function getJibComponents() {
   ];
 
   // Jibs to exclude from listing (but still accessible via routes)
-  const unlistJibs = ['Lote'];
+  const unlistJibs = ["Lote"];
 
-  const localJibs = Object.keys(components)
-    .filter((path) => {
-      const name = path.split("/").pop()?.replace(".svelte", "") || "";
-      return !unlistJibs.includes(name);
-    })
-    .map((path) => ({
-      name: path.split("/").pop()?.replace(".svelte", "") || "",
-      path: path.toLowerCase(),
+  const localJibs = jibsList
+    .filter((name) => !unlistJibs.includes(name))
+    .map((name) => ({
+      name: name,
+      path: `/jibs/${name.toLowerCase()}`,
+      slug: name.toLowerCase(),
     }));
 
   return {
-    components,
     paths: [...externalJibs, ...localJibs],
   };
 }
