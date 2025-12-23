@@ -79,7 +79,7 @@ importers:
         specifier: ^0.0.3
         version: 0.0.3
       svelte:
-        specifier: ^5.2.3
+        specifier: ^5.46.0
         version: 5.46.0
       svelte-adapter-bun:
         specifier: ^0.5.2

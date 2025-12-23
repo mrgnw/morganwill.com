@@ -6,57 +6,69 @@ import { linkTemplates, buildLink } from "$lib/links.js";
 /**
  * Default links to show for each hostname
  */
+/** @type {Record<string, string[]>} */
 const hostDefaults = {
   "morganwill.com": ["linkedin", "github", "bluesky", "telegram", "cv"],
   "zenfo.co": ["instagram", "bluesky", "telegram"],
 };
 
 /**
+ * Helper to split a string by dots or commas and extract titles/qrMode
+ * @param {string} str
+ * @returns {{ titles: string[], hasQr: boolean }}
+ */
+function extractTitlesAndQr(str) {
+  const parts = str
+    .split(/[.,]/)
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const titles = [];
+  let hasQr = false;
+
+  for (const part of parts) {
+    if (part === "qr") {
+      hasQr = true;
+    } else {
+      titles.push(part);
+    }
+  }
+
+  return { titles, hasQr };
+}
+
+/**
  * Parse URL params to extract requested links and param overrides
- * Returns both the links to display and any value overrides
- * Handles ?wa=+1234567890&li or ?wa.li=value or ?links=li,tg formats
+ * Handles ?ig.tg.qr or ?wa=+1234567890 formats
  * @param {URLSearchParams} urlParams
  * @returns {{ requestedTitles: string[] | null, overrides: Map<string, string>, qrMode: boolean }}
  */
 function parseUrlParams(urlParams) {
   const overrides = new Map();
-  const qrMode = urlParams.has("qr");
-
-  // Check for explicit ?links=li,tg,ig format
-  const linksParam = urlParams.get("links");
-  if (linksParam) {
-    const requestedTitles = linksParam
-      .split(/[.,]/)
-      .map((s) => s.trim().toLowerCase())
-      .filter((s) => s && s !== "qr");
-    return { requestedTitles, overrides, qrMode };
-  }
-
-  // Parse other params for values and titles
-  const paramKeys = [...urlParams.keys()];
+  let qrMode = false;
   const requestedTitles = [];
 
-  for (const key of paramKeys) {
+  for (const key of urlParams.keys()) {
     if (key === "qr") continue;
 
-    // Handle dot-separated keys like ?wa.li=value
-    const keys = key.split(".");
+    const { titles, hasQr } = extractTitlesAndQr(key);
     const value = urlParams.get(key) || "";
 
-    for (const k of keys) {
-      if (k && k !== "qr") {
-        requestedTitles.push(k);
-        // Only store override if it has a value
-        if (value) {
-          overrides.set(k, value);
-        }
+    requestedTitles.push(...titles);
+    qrMode ||= hasQr;
+
+    // Store overrides for titles that have values
+    for (const title of titles) {
+      if (value) {
+        overrides.set(title, value);
       }
     }
   }
 
-  // Return null for requestedTitles if no params (use defaults)
+  // Remove duplicates
+  const unique = [...new Set(requestedTitles)];
+
   return {
-    requestedTitles: requestedTitles.length > 0 ? requestedTitles : null,
+    requestedTitles: unique.length > 0 ? unique : null,
     overrides,
     qrMode,
   };
@@ -78,13 +90,12 @@ function getTitlesToDisplay(hostname, requestedTitles) {
 }
 
 /**
- * Attach pre-generated QR codes to links (lazy loads the QR file)
+ * Attach pre-generated QR codes to links
  * @param {Link[]} allLinks
  * @param {string[]} titlesToShow
- * @param {boolean} qrMode - Whether QR mode is active
  * @returns {Promise<Link[]>}
  */
-async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
+async function buildLinksWithQr(allLinks, titlesToShow) {
   // Filter to only requested titles
   const filteredLinks = titlesToShow
     .map((title) =>
@@ -92,21 +103,18 @@ async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
     )
     .filter(Boolean);
 
-  // Only import QR codes if in QR mode
-  // This defers the 35ms+ import cost until actually needed
+  // Always load QR codes (same as /qr page)
+  /** @type {Record<string, string>} */
   let preGeneratedQRCodes = {};
-
-  if (qrMode) {
-    try {
-      const qrModule = await import("$lib/generated-qr-codes.js");
-      preGeneratedQRCodes = qrModule.preGeneratedQRCodes || {};
-    } catch (err) {
-      console.warn("Failed to load pre-generated QR codes", err);
-    }
+  try {
+    const qrModule = await import("$lib/generated-qr-codes.js");
+    preGeneratedQRCodes = qrModule.preGeneratedQRCodes || {};
+  } catch (err) {
+    console.warn("Failed to load pre-generated QR codes", err);
   }
 
   // Attach pre-generated QR codes to links
-  const linksWithQr = filteredLinks.map((link) => {
+  const linksWithQr = /** @type {Link[]} */ (filteredLinks).map((link) => {
     const qr = preGeneratedQRCodes[link.title];
     return { ...link, qr };
   });
@@ -128,24 +136,28 @@ export async function load({ request, url }) {
   } = parseUrlParams(url.searchParams);
 
   // Build all links from templates with env/param values
-  const allLinks = linkTemplates
-    .map((template) => {
-      // Get value from params, then env, then defaults
-      const paramValue =
-        paramOverrides.get(template.title) ||
-        paramOverrides.get(template.alias) ||
-        null;
-      const envValue = template.envVar ? (env[template.envVar] ?? null) : null;
+  const allLinks = /** @type {Link[]} */ (
+    linkTemplates
+      .map((template) => {
+        // Get value from params, then env, then defaults
+        const paramValue =
+          paramOverrides.get(template.title) ||
+          paramOverrides.get(template.alias) ||
+          null;
+        const envValue = template.envVar
+          ? (env[template.envVar] ?? null)
+          : null;
 
-      return buildLink(template, paramValue, envValue);
-    })
-    .filter(Boolean); // Filter out null links (missing values)
+        return buildLink(template, paramValue, envValue);
+      })
+      .filter(Boolean) // Filter out null links (missing values)
+  );
 
   // Determine which titles to display
   const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
 
-  // Build links with QR codes (lazy loads QR file only in qrMode)
-  const links = await buildLinksWithQr(allLinks, titlesToShow, qrMode);
+  // Build links with QR codes (always load them, same as /qr page)
+  const links = await buildLinksWithQr(allLinks, titlesToShow);
 
   return {
     links,

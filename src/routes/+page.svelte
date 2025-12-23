@@ -1,8 +1,8 @@
 <script>
-    import { fade } from "svelte/transition";
     import LinkIcons from "$components/LinkIcons.svelte";
 
     let { data } = $props();
+    let qrMode = $state(data.qrMode ?? false);
 </script>
 
 <svelte:head>
@@ -15,7 +15,7 @@
 </svelte:head>
 
 <div class="container">
-    <LinkIcons links={data.links} defaultTitle="Morgan" qrMode={data.qrMode} />
+    <LinkIcons links={data.links} defaultTitle="Morgan" bind:qrMode />
 </div>
 
 <style>
