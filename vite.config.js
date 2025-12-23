@@ -45,6 +45,11 @@ export default defineConfig({
             return "vendor";
           }
 
+          // Isolate QR codes into a separate chunk
+          if (id.includes("generated-qr-codes")) {
+            return "qr-codes";
+          }
+
           // Split large jibs components
           if (id.includes("/src/jibs/")) {
             const match = id.match(/\/([^/]+)\.svelte$/);
