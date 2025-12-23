@@ -1,8 +1,7 @@
 <script>
-    import { onMount, tick } from "svelte";
-    import { Tween } from "svelte/motion";
-    import { cubicOut } from "svelte/easing";
+    import { onMount } from "svelte";
     import { fade } from "svelte/transition";
+    import { flip } from "svelte/animate";
     import QrGrid from "./QrGrid.svelte";
     import LinkSelector from "./LinkSelector.svelte";
 
@@ -31,11 +30,9 @@
     // Shared hover state between icon selector and QR grid
     let hoveredLink = $state(/** @type {string | null} */ (null));
 
-    // FLIP animation for LinkSelector
+    // Selector wrapper ref
     /** @type {HTMLDivElement | null} */
     let selectorWrapper = $state(null);
-    let selectorY = new Tween(0, { duration: 300, easing: cubicOut });
-    let lastY = $state(0);
 
     // Links to display in the QR grid
     let qrLinks = $derived.by(() => {
@@ -64,64 +61,17 @@
         selectedQrs = new Set(selectedQrs);
     }
 
-    async function toggleQrMode() {
-        if (!qrMode) {
-            // Activating QR mode
-            // Capture position before - batch DOM reads
-            let initialY = 0;
-            if (selectorWrapper) {
-                initialY = selectorWrapper.getBoundingClientRect().top;
-                lastY = initialY;
-            }
+    function toggleQrMode() {
+        qrMode = !qrMode;
 
-            qrMode = true;
+        if (qrMode) {
             // Update URL without navigation
             const url = new URL(window.location.href);
             url.searchParams.set("qr", "");
             window.history.pushState({}, "", url);
-
-            // After layout updates, calculate offset and animate
-            await tick();
-            if (selectorWrapper) {
-                const newY = selectorWrapper.getBoundingClientRect().top;
-                const deltaY = lastY - newY;
-                // Use requestAnimationFrame to batch with other DOM operations
-                requestAnimationFrame(() => {
-                    selectorY.set(deltaY, { duration: 0 }); // Start at old position
-                    selectorY.set(0, { duration: 300 }); // Animate to new position
-                });
-            }
         } else {
-            // Deactivating QR mode
-            // Batch DOM reads together to prevent forced reflow
-            let startY = 0;
-            let selectorHeight = 80;
-            if (selectorWrapper) {
-                const rect = selectorWrapper.getBoundingClientRect();
-                startY = rect.top;
-                selectorHeight = rect.height;
-            }
-
-            qrMode = false;
+            // Clear selected QRs when deactivating
             selectedQrs = new Set();
-
-            // The qr-area fades out over 250ms but layout won't change until it's gone.
-            // We need to animate the selector from bottom to center during this time.
-            // Calculate where it will end up (roughly center of viewport)
-            const viewportHeight = window.innerHeight;
-            const endY = (viewportHeight - selectorHeight) / 2 + 64; // Account for title
-            const deltaY = startY - endY;
-
-            // Animate from current position (0 offset) to negative delta (moving up)
-            requestAnimationFrame(() => {
-                selectorY.set(0, { duration: 0 });
-                selectorY.set(-deltaY, { duration: 350 });
-            });
-
-            // After animation completes, reset offset since layout will have changed
-            setTimeout(() => {
-                selectorY.set(0, { duration: 0 });
-            }, 360);
         }
     }
 
@@ -165,7 +115,7 @@
     <div
         class="selector-wrapper"
         bind:this={selectorWrapper}
-        style:transform="translateY({selectorY.current}px)"
+        animate:flip={{ duration: 300 }}
     >
         <LinkSelector
             {links}
@@ -211,7 +161,6 @@
 
     .selector-wrapper {
         width: 100%;
-        will-change: transform;
     }
 
     .title {
