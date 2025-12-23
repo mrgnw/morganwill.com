@@ -31,7 +31,7 @@
                 class="flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors relative group p-2"
                 style="width: {size}; height: {size};"
                 title={id}
-                on:click={() => copyToClipboard(id)}
+                onclick={() => copyToClipboard(id)}
             >
                 <Icon id={id} size={size} />
                 <span class="opacity-0 group-hover:opacity-100 absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-600 whitespace-nowrap transition-opacity">

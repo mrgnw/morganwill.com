@@ -10,7 +10,8 @@ A wrapper around @iconify/svelte for simpler usage, with support for pre-rendere
 </script>
 
 {#if component}
-    <svelte:component this={component} width={size} height={size} />
+    {@const SvelteComponent = component}
+    <SvelteComponent width={size} height={size} />
 {:else}
     <Icon icon={id} width={size} height={size} />
 {/if}

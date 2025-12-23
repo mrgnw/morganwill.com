@@ -133,7 +133,7 @@
 <div class="container p-6">
 	<h2 class="text-2xl font-semibold">Transfer Speeds</h2>
 	
-	<button class="button px-4 py-2 bg-blue-500 text-white rounded" on:click={toggleUnits}>
+	<button class="button px-4 py-2 bg-blue-500 text-white rounded" onclick={toggleUnits}>
 		Toggle Units
 	</button>
 	

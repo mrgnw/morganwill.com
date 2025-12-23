@@ -1,6 +1,6 @@
-import QRCode from 'qrcode';
-import { env } from '$env/dynamic/private';
-import { links as all_links } from '$lib/links.js';
+import QRCode from "qrcode";
+import { env } from "$env/dynamic/private";
+import { linkTemplates, buildLink } from "$lib/links.js";
 
 /** @typedef {import('$lib/links.js').Link} Link */
 
@@ -10,10 +10,10 @@ import { links as all_links } from '$lib/links.js';
  * @returns {function(): number}
  */
 function seededRandom(seed) {
-	return function() {
-		seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-		return seed / 0x7fffffff;
-	};
+  return function () {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
 }
 
 /**
@@ -23,12 +23,12 @@ function seededRandom(seed) {
  * @returns {Array}
  */
 function shuffleArray(array, random) {
-	const shuffled = [...array];
-	for (let i = shuffled.length - 1; i > 0; i--) {
-		const j = Math.floor(random() * (i + 1));
-		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-	}
-	return shuffled;
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 /**
@@ -38,149 +38,175 @@ function shuffleArray(array, random) {
  * @returns {string} SVG string with individual rect elements
  */
 function generateAnimatedQRSvg(text, size = 164) {
-	const qr = QRCode.create(text);
-	const modules = qr.modules;
-	const moduleCount = modules.size;
-	const moduleSize = size / moduleCount;
-	
-	// Collect all filled rects first
-	const allRects = [];
-	for (let row = 0; row < moduleCount; row++) {
-		for (let col = 0; col < moduleCount; col++) {
-			const idx = row * moduleCount + col;
-			if (modules.data[idx]) {
-				const x = col * moduleSize;
-				const y = row * moduleSize;
-				allRects.push({ x, y });
-			}
-		}
-	}
-	
-	// Shuffle rects using seeded random (seed from text hash for consistency)
-	const seed = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-	const random = seededRandom(seed);
-	const shuffledRects = shuffleArray(allRects, random);
-	
-	// Build SVG string with shuffled order
-	let rects = '';
-	shuffledRects.forEach((rect, index) => {
-		rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}" fill="currentColor"/>`;
-	});
-	
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${rects}</svg>`;
+  const qr = QRCode.create(text);
+  const modules = qr.modules;
+  const moduleCount = modules.size;
+  const moduleSize = size / moduleCount;
+
+  // Collect all filled rects first
+  const allRects = [];
+  for (let row = 0; row < moduleCount; row++) {
+    for (let col = 0; col < moduleCount; col++) {
+      const idx = row * moduleCount + col;
+      if (modules.data[idx]) {
+        const x = col * moduleSize;
+        const y = row * moduleSize;
+        allRects.push({ x, y });
+      }
+    }
+  }
+
+  // Shuffle rects using seeded random (seed from text hash for consistency)
+  const seed = text
+    .split("")
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const random = seededRandom(seed);
+  const shuffledRects = shuffleArray(allRects, random);
+
+  // Build SVG string with shuffled order
+  let rects = "";
+  shuffledRects.forEach((rect, index) => {
+    rects += `<rect x="${rect.x}" y="${rect.y}" width="${moduleSize}" height="${moduleSize}" data-i="${index}" fill="currentColor"/>`;
+  });
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${rects}</svg>`;
 }
 
 /**
- * Build private links from environment variables
- * These are not checked into the repository
- * @returns {Link[]}
+ * Default links to show for each hostname
  */
-function getPrivateLinks() {
-	/** @type {Link[]} */
-	const privateLinks = [];
-
-	if (env.PHONE_NUMBER) {
-		privateLinks.push({
-			title: 'phone',
-			alias: 'phone',
-			url: `tel:${env.PHONE_NUMBER}`,
-			shortUrl: `tel:${env.PHONE_NUMBER}`,
-			blurb: 'Call me',
-			colors: ['#34c759', '#28a745'],
-		});
-	}
-
-	if (env.WHATSAPP_NUMBER) {
-		// WhatsApp uses number without + or spaces
-		const waNumber = env.WHATSAPP_NUMBER.replace(/[^0-9]/g, '');
-		privateLinks.push({
-			title: 'whatsapp',
-			alias: 'wa',
-			url: `https://wa.me/${waNumber}`,
-			shortUrl: `https://wa.me/${waNumber}`,
-			blurb: 'Message on WhatsApp',
-			colors: ['#25D366', '#128C7E'],
-		});
-	}
-
-	return privateLinks;
-}
+const hostDefaults = {
+  "morganwill.com": ["linkedin", "github", "bluesky", "telegram", "cv"],
+  "zenfo.co": ["instagram", "bluesky", "telegram"],
+};
 
 /**
- * Get filtered links based on hostname and URL params
- * @param {Link[]} allLinks
- * @param {string} hostname
+ * Parse URL params to extract requested links and param overrides
+ * Returns both the links to display and any value overrides
+ * Handles ?wa=+1234567890&li or ?wa.li=value or ?links=li,tg formats
  * @param {URLSearchParams} urlParams
- * @returns {{ links: Link[], qrMode: boolean }}
+ * @returns {{ requestedTitles: string[] | null, overrides: Map<string, string>, qrMode: boolean }}
  */
-function getFilteredLinks(allLinks, hostname, urlParams) {
-	const linksParam = urlParams.get("links");
-	
-	// Check for ?links=li.tg.ig OR just ?li&tg&ig OR ?wa.li (keys as link identifiers)
-	const paramKeys = [...urlParams.keys()];
-	
-	// Split any keys that contain . or , (e.g., ?wa.li becomes ["wa", "li"])
-	const expandedKeys = paramKeys.flatMap(key => key.split(/[.,]/));
-	
-	// Check if qr mode is requested (via ?qr or ?li.tg.qr)
-	const qrMode = urlParams.has("qr") || expandedKeys.includes("qr");
-	
-	// Filter out "qr" from matching keys
-	const matchingKeys = expandedKeys.filter(key => 
-		key !== "qr" && allLinks.some(link => link.title === key || link.alias === key)
-	);
-	
-	let links;
-	if (linksParam) {
-		// Explicit ?links=li.tg.ig or ?links=li,tg,ig format
-		const requestedLinks = linksParam.split(/[.,]/).map(s => s.trim().toLowerCase()).filter(s => s !== "qr");
-		links = requestedLinks
-			.map(key => allLinks.find(link => link.title === key || link.alias === key))
-			.filter(Boolean);
-	} else if (matchingKeys.length > 0) {
-		// Shorthand ?li&tg&ig or ?wa.li format
-		links = matchingKeys
-			.map(key => allLinks.find(link => link.title === key || link.alias === key))
-			.filter(Boolean);
-	} else if (hostname === "morganwill.com") {
-		links = ["linkedin", "github", "bluesky", "telegram", "cv"]
-			.map(title => allLinks.find(link => link.title === title))
-			.filter(Boolean);
-	} else if (hostname === "zenfo.co") {
-		links = ["instagram", "blog", "bluesky", "telegram"]
-			.map(title => allLinks.find(link => link.title === title))
-			.filter(Boolean);
-	} else {
-		links = allLinks.filter(link => link.title !== "cv");
-	}
-	
-	return { links, qrMode };
+function parseUrlParams(urlParams) {
+  const overrides = new Map();
+  const qrMode = urlParams.has("qr");
+
+  // Check for explicit ?links=li,tg,ig format
+  const linksParam = urlParams.get("links");
+  if (linksParam) {
+    const requestedTitles = linksParam
+      .split(/[.,]/)
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s && s !== "qr");
+    return { requestedTitles, overrides, qrMode };
+  }
+
+  // Parse other params for values and titles
+  const paramKeys = [...urlParams.keys()];
+  const requestedTitles = [];
+
+  for (const key of paramKeys) {
+    if (key === "qr") continue;
+
+    // Handle dot-separated keys like ?wa.li=value
+    const keys = key.split(".");
+    const value = urlParams.get(key) || "";
+
+    for (const k of keys) {
+      if (k && k !== "qr") {
+        requestedTitles.push(k);
+        // Only store override if it has a value
+        if (value) {
+          overrides.set(k, value);
+        }
+      }
+    }
+  }
+
+  // Return null for requestedTitles if no params (use defaults)
+  return {
+    requestedTitles: requestedTitles.length > 0 ? requestedTitles : null,
+    overrides,
+    qrMode,
+  };
+}
+
+/**
+ * Get titles to display based on hostname and URL params
+ * @param {string} hostname
+ * @param {string[] | null} requestedTitles
+ * @returns {string[]}
+ */
+function getTitlesToDisplay(hostname, requestedTitles) {
+  if (requestedTitles) {
+    return requestedTitles;
+  }
+  return (
+    hostDefaults[hostname] || ["instagram", "linkedin", "bluesky", "telegram"]
+  );
+}
+
+/**
+ * Filter and build links with QR codes
+ * @param {Link[]} allLinks
+ * @param {string[]} titlesToShow
+ * @returns {Promise<Link[]>}
+ */
+async function buildLinksWithQr(allLinks, titlesToShow) {
+  // Filter to only requested titles
+  const filteredLinks = titlesToShow
+    .map((title) =>
+      allLinks.find((link) => link.title === title || link.alias === title),
+    )
+    .filter(Boolean);
+
+  // Generate QR codes only for displayed links
+  const linksWithQr = await Promise.all(
+    filteredLinks.map(async (link) => {
+      const qr = generateAnimatedQRSvg(link.url, 164);
+      return { ...link, qr };
+    }),
+  );
+
+  return linksWithQr;
 }
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ request, url }) {
-	// Get hostname from request headers (works with Cloudflare, proxies, etc.)
-	const hostname = request.headers.get('host')?.split(':')[0] 
-		?? url.hostname 
-		?? 'localhost';
-	
-	const combinedLinks = [...all_links, ...getPrivateLinks()];
+  // Get hostname from request headers (works with Cloudflare, proxies, etc.)
+  const hostname =
+    request.headers.get("host")?.split(":")[0] ?? url.hostname ?? "localhost";
 
-	const linksWithQr = await Promise.all(
-		combinedLinks.map(async (link) => {
-			const qrUrl = link.shortUrl ?? link.url;
-			// Always use our custom SVG format with fill="currentColor" for consistent styling
-			const qr = generateAnimatedQRSvg(qrUrl, 164);
-			return { ...link, qr };
-		})
-	);
+  // Parse URL params once
+  const {
+    requestedTitles,
+    overrides: paramOverrides,
+    qrMode,
+  } = parseUrlParams(url.searchParams);
 
-	const { links, qrMode } = getFilteredLinks(linksWithQr, hostname, url.searchParams);
+  // Build all links from templates with env/param values
+  const allLinks = linkTemplates
+    .map((template) => {
+      // Get value from params, then env, then defaults
+      const paramValue =
+        paramOverrides.get(template.title) ||
+        paramOverrides.get(template.alias) ||
+        null;
+      const envValue = template.envVar ? (env[template.envVar] ?? null) : null;
 
-	return {
-		links,
-		qrMode,
-		hostname,
-		all_links: linksWithQr
-	};
+      return buildLink(template, paramValue, envValue);
+    })
+    .filter(Boolean); // Filter out null links (missing values)
+
+  // Determine which titles to display
+  const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
+
+  // Build links with QR codes (only for displayed links)
+  const links = await buildLinksWithQr(allLinks, titlesToShow);
+
+  return {
+    links,
+    qrMode,
+    hostname,
+  };
 }
