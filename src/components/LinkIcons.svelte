@@ -115,7 +115,7 @@
     <div
         class="selector-wrapper"
         bind:this={selectorWrapper}
-        animate:flip={{ duration: 300 }}
+        style:transform="translateY({selectorY.current}px)"
     >
         <LinkSelector
             {links}
