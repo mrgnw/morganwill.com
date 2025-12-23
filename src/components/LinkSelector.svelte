@@ -1,38 +1,11 @@
 <script>
     import { fade } from "svelte/transition";
-    import {
-        Instagram,
-        Linkedin,
-        Github,
-        Bluesky,
-        Telegram,
-        Blog,
-        Cv,
-        Phone,
-        Whatsapp,
-        Line,
-        Signal,
-    } from "$lib/icons/index.js";
+    import Icon from "$lib/icons/Icon.svelte";
+    import { iconData } from "$lib/icons/data.js";
 
     /** @typedef {import('$lib/links.js').Link} Link */
-
-    /**
-     * Map of link titles to their icon components
-     * @type {Record<string, import('svelte').Component>}
-     */
-    const iconComponents = {
-        instagram: Instagram,
-        linkedin: Linkedin,
-        github: Github,
-        bluesky: Bluesky,
-        telegram: Telegram,
-        blog: Blog,
-        cv: Cv,
-        phone: Phone,
-        whatsapp: Whatsapp,
-        line: Line,
-        signal: Signal,
-    };
+    /** @type {Record<string, {viewBox: string, content: string}>} */
+    const icons = iconData;
 
     /**
      * @type {{
@@ -124,7 +97,7 @@
 >
     {#each links as { url, blurb, title }, index (title)}
         {@const isSelected = selectedQrs.has(title)}
-        {@const IconComponent = iconComponents[title]}
+        {@const icon = icons[title]}
         <a
             href={qrMode ? undefined : url}
             target="_blank"
@@ -171,8 +144,12 @@
             }}
             transition:fade={{ duration: 400, delay: 80 * index }}
         >
-            {#if IconComponent}
-                <IconComponent size={iconSize} />
+            {#if icon}
+                <Icon
+                    size={iconSize}
+                    viewBox={icon.viewBox}
+                    content={icon.content}
+                />
             {/if}
         </a>
     {/each}
@@ -214,18 +191,21 @@
 
     /* Hovered icon gets its brand color and full opacity */
     a:hover {
+        fill: var(--icon-color, var(--highlight));
         opacity: 1;
         transform: scale(1.05);
         filter: brightness(1.1);
     }
 
     .active {
+        fill: var(--icon-color, var(--highlight));
         opacity: 1;
         transform: scale(1.1);
     }
 
     .qr-selected {
         transform: scale(1.15);
+        fill: var(--icon-color, var(--highlight));
     }
 
     .qr-mode a:not(.qr-selected):not(:hover) {
