@@ -1,29 +1,9 @@
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import Icons from "unplugin-icons/vite";
-import { execSync } from "child_process";
-
-// Plugin to generate QR codes before build
-function generateQRPlugin() {
-	return {
-		name: "generate-qr-codes",
-		buildStart() {
-			console.log("Generating QR codes...");
-			try {
-				execSync("node scripts/generate-qr-codes.mjs", {
-					stdio: "inherit",
-					env: process.env,
-				});
-			} catch (error) {
-				console.warn("QR code generation failed:", error.message);
-			}
-		},
-	};
-}
 
 export default defineConfig({
 	plugins: [
-		generateQRPlugin(),
 		sveltekit(),
 		Icons({
 			compiler: "svelte",
