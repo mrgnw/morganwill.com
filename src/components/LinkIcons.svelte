@@ -12,7 +12,7 @@
 	 *   defaultTitle?: string,
 	 *   iconSize?: string,
 	 *   selected?: string | null,
-	 *   qrMode?: boolean
+	 *   initialQrMode?: boolean
 	 * }}
 	 */
 	let {
@@ -20,8 +20,11 @@
 		defaultTitle = "",
 		iconSize = "clamp(3.5em, 8vw, 5.5em)",
 		selected = $bindable(null),
-		qrMode = $bindable(false),
+		initialQrMode = false,
 	} = $props();
+
+	// Internal state for QR mode
+	let qrMode = $state(initialQrMode);
 
 	// Set of link titles to show QRs for (when in qrMode)
 	let selectedQrs = $state(/** @type {Set<string>} */ (new Set()));
