@@ -8,57 +8,60 @@ import { addCopyButton } from "shiki-transformer-copy-button";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  kit: {
-    experimental: {
-      remoteFunctions: true,
-    },
-    alias: {
-      $components: "./src/components",
-      "@/*": "./src/lib/*",
-      $jibs: "./src/jibs/*",
-      $content: "./src/content/*",
-    },
-    adapter: adapter({
-      pages: "build",
-      assets: "build",
-      fallback: "index.html",
-      precompress: true,
-      strict: true,
-      routes: {
-        include: ["/*"],
-        exclude: ["<all>"],
-      },
-    }),
-  },
+	kit: {
+		serviceWorker: {
+			register: false,
+		},
+		experimental: {
+			remoteFunctions: true,
+		},
+		alias: {
+			$components: "./src/components",
+			"@/*": "./src/lib/*",
+			$jibs: "./src/jibs/*",
+			$content: "./src/content/*",
+		},
+		adapter: adapter({
+			pages: "build",
+			assets: "build",
+			fallback: "index.html",
+			precompress: true,
+			strict: true,
+			routes: {
+				include: ["/*"],
+				exclude: ["<all>"],
+			},
+		}),
+	},
 
-  preprocess: [
-    preprocess({
-      postcss: true,
-    }),
-    mdsvex({
-      extensions: [".md"],
-      highlight: {
-        highlighter: async (code, lang) => {
-          const html = await codeToHtml(code, {
-            lang,
-            theme: "github-dark",
-            transformers: [
-              addCopyButton({
-                copy: "Copy",
-                copied: "Copied!",
-                copyIcon: "<svg>...</svg>",
-                checkIcon: "<svg>...</svg>",
-              }),
-            ],
-          });
-          return `{@html \`${html}\`}`;
-        },
-      },
-    }),
-    vitePreprocess({}),
-  ],
+	preprocess: [
+		preprocess({
+			postcss: true,
+		}),
+		mdsvex({
+			extensions: [".md"],
+			highlight: {
+				highlighter: async (code, lang) => {
+					const html = await codeToHtml(code, {
+						lang,
+						theme: "github-dark",
+						transformers: [
+							addCopyButton({
+								copy: "Copy",
+								copied: "Copied!",
+								copyIcon: "<svg>...</svg>",
+								checkIcon: "<svg>...</svg>",
+							}),
+						],
+					});
+					return `{@html \`${html}\`}`;
+				},
+			},
+		}),
+		vitePreprocess({}),
+	],
 
-  extensions: [".svelte", ".svx"],
+	extensions: [".svelte", ".svx"],
 };
 
 export default config;
