@@ -3,13 +3,17 @@ import QRCode from "qrcode";
 /**
  * Generate QR code SVG for a given URL
  * Uses Cloudflare Cache API to cache results globally
+ * This is a remote function that can be called from the client
  * @param {string} url - URL to encode
  * @param {string} title - Link title for cache key
  * @returns {Promise<string>} SVG string
  */
 export async function generateQR(url, title) {
+	"use server";
 	// Create cache key
-	const cacheKey = new URL(`https://qr-cache.internal/${title}?url=${encodeURIComponent(url)}`);
+	const cacheKey = new URL(
+		`https://qr-cache.internal/${title}?url=${encodeURIComponent(url)}`,
+	);
 
 	// Try to get from Cloudflare cache first
 	const cache = caches.default;
@@ -52,8 +56,8 @@ export async function generateQR(url, title) {
 		// Cache for 1 year - will be purged on new deployments if needed
 		const cacheResponse = new Response(svg, {
 			headers: {
-				'Content-Type': 'image/svg+xml',
-				'Cache-Control': 'public, max-age=31536000, immutable',
+				"Content-Type": "image/svg+xml",
+				"Cache-Control": "public, max-age=31536000, immutable",
 			},
 		});
 
