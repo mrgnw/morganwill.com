@@ -46,7 +46,7 @@ function extractTitlesAndQr(str) {
  */
 function parseUrlParams(urlParams) {
 	const overrides = new Map();
-	let qrMode = false;
+	let qrMode = urlParams.has("qr");
 	const requestedTitles = [];
 
 	for (const key of urlParams.keys()) {
