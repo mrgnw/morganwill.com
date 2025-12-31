@@ -1,5 +1,9 @@
 import QRCode from "qrcode";
-import { linkTemplates, buildLink } from "../src/lib/links.js";
+import {
+	linkTemplates,
+	buildLink,
+	parseCustomLinks,
+} from "../src/lib/links.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { writeFileSync, readFileSync, existsSync } from "fs";
@@ -14,17 +18,17 @@ const __dirname = dirname(__filename);
  * @returns {string[]}
  */
 function shuffleWithSeed(array, seed) {
-  const shuffled = [...array];
-  let rng = seed;
+	const shuffled = [...array];
+	let rng = seed;
 
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    // Seeded random: linear congruential generator
-    rng = (rng * 1103515245 + 12345) & 0x7fffffff;
-    const j = Math.floor((rng / 0x7fffffff) * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		// Seeded random: linear congruential generator
+		rng = (rng * 1103515245 + 12345) & 0x7fffffff;
+		const j = Math.floor((rng / 0x7fffffff) * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+	}
 
-  return shuffled;
+	return shuffled;
 }
 
 /**
@@ -35,33 +39,33 @@ function shuffleWithSeed(array, seed) {
  * @returns {string} SVG string with rect elements (fill="currentColor")
  */
 function generateOptimizedQRSvg(text, size = 164) {
-  const qr = QRCode.create(text);
-  const modules = qr.modules;
-  const moduleCount = modules.size;
-  const moduleSize = size / moduleCount;
+	const qr = QRCode.create(text);
+	const modules = qr.modules;
+	const moduleCount = modules.size;
+	const moduleSize = size / moduleCount;
 
-  // Build rects for filled modules
-  const rects = [];
-  for (let row = 0; row < moduleCount; row++) {
-    for (let col = 0; col < moduleCount; col++) {
-      const idx = row * moduleCount + col;
-      if (modules.data[idx]) {
-        const x = col * moduleSize;
-        const y = row * moduleSize;
-        rects.push(
-          `<rect x="${x}" y="${y}" width="${moduleSize}" height="${moduleSize}" fill="currentColor"/>`,
-        );
-      }
-    }
-  }
+	// Build rects for filled modules
+	const rects = [];
+	for (let row = 0; row < moduleCount; row++) {
+		for (let col = 0; col < moduleCount; col++) {
+			const idx = row * moduleCount + col;
+			if (modules.data[idx]) {
+				const x = col * moduleSize;
+				const y = row * moduleSize;
+				rects.push(
+					`<rect x="${x}" y="${y}" width="${moduleSize}" height="${moduleSize}" fill="currentColor"/>`,
+				);
+			}
+		}
+	}
 
-  // Shuffle rects using seeded random (seed from text hash for consistency)
-  const seed = text
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const shuffled = shuffleWithSeed(rects, seed);
+	// Shuffle rects using seeded random (seed from text hash for consistency)
+	const seed = text
+		.split("")
+		.reduce((acc, char) => acc + char.charCodeAt(0), 0);
+	const shuffled = shuffleWithSeed(rects, seed);
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${shuffled.join("")}</svg>`;
+	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="overflow:visible">${shuffled.join("")}</svg>`;
 }
 
 /**
@@ -69,92 +73,118 @@ function generateOptimizedQRSvg(text, size = 164) {
  * @returns {Object<string, string>}
  */
 function loadExistingQRCodes() {
-  const outputPath = join(__dirname, "../src/lib/generated-qr-codes.js");
-  if (!existsSync(outputPath)) {
-    return {};
-  }
+	const outputPath = join(__dirname, "../src/lib/generated-qr-codes.js");
+	if (!existsSync(outputPath)) {
+		return {};
+	}
 
-  try {
-    const content = readFileSync(outputPath, "utf-8");
-    // Extract the object from the export statement
-    const match = content.match(
-      /export const preGeneratedQRCodes = ({[\s\S]*});/,
-    );
-    if (match) {
-      return JSON.parse(match[1]);
-    }
-  } catch (err) {
-    console.warn("Could not load existing QR codes, regenerating all");
-  }
+	try {
+		const content = readFileSync(outputPath, "utf-8");
+		// Extract the object from the export statement
+		const match = content.match(
+			/export const preGeneratedQRCodes = ({[\s\S]*});/,
+		);
+		if (match) {
+			return JSON.parse(match[1]);
+		}
+	} catch (err) {
+		console.warn("Could not load existing QR codes, regenerating all");
+	}
 
-  return {};
+	return {};
 }
 
 async function generateQRCodes() {
-  const env = process.env;
+	const env = process.env;
 
-  // Build all links from templates
-  const linksToGenerate = [];
-  for (const template of linkTemplates) {
-    let link = null;
+	// Count existing links by type (for CUSTOM_LINKS auto-naming)
+	const existingCounts = new Map();
+	for (const template of linkTemplates) {
+		if (template.envVar && env[template.envVar]) {
+			existingCounts.set(
+				template.title,
+				(existingCounts.get(template.title) || 0) + 1,
+			);
+		}
+	}
 
-    if (template.url) {
-      link = buildLink(template, null, null);
-    } else if (template.urlTemplate && template.envVar) {
-      const envValue = env[template.envVar] || null;
-      link = buildLink(template, null, envValue);
-    }
+	// Parse custom links from CUSTOM_LINKS env var
+	const customLinkTemplates = parseCustomLinks(
+		env.CUSTOM_LINKS,
+		existingCounts,
+	);
 
-    if (link) {
-      linksToGenerate.push({ template, link });
-    }
-  }
+	// Combine base templates with custom templates
+	const allTemplates = [...linkTemplates, ...customLinkTemplates];
 
-  // Load existing QR codes to check for changes
-  const existingQRCodes = loadExistingQRCodes();
-  const newQRCodes = {};
-  let generatedCount = 0;
+	// Build all links from templates
+	const linksToGenerate = [];
+	for (const template of allTemplates) {
+		let link = null;
 
-  // Generate QR codes only for links that exist or have changed URLs
-  for (const { template, link } of linksToGenerate) {
-    const existingSvg = existingQRCodes[link.title];
+		if (template.url) {
+			link = buildLink(template, null, null);
+		} else if (template.urlTemplate) {
+			// For custom links with __customValue, use that directly
+			let envValue = null;
+			if (template.__customValue !== undefined) {
+				envValue = template.__customValue;
+			} else if (template.envVar) {
+				envValue = env[template.envVar] || null;
+			}
+			link = buildLink(template, null, envValue);
+		}
 
-    // Check if URL has changed or QR doesn't exist
-    let shouldRegenerate = !existingSvg;
+		if (link) {
+			linksToGenerate.push({ template, link });
+		}
+	}
 
-    if (!shouldRegenerate && existingSvg) {
-      // Simple check: if SVG starts with same XML structure, assume URL is same
-      // A more robust check would parse the URL from the SVG, but this is fast
-      shouldRegenerate = !existingSvg.includes("svg");
-    }
+	// Load existing QR codes to check for changes
+	const existingQRCodes = loadExistingQRCodes();
+	const newQRCodes = {};
+	let generatedCount = 0;
 
-    if (shouldRegenerate) {
-      const qrSvg = generateOptimizedQRSvg(link.url, 164);
-      newQRCodes[link.title] = qrSvg;
-      console.log(`✓ Generated QR code for ${link.title}`);
-      generatedCount++;
-    } else {
-      // Reuse existing QR code
-      newQRCodes[link.title] = existingSvg;
-      console.log(`→ Reused QR code for ${link.title}`);
-    }
-  }
+	// Generate QR codes only for links that exist or have changed URLs
+	for (const { template, link } of linksToGenerate) {
+		const existingSvg = existingQRCodes[link.title];
 
-  // Write to file
-  const outputPath = join(__dirname, "../src/lib/generated-qr-codes.js");
-  const content = `// This file is auto-generated by scripts/generate-qr-codes.mjs
+		// Check if URL has changed or QR doesn't exist
+		let shouldRegenerate = !existingSvg;
+
+		if (!shouldRegenerate && existingSvg) {
+			// Simple check: if SVG starts with same XML structure, assume URL is same
+			// A more robust check would parse the URL from the SVG, but this is fast
+			shouldRegenerate = !existingSvg.includes("svg");
+		}
+
+		if (shouldRegenerate) {
+			const qrSvg = generateOptimizedQRSvg(link.url, 164);
+			newQRCodes[link.title] = qrSvg;
+			console.log(`✓ Generated QR code for ${link.title}`);
+			generatedCount++;
+		} else {
+			// Reuse existing QR code
+			newQRCodes[link.title] = existingSvg;
+			console.log(`→ Reused QR code for ${link.title}`);
+		}
+	}
+
+	// Write to file
+	const outputPath = join(__dirname, "../src/lib/generated-qr-codes.js");
+	const content = `// This file is auto-generated by scripts/generate-qr-codes.mjs
 // Do not edit manually
 
 export const preGeneratedQRCodes = ${JSON.stringify(newQRCodes, null, 2)};
 `;
 
-  writeFileSync(outputPath, content, "utf-8");
-  console.log(
-    `\n✓ QR codes written to ${outputPath} (${generatedCount} generated, ${Object.keys(newQRCodes).length - generatedCount} reused)`,
-  );
+	writeFileSync(outputPath, content, "utf-8");
+	console.log(
+		`\n✓ QR codes written to ${outputPath} (${generatedCount} generated, ${Object.keys(newQRCodes).length - generatedCount} reused)`,
+	);
 }
 
 generateQRCodes().catch((err) => {
-  console.error("Error generating QR codes:", err);
-  process.exit(1);
+	console.error("Error generating QR codes:", err);
+	process.exit(1);
 });
