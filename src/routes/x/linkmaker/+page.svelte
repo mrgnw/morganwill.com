@@ -16,6 +16,46 @@
 	 * Add a new link to the list
 	 */
 	async function addLink() {
+		// Special handling for 'url' type - just needs a URL
+		if (selectedType === "url") {
+			if (!inputValue) return;
+
+			// Save the URL before resetting
+			const url = inputValue;
+
+			// Add link to list immediately without QR
+			const urlCount = links.filter((l) => l.type === "url").length;
+			const title = `url-${urlCount + 1}`;
+			const newLink = {
+				type: "url",
+				title,
+				alias: "url",
+				value: url,
+				url,
+				qr: null, // Will be generated asynchronously
+				colors: ["#888"],
+				blurb: "Custom URL",
+			};
+
+			links.push(newLink);
+			const linkIndex = links.length - 1;
+
+			// Reset form
+			inputValue = "";
+
+			// Generate QR code asynchronously
+			try {
+				const qr = await generateQR({ url, title });
+				links[linkIndex].qr = qr;
+				links = links;
+			} catch (err) {
+				console.error("Failed to generate QR:", err);
+				links[linkIndex].qr = "error";
+				links = links;
+			}
+			return;
+		}
+
 		if (!selectedType || !inputValue) return;
 
 		const template = linkTemplates.find((t) => t.title === selectedType);
@@ -186,6 +226,34 @@
 	<div class="link-form">
 		<div class="form-row">
 			<div class="icon-grid">
+				<!-- URL button (always first) -->
+				<button
+					type="button"
+					class="icon-button"
+					class:selected={selectedType === "url"}
+					style="--icon-color: #888"
+					onclick={() => (selectedType = "url")}
+					title="Custom URL"
+				>
+					<svg
+						width="32"
+						height="32"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path
+							d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+						/>
+						<path
+							d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+						/>
+					</svg>
+				</button>
+
 				{#each linkTypes as type}
 					{#if iconData[type.title]}
 						<button
@@ -208,9 +276,11 @@
 
 			<input
 				bind:value={inputValue}
-				placeholder={selectedType
-					? `Enter ${selectedType} value`
-					: "Select an icon and enter value"}
+				placeholder={selectedType === "url"
+					? "Paste any URL"
+					: selectedType
+						? `Enter ${selectedType} value`
+						: "Select an icon and enter value"}
 				class="value-input"
 			/>
 
@@ -228,7 +298,25 @@
 				>
 				<div class="card-header">
 					<div class="card-icon" style="color: {link.colors[0]}">
-						{#if iconData[link.type]}
+						{#if link.type === "url"}
+							<svg
+								width="20"
+								height="20"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path
+									d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+								/>
+								<path
+									d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+								/>
+							</svg>
+						{:else if iconData[link.type]}
 							<Icon
 								viewBox={iconData[link.type].viewBox}
 								content={iconData[link.type].content}
@@ -369,7 +457,6 @@
 		background: white;
 	}
 
-	.type-selector:hover,
 	.value-input:hover {
 		border-color: #9ca3af;
 	}
