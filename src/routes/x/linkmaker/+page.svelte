@@ -73,6 +73,21 @@
 	}
 
 	/**
+	 * Download QR code as SVG
+	 */
+	function downloadQR(link, index) {
+		if (!link.qr) return;
+
+		const blob = new Blob([link.qr], { type: "image/svg+xml" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = `${link.type}-qr.svg`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	/**
 	 * Generate and download vCard v4.0
 	 */
 	function downloadVCard() {
@@ -170,56 +185,68 @@
 
 	<div class="link-form">
 		<div class="form-row">
-			<div class="type-selector-wrapper">
-				{#if selectedType && iconData[selectedType]}
-					<div
-						class="selected-icon"
-						style="color: {linkTemplates.find(
-							(t) => t.title === selectedType,
-						)?.colors[0]}"
-					>
-						<Icon id={selectedType} size="24px" />
-					</div>
-				{/if}
-				<select bind:value={selectedType} class="type-selector">
-					<option value="">Select type</option>
-					{#each linkTypes as type}
-						<option value={type.title}>
-							{type.title}
-						</option>
-					{/each}
-				</select>
+			<div class="icon-grid">
+				{#each linkTypes as type}
+					{#if iconData[type.title]}
+						<button
+							type="button"
+							class="icon-button"
+							class:selected={selectedType === type.title}
+							style="--icon-color: {type.colors[0]}"
+							onclick={() => (selectedType = type.title)}
+							title={type.title}
+						>
+							<Icon
+								viewBox={iconData[type.title].viewBox}
+								content={iconData[type.title].content}
+								size="32px"
+							/>
+						</button>
+					{/if}
+				{/each}
 			</div>
 
 			<input
 				bind:value={inputValue}
 				placeholder={selectedType
 					? `Enter ${selectedType} value`
-					: "Enter value"}
+					: "Select an icon and enter value"}
 				class="value-input"
 			/>
 
-			<button onclick={addLink} class="add-button">Add</button>
+			<button onclick={addLink} class="add-button">Add Link</button>
 		</div>
 	</div>
 
-	<div class="links-list">
+	<div class="links-grid">
 		{#each links as link, i}
-			<div class="link-item">
-				<div class="link-icon" style="color: {link.colors[0]}">
-					{#if iconData[link.type]}
-						<Icon id={link.type} size="40px" />
-					{/if}
-				</div>
-				<a
-					href={link.url}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="link-value"
+			<div class="link-card">
+				<button
+					onclick={() => removeLink(i)}
+					class="card-remove"
+					title="Remove">×</button
 				>
-					{link.value || link.url}
-				</a>
-				<div class="link-qr">
+				<div class="card-header">
+					<div class="card-icon" style="color: {link.colors[0]}">
+						{#if iconData[link.type]}
+							<Icon
+								viewBox={iconData[link.type].viewBox}
+								content={iconData[link.type].content}
+								size="20px"
+							/>
+						{/if}
+					</div>
+					<a
+						href={link.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="card-value"
+						style="color: {link.colors[0]}"
+					>
+						{link.value || link.url}
+					</a>
+				</div>
+				<div class="card-qr">
 					{#if link.qr}
 						<ColoredQr
 							qr={link.qr}
@@ -231,9 +258,6 @@
 						<div class="qr-loading">Loading...</div>
 					{/if}
 				</div>
-				<button onclick={() => removeLink(i)} class="remove-button"
-					>×</button
-				>
 			</div>
 		{/each}
 	</div>
@@ -247,7 +271,7 @@
 
 <style>
 	.container {
-		max-width: 900px;
+		max-width: 700px;
 		margin: 0 auto;
 		padding: 2rem 1rem;
 	}
@@ -257,52 +281,65 @@
 		margin-bottom: 1.5rem;
 		color: var(--primary, #000);
 		font-weight: 600;
+		text-align: center;
 	}
 
 	.link-form {
-		margin-bottom: 1.5rem;
+		margin-bottom: 2rem;
 		background: #f9fafb;
-		padding: 1.25rem;
+		padding: 1.5rem;
 		border-radius: 12px;
 		border: 1px solid #e5e7eb;
 	}
 
 	.form-row {
-		display: grid;
-		grid-template-columns: 220px 320px auto;
+		display: flex;
+		flex-direction: column;
 		gap: 0.75rem;
-		align-items: center;
 	}
 
-	.type-selector-wrapper {
-		position: relative;
+	.icon-grid {
 		display: flex;
-		align-items: center;
-	}
-
-	.selected-icon {
-		position: absolute;
-		left: 0.75rem;
-		pointer-events: none;
-		display: flex;
-		align-items: center;
-		z-index: 1;
-	}
-
-	.type-selector {
+		flex-wrap: wrap;
+		gap: 0.5rem;
 		width: 100%;
-		padding: 0.65rem 0.75rem;
-		padding-left: 3rem;
-		border: 1px solid #d1d5db;
-		border-radius: 8px;
-		font-size: 0.95rem;
-		background: white;
+	}
+
+	.icon-button {
+		padding: 0.5rem;
+		border: none;
+		background: transparent;
 		cursor: pointer;
 		transition: all 0.2s;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #9ca3af;
+	}
+
+	.icon-button :global(svg) {
+		transition: transform 0.2s;
+	}
+
+	.icon-button:hover {
+		color: var(--icon-color);
+	}
+
+	.icon-button:hover :global(svg) {
+		transform: scale(1.1);
+	}
+
+	.icon-button.selected {
+		color: var(--icon-color);
+	}
+
+	.icon-button.selected :global(svg) {
+		transform: scale(1.15);
 	}
 
 	.value-input {
-		padding: 0.65rem 0.75rem;
+		width: 100%;
+		padding: 0.75rem 0.875rem;
 		border: 1px solid #d1d5db;
 		border-radius: 8px;
 		font-size: 0.95rem;
@@ -315,21 +352,26 @@
 		border-color: #9ca3af;
 	}
 
-	.type-selector:focus,
 	.value-input:focus {
 		outline: none;
 		border-color: #3b82f6;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
+	.icon-button:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+	}
+
 	.add-button {
-		padding: 0.65rem 1.5rem;
+		width: 100%;
+		padding: 0.75rem 1.5rem;
 		background: #3b82f6;
 		color: white;
 		border: none;
 		border-radius: 8px;
 		font-size: 0.95rem;
-		font-weight: 500;
+		font-weight: 600;
 		cursor: pointer;
 		transition: all 0.2s;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -345,95 +387,110 @@
 		transform: translateY(0);
 	}
 
-	.links-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+	.add-button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	.links-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+		gap: 1.5rem;
 		margin-bottom: 2rem;
 	}
 
-	.link-item {
-		display: grid;
-		grid-template-columns: auto 1fr auto auto;
-		gap: 1.25rem;
-		padding: 1rem 1.25rem;
-		border: 1px solid #e5e7eb;
-		border-radius: 10px;
+	.link-card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+	}
+
+	.card-remove {
+		position: absolute;
+		top: -0.5rem;
+		right: -0.5rem;
+		width: 20px;
+		height: 20px;
+		display: flex;
 		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.6);
+		color: white;
+		border: none;
+		border-radius: 50%;
+		font-size: 0.875rem;
+		line-height: 1;
+		cursor: pointer;
+		opacity: 0;
+		transition: all 0.2s;
+		z-index: 10;
+	}
+
+	.link-card:hover .card-remove {
+		opacity: 1;
+	}
+
+	.card-remove:hover {
+		background: #ef4444;
+		transform: scale(1.15);
+	}
+
+	.card-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding-bottom: 0.25rem;
+	}
+
+	.card-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.card-value {
+		font-size: 0.8rem;
+		text-decoration: none;
+		font-weight: 600;
+		word-break: break-all;
+		transition: opacity 0.2s;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.card-value:hover {
+		opacity: 0.7;
+		text-decoration: underline;
+	}
+
+	.card-qr {
+		width: 100%;
+		aspect-ratio: 1;
 		background: white;
-		transition:
-			box-shadow 0.2s,
-			border-color 0.2s;
-	}
-
-	.link-item:hover {
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-		border-color: #d1d5db;
-	}
-
-	.link-icon {
+		border-radius: 0;
+		padding: 0.5rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
 
-	.link-value {
-		font-size: 1rem;
-		color: var(--primary, #000);
-		text-decoration: none;
-		font-weight: 500;
-		word-break: break-all;
-		transition: color 0.2s;
-	}
-
-	.link-value:hover {
-		color: #3b82f6;
-		text-decoration: underline;
-	}
-
-	.link-qr {
-		width: 70px;
-		height: 70px;
-	}
-
-	.link-qr :global(svg) {
+	.card-qr :global(svg) {
 		width: 100%;
 		height: 100%;
 	}
 
 	.qr-loading {
-		width: 70px;
-		height: 70px;
+		width: 100%;
+		height: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		color: #9ca3af;
 		font-size: 0.7rem;
-		background: #f3f4f6;
-		border-radius: 6px;
-	}
-
-	.remove-button {
-		width: 30px;
-		height: 30px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: #ef4444;
-		color: white;
-		border: none;
-		border-radius: 50%;
-		font-size: 1.25rem;
-		line-height: 1;
-		cursor: pointer;
-		transition: all 0.2s;
-		opacity: 0.8;
-	}
-
-	.remove-button:hover {
-		background: #dc2626;
-		opacity: 1;
-		transform: scale(1.1);
+		background: #f9fafb;
 	}
 
 	.download-vcard {
@@ -470,35 +527,26 @@
 			border-color: #374151;
 		}
 
-		.type-selector,
+		.icon-button {
+			color: #6b7280;
+		}
+
 		.value-input {
 			background: #111827;
 			border-color: #374151;
 			color: #f9fafb;
 		}
 
-		.type-selector:hover,
 		.value-input:hover {
 			border-color: #4b5563;
 		}
 
-		.link-item {
-			background: #1f2937;
-			border-color: #374151;
-		}
-
-		.link-item:hover {
-			border-color: #4b5563;
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-		}
-
-		.link-value {
-			color: #f9fafb;
-		}
-
 		.qr-loading {
 			background: #111827;
-			color: #6b7280;
+		}
+
+		.card-qr {
+			background: white;
 		}
 	}
 </style>
