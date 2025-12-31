@@ -1,5 +1,6 @@
 import { env } from "$env/dynamic/private";
 import { linkTemplates, buildLink, parseCustomLinks } from "$lib/links.js";
+import { generateQR } from "$lib/server/generateQR.js";
 
 /** @typedef {import('$lib/links.js').Link} Link */
 /** @typedef {import('$lib/links.js').LinkTemplate} LinkTemplate */
@@ -91,12 +92,13 @@ function getTitlesToDisplay(hostname, requestedTitles) {
 }
 
 /**
- * Attach pre-generated QR codes to links
+ * Attach pre-generated QR codes to links, or generate on-demand with Cloudflare caching
  * @param {Link[]} allLinks
  * @param {string[]} titlesToShow
+ * @param {boolean} qrMode - Whether QR codes are needed
  * @returns {Promise<Link[]>}
  */
-async function buildLinksWithQr(allLinks, titlesToShow) {
+async function buildLinksWithQr(allLinks, titlesToShow, qrMode) {
 	// Filter to only requested titles
 	const filteredLinks = titlesToShow
 		.map((title) =>
@@ -104,7 +106,12 @@ async function buildLinksWithQr(allLinks, titlesToShow) {
 		)
 		.filter(Boolean);
 
-	// Always load QR codes (same as /qr page)
+	// If QR mode is not active, skip QR generation entirely
+	if (!qrMode) {
+		return /** @type {Link[]} */ (filteredLinks);
+	}
+
+	// Load pre-generated QR codes
 	/** @type {Record<string, string>} */
 	let preGeneratedQRCodes = {};
 	try {
@@ -114,11 +121,19 @@ async function buildLinksWithQr(allLinks, titlesToShow) {
 		console.warn("Failed to load pre-generated QR codes", err);
 	}
 
-	// Attach pre-generated QR codes to links
-	const linksWithQr = /** @type {Link[]} */ (filteredLinks).map((link) => {
-		const qr = preGeneratedQRCodes[link.title];
-		return { ...link, qr };
-	});
+	// Attach pre-generated QR codes, or generate missing ones
+	const linksWithQr = await Promise.all(
+		/** @type {Link[]} */ (filteredLinks).map(async (link) => {
+			let qr = preGeneratedQRCodes[link.title];
+
+			// If QR code doesn't exist, generate it with Cloudflare caching
+			if (!qr && link.url) {
+				qr = await generateQR(link.url, link.title);
+			}
+
+			return { ...link, qr };
+		}),
+	);
 
 	return linksWithQr;
 }
@@ -185,8 +200,8 @@ export async function load({ request, url }) {
 	// Determine which titles to display
 	const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
 
-	// Build links with QR codes (always load them, same as /qr page)
-	const links = await buildLinksWithQr(allLinks, titlesToShow);
+	// Build links with QR codes (lazy load - only when qrMode is active)
+	const links = await buildLinksWithQr(allLinks, titlesToShow, qrMode);
 
 	return {
 		links,
