@@ -209,10 +209,8 @@
 		opacity: 1;
 	}
 
-	@media (prefers-color-scheme: dark) {
-		a {
-			--icon-color: color-mix(in oklch, var(--icon-color) 60%, white);
-		}
+	:global(.dark) a {
+		--icon-color: color-mix(in oklch, var(--icon-color) 60%, white);
 	}
 
 	.qr-selected :global(svg) {

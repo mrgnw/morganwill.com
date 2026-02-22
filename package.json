@@ -47,6 +47,7 @@
 		"@sveltejs/kit": "^2.8.1",
 		"clsx": "^2.1.1",
 		"lucide-svelte": "^0.460.1",
+		"mode-watcher": "^1.1.0",
 		"qrcode": "^1.5.4",
 		"svelte-sonner": "^0.3.28",
 		"tailwind-merge": "^2.5.4",

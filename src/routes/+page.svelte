@@ -1,5 +1,6 @@
 <script>
 	import LinkIcons from "$components/LinkIcons.svelte";
+	import ThemeToggle from "$components/ThemeToggle.svelte";
 
 	let { data } = $props();
 </script>
@@ -21,6 +22,8 @@
 	/>
 </div>
 
+<ThemeToggle />
+
 <style>
 	:root {
 		--primary: #000000;
@@ -31,14 +34,13 @@
 		background-color: var(--bg);
 	}
 
-	@media (prefers-color-scheme: dark) {
-		:root {
-			--primary: white;
-			--highlight: rgb(120, 180, 255);
-			--default: rgba(255, 255, 255, 0.8);
-			--qr: white;
-			--bg: #000000;
-		}
+	:global(html.dark) {
+		--primary: white;
+		--highlight: rgb(120, 180, 255);
+		--default: rgba(255, 255, 255, 0.8);
+		--qr: white;
+		--bg: #000000;
+		background-color: var(--bg);
 	}
 
 	:global(html, body) {
