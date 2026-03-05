@@ -278,7 +278,7 @@
         line-height: 1;
         text-align: center;
         padding: 0.25em 0.5em;
-        transition: color 0.2s ease;
+        transition: color 0.3s ease;
         z-index: 2;
         position: relative;
         opacity: 0;

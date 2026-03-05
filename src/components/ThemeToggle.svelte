@@ -20,26 +20,40 @@
 		cursor: pointer;
 		padding: 0.5rem;
 		border-radius: 0.5rem;
+		width: 40px;
+		height: 40px;
 		color: var(--default, rgba(0, 0, 0, 0.5));
 		opacity: 0.4;
-		transition: opacity 0.2s ease;
+		transition: opacity 0.3s ease, color 0.3s ease;
 	}
 
 	button:hover {
 		opacity: 0.8;
 	}
 
+	button :global(.sun),
+	button :global(.moon) {
+		position: absolute;
+		top: 0.5rem;
+		left: 0.5rem;
+		transition: opacity 0.3s ease, transform 0.3s ease;
+	}
+
 	button :global(.sun) {
-		display: block;
+		opacity: 1;
+		transform: rotate(0deg);
 	}
 	button :global(.moon) {
-		display: none;
+		opacity: 0;
+		transform: rotate(-90deg);
 	}
 
 	:global(.dark) button :global(.sun) {
-		display: none;
+		opacity: 0;
+		transform: rotate(90deg);
 	}
 	:global(.dark) button :global(.moon) {
-		display: block;
+		opacity: 1;
+		transform: rotate(0deg);
 	}
 </style>

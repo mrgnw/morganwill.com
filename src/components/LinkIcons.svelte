@@ -101,12 +101,12 @@
 
 <div class="link-icons" class:qr-mode={qrMode}>
 	{#if qrMode}
-		<div class="qr-area">
+		<div class="qr-area" transition:fade={{ duration: 200 }}>
 			<QrGrid links={qrLinks} {hoveredLink} />
 		</div>
 	{:else}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<main>
+		<main transition:fade={{ duration: 200 }}>
 			<h1 class="title" ondblclick={toggleQrMode}>
 				{selected ?? defaultTitle}
 			</h1>
@@ -177,7 +177,7 @@
 		color: var(--default);
 		text-decoration: none;
 		opacity: 0.7;
-		transition: opacity 0.2s ease, color 0.2s ease;
+		transition: opacity 0.3s ease, color 0.3s ease;
 	}
 
 	.email-link:hover {
@@ -197,5 +197,6 @@
 		user-select: none;
 		min-height: 128px;
 		z-index: 50;
+		transition: color 0.3s ease;
 	}
 </style>

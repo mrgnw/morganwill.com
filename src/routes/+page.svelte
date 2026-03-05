@@ -49,6 +49,7 @@
 		margin: 0;
 		padding: 0;
 		background-color: var(--bg);
+		transition: background-color 0.3s ease;
 	}
 
 	.container {
