@@ -21,17 +21,7 @@ const config = {
 			$jibs: "./src/jibs/*",
 			$content: "./src/content/*",
 		},
-		adapter: adapter({
-			pages: "build",
-			assets: "build",
-			fallback: "index.html",
-			precompress: true,
-			strict: true,
-			routes: {
-				include: ["/*"],
-				exclude: ["<all>"],
-			},
-		}),
+		adapter: adapter(),
 	},
 
 	preprocess: [
