@@ -217,7 +217,7 @@ export async function load({ request, url }) {
 	const links = await buildLinksWithQr(allLinks, titlesToShow, qrMode);
 
 	// Extract email address for display
-	const emailLink = allLinks.find((l) => l.title === "email");
+	const emailLink = links.find((l) => l.title === "email");
 	const email = emailLink?.url?.replace("mailto:", "") ?? null;
 
 	return {
