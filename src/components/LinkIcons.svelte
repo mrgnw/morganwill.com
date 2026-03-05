@@ -12,7 +12,8 @@
 	 *   defaultTitle?: string,
 	 *   iconSize?: string,
 	 *   selected?: string | null,
-	 *   initialQrMode?: boolean
+	 *   initialQrMode?: boolean,
+	 *   email?: string | null
 	 * }}
 	 */
 	let {
@@ -21,6 +22,7 @@
 		iconSize = "clamp(3.5em, 8vw, 5.5em)",
 		selected = $bindable(null),
 		initialQrMode = false,
+		email = null,
 	} = $props();
 
 	// Internal state for QR mode
@@ -131,6 +133,9 @@
 			ondeactivate={toggleQrMode}
 			onhover={(title) => (hoveredLink = title)}
 		/>
+		{#if email}
+			<a href="mailto:{email}" class="email-link">{email}</a>
+		{/if}
 	</div>
 </div>
 
@@ -164,6 +169,23 @@
 	.selector-wrapper {
 		width: 100%;
 		transition: all 0.3s ease;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.email-link {
+		font-size: clamp(0.8rem, 2vw, 1rem);
+		color: var(--default);
+		text-decoration: none;
+		opacity: 0.7;
+		transition: opacity 0.2s ease, color 0.2s ease;
+	}
+
+	.email-link:hover {
+		opacity: 1;
+		color: var(--highlight);
 	}
 
 	.title {

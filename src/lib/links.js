@@ -108,6 +108,14 @@ export const linkTemplates = [
 		strokeIcon: true,
 		envVar: "SIGNAL_ID",
 	},
+	{
+		title: "email",
+		alias: "email",
+		urlTemplate: "mailto:{value}",
+		blurb: "Send an email",
+		colors: ["#EA4335", "#FBBC05"],
+		envVar: "CONTACT_EMAIL",
+	},
 ];
 
 /**

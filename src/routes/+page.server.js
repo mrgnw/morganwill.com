@@ -10,8 +10,8 @@ import { generateQR } from "$lib/server/generateQR.js";
  */
 /** @type {Record<string, string[]>} */
 const hostDefaults = {
-	"morganwill.com": ["linkedin", "github", "bluesky", "telegram", "cv"],
-	"zenfo.co": ["instagram", "bluesky", "telegram"],
+	"morganwill.com": ["linkedin", "github", "bluesky", "telegram", "cv", "email"],
+	"zenfo.co": ["instagram", "bluesky", "telegram", "email"],
 };
 
 /**
@@ -41,21 +41,30 @@ function extractTitlesAndQr(str) {
 /**
  * Parse URL params to extract requested links and param overrides
  * Handles ?ig.tg.qr or ?wa=+1234567890 formats
+ * Prefix with + to append to host defaults: ?+wa.email
  * @param {URLSearchParams} urlParams
- * @returns {{ requestedTitles: string[] | null, overrides: Map<string, string>, qrMode: boolean }}
+ * @returns {{ requestedTitles: string[] | null, appendTitles: string[], overrides: Map<string, string>, qrMode: boolean }}
  */
 function parseUrlParams(urlParams) {
 	const overrides = new Map();
 	let qrMode = urlParams.has("qr");
 	const requestedTitles = [];
+	const appendTitles = [];
 
 	for (const key of urlParams.keys()) {
 		if (key === "qr") continue;
 
-		const { titles, hasQr } = extractTitlesAndQr(key);
+		const isAppend = key.startsWith("+");
+		const cleanKey = isAppend ? key.slice(1) : key;
+
+		const { titles, hasQr } = extractTitlesAndQr(cleanKey);
 		const value = urlParams.get(key) || "";
 
-		requestedTitles.push(...titles);
+		if (isAppend) {
+			appendTitles.push(...titles);
+		} else {
+			requestedTitles.push(...titles);
+		}
 		qrMode ||= hasQr;
 
 		// Store overrides for titles that have values
@@ -68,27 +77,30 @@ function parseUrlParams(urlParams) {
 
 	// Remove duplicates
 	const unique = [...new Set(requestedTitles)];
+	const uniqueAppend = [...new Set(appendTitles)];
 
 	return {
 		requestedTitles: unique.length > 0 ? unique : null,
+		appendTitles: uniqueAppend,
 		overrides,
 		qrMode,
 	};
 }
 
 /**
- * Get titles to display based on hostname and URL params
+ * Get titles to display based on hostname, URL params, and append list
  * @param {string} hostname
  * @param {string[] | null} requestedTitles
+ * @param {string[]} appendTitles
  * @returns {string[]}
  */
-function getTitlesToDisplay(hostname, requestedTitles) {
-	if (requestedTitles) {
-		return requestedTitles;
+function getTitlesToDisplay(hostname, requestedTitles, appendTitles) {
+	const base = requestedTitles ??
+		hostDefaults[hostname] ?? ["instagram", "linkedin", "bluesky", "telegram"];
+	if (appendTitles.length > 0) {
+		return [...new Set([...base, ...appendTitles])];
 	}
-	return (
-		hostDefaults[hostname] || ["instagram", "linkedin", "bluesky", "telegram"]
-	);
+	return base;
 }
 
 /**
@@ -147,6 +159,7 @@ export async function load({ request, url }) {
 	// Parse URL params once
 	const {
 		requestedTitles,
+		appendTitles,
 		overrides: paramOverrides,
 		qrMode,
 	} = parseUrlParams(url.searchParams);
@@ -198,14 +211,19 @@ export async function load({ request, url }) {
 	);
 
 	// Determine which titles to display
-	const titlesToShow = getTitlesToDisplay(hostname, requestedTitles);
+	const titlesToShow = getTitlesToDisplay(hostname, requestedTitles, appendTitles);
 
 	// Build links with QR codes (lazy load - only when qrMode is active)
 	const links = await buildLinksWithQr(allLinks, titlesToShow, qrMode);
+
+	// Extract email address for display
+	const emailLink = allLinks.find((l) => l.title === "email");
+	const email = emailLink?.url?.replace("mailto:", "") ?? null;
 
 	return {
 		links,
 		qrMode,
 		hostname,
+		email,
 	};
 }

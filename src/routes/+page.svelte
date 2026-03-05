@@ -19,6 +19,7 @@
 		links={data.links}
 		defaultTitle="Morgan"
 		initialQrMode={data.qrMode ?? false}
+		email={data.email ?? null}
 	/>
 </div>
 
