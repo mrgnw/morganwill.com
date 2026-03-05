@@ -10,8 +10,8 @@ import { generateQR } from "$lib/server/generateQR.js";
  */
 /** @type {Record<string, string[]>} */
 const hostDefaults = {
-	"morganwill.com": ["linkedin", "github", "bluesky", "telegram", "cv", "email"],
-	"zenfo.co": ["instagram", "bluesky", "telegram", "email"],
+	"morganwill.com": ["linkedin", "github", "bluesky", "telegram", "cv"],
+	"zenfo.co": ["instagram", "bluesky", "telegram"],
 };
 
 /**
@@ -42,23 +42,30 @@ function extractTitlesAndQr(str) {
  * Parse URL params to extract requested links and param overrides
  * Handles ?ig.tg.qr or ?wa=+1234567890 formats
  * Prefix with + to append to host defaults: ?+wa.email
- * @param {URLSearchParams} urlParams
+ * Uses raw query string because URLSearchParams decodes + as space
+ * @param {string} rawSearch - url.search (e.g. "?+wa.email&qr")
  * @returns {{ requestedTitles: string[] | null, appendTitles: string[], overrides: Map<string, string>, qrMode: boolean }}
  */
-function parseUrlParams(urlParams) {
+function parseUrlParams(rawSearch) {
 	const overrides = new Map();
-	let qrMode = urlParams.has("qr");
+	let qrMode = false;
 	const requestedTitles = [];
 	const appendTitles = [];
 
-	for (const key of urlParams.keys()) {
-		if (key === "qr") continue;
+	const query = rawSearch.startsWith("?") ? rawSearch.slice(1) : rawSearch;
+	if (!query) return { requestedTitles: null, appendTitles: [], overrides, qrMode };
 
-		const isAppend = key.startsWith("+");
-		const cleanKey = isAppend ? key.slice(1) : key;
+	for (const part of query.split("&")) {
+		const [rawKey, rawValue] = part.split("=");
+		const value = rawValue ? decodeURIComponent(rawValue) : "";
 
-		const { titles, hasQr } = extractTitlesAndQr(cleanKey);
-		const value = urlParams.get(key) || "";
+		if (rawKey === "qr") { qrMode = true; continue; }
+
+		const isAppend = rawKey.startsWith("%2B") || rawKey.startsWith("+");
+		const cleanKey = isAppend ? rawKey.replace(/^(%2B|\+)/, "") : rawKey;
+		const key = decodeURIComponent(cleanKey);
+
+		const { titles, hasQr } = extractTitlesAndQr(key);
 
 		if (isAppend) {
 			appendTitles.push(...titles);
@@ -67,21 +74,14 @@ function parseUrlParams(urlParams) {
 		}
 		qrMode ||= hasQr;
 
-		// Store overrides for titles that have values
 		for (const title of titles) {
-			if (value) {
-				overrides.set(title, value);
-			}
+			if (value) overrides.set(title, value);
 		}
 	}
 
-	// Remove duplicates
-	const unique = [...new Set(requestedTitles)];
-	const uniqueAppend = [...new Set(appendTitles)];
-
 	return {
-		requestedTitles: unique.length > 0 ? unique : null,
-		appendTitles: uniqueAppend,
+		requestedTitles: [...new Set(requestedTitles)].length > 0 ? [...new Set(requestedTitles)] : null,
+		appendTitles: [...new Set(appendTitles)],
 		overrides,
 		qrMode,
 	};
@@ -162,7 +162,7 @@ export async function load({ request, url }) {
 		appendTitles,
 		overrides: paramOverrides,
 		qrMode,
-	} = parseUrlParams(url.searchParams);
+	} = parseUrlParams(url.search);
 
 	// Count existing links by type (for CUSTOM_LINKS auto-naming)
 	/** @type {Map<string, number>} */
