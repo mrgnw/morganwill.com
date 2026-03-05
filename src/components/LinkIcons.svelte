@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from "svelte";
 	import { fade } from "svelte/transition";
+	import { goto, preloadData } from "$app/navigation";
 	import QrGrid from "./QrGrid.svelte";
 	import LinkSelector from "./LinkSelector.svelte";
 
@@ -12,7 +13,7 @@
 	 *   defaultTitle?: string,
 	 *   iconSize?: string,
 	 *   selected?: string | null,
-	 *   initialQrMode?: boolean,
+	 *   qrMode?: boolean,
 	 *   email?: string | null
 	 * }}
 	 */
@@ -21,12 +22,9 @@
 		defaultTitle = "",
 		iconSize = "clamp(3.5em, 8vw, 5.5em)",
 		selected = $bindable(null),
-		initialQrMode = false,
+		qrMode = false,
 		email = null,
 	} = $props();
-
-	// Internal state for QR mode
-	let qrMode = $state(initialQrMode);
 
 	// Set of link titles to show QRs for (when in qrMode)
 	let selectedQrs = $state(/** @type {Set<string>} */ (new Set()));
@@ -66,24 +64,23 @@
 	}
 
 	function toggleQrMode() {
-		qrMode = !qrMode;
-
+		const url = new URL(window.location.href);
 		if (qrMode) {
-			// Update URL without navigation
-			const url = new URL(window.location.href);
-			url.searchParams.set("qr", "");
-			window.history.pushState({}, "", url);
-		} else {
-			// Clear selected QRs when deactivating
 			selectedQrs = new Set();
-			// Remove QR parameter from URL
-			const url = new URL(window.location.href);
 			url.searchParams.delete("qr");
-			window.history.pushState({}, "", url);
+		} else {
+			url.searchParams.set("qr", "");
 		}
+		goto(url.toString(), { noScroll: true, keepFocus: true });
 	}
 
 	onMount(() => {
+		if (!qrMode) {
+			const url = new URL(window.location.href);
+			url.searchParams.set("qr", "");
+			preloadData(url.toString());
+		}
+
 		/**
 		 * @param {TouchEvent} e
 		 */
