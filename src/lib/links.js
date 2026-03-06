@@ -116,6 +116,14 @@ export const linkTemplates = [
 		colors: ["#EA4335", "#FBBC05"],
 		envVar: "CONTACT_EMAIL",
 	},
+	{
+		title: "cv",
+		alias: "cv",
+		url: "https://cv.morganwill.com",
+		blurb: "View CV / Resume",
+		colors: ["#4A90D9", "#2C5282"],
+		strokeIcon: true,
+	},
 ];
 
 /**

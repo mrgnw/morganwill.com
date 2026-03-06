@@ -1,6 +1,7 @@
 import { env } from "$env/dynamic/private";
 import { linkTemplates, buildLink, parseCustomLinks } from "$lib/links.js";
 import { generateQR } from "$lib/server/generateQR.js";
+import { presetAliases } from "$lib/presets.js";
 
 /** @typedef {import('$lib/links.js').Link} Link */
 /** @typedef {import('$lib/links.js').LinkTemplate} LinkTemplate */
@@ -29,6 +30,9 @@ function extractTitlesAndQr(str) {
 
 	for (const part of parts) {
 		if (part === "qr") {
+			hasQr = true;
+		} else if (presetAliases[part]) {
+			titles.push(...presetAliases[part]);
 			hasQr = true;
 		} else {
 			titles.push(part);
