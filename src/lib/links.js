@@ -117,6 +117,13 @@ export const linkTemplates = [
 		envVar: "CONTACT_EMAIL",
 	},
 	{
+		title: "duolingo",
+		alias: "duo",
+		url: "https://invite.duolingo.com/profile-share/mrgnw",
+		blurb: "Add me on Duolingo",
+		colors: ["#58CC02", "#1CB0F6"],
+	},
+	{
 		title: "cv",
 		alias: "cv",
 		url: "https://cv.morganwill.com",

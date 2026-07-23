@@ -9,6 +9,7 @@ const redirects = {
   apple: "sms:morgan@textme.cc",
   imessage: "sms:morgan@textme.cc",
   cal: "https://cal.com/mrgnw/hi",
+  duo: "https://invite.duolingo.com/profile-share/mrgnw",
   dm: "https://a.xcc.es/telegram",
 };
 
