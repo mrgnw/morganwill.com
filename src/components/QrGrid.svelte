@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { useElementSize } from "@ariefsn/svelte-use";
     import { flip } from "svelte/animate";
     import { scale } from "svelte/transition";
     import ColoredQr from "./ColoredQr.svelte";
@@ -22,11 +22,11 @@
      */
     let { links = [], hoveredLink = null } = $props();
 
-    // Container dimensions (updated via ResizeObserver)
-    let containerWidth = $state(0);
-    let containerHeight = $state(0);
     /** @type {HTMLDivElement | null} */
     let containerEl = $state(null);
+
+    const { width: containerWidth, height: containerHeight } =
+        useElementSize(() => containerEl);
 
     // Grid calculation - derive defaults from link count
     let initialCols = $derived(Math.ceil(Math.sqrt(links.length)));
@@ -34,8 +34,8 @@
 
     // Reactive grid calculation based on container size
     let gridCalc = $derived.by(() => {
-        const w = containerWidth;
-        const h = containerHeight;
+        const w = containerWidth();
+        const h = containerHeight();
         const n = links.length;
 
         if (w === 0 || h === 0 || n === 0) {
@@ -96,21 +96,6 @@
     let size = $derived(gridCalc.size);
     let ready = $derived(gridCalc.ready);
     let landscape = $derived(gridCalc.landscape);
-
-    onMount(() => {
-        if (!containerEl) return;
-
-        const resizeObserver = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                containerWidth = entry.contentRect.width;
-                containerHeight = entry.contentRect.height;
-            }
-        });
-
-        resizeObserver.observe(containerEl);
-
-        return () => resizeObserver.disconnect();
-    });
 
     /**
      * Calculate animation delays for rects based on their position
