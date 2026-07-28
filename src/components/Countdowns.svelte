@@ -1,5 +1,9 @@
 <script>
+    import { useNow } from "@ariefsn/svelte-use";
+
     let { dates = [] } = $props();
+
+    const now = useNow();
 
     // Normalize input to [{ date: Date, label?: string }]
     function normalizeDate(item) {
@@ -16,10 +20,9 @@
         Array.isArray(dates) ? dates.map(normalizeDate).filter(Boolean) : [],
     );
 
-    function getTimeParts(targetDate) {
-        const now = new Date().getTime();
-        const countingUp = now > targetDate.getTime();
-        const distance = Math.abs(targetDate.getTime() - now);
+    function getTimeParts(targetDate, nowMs) {
+        const countingUp = nowMs > targetDate.getTime();
+        const distance = Math.abs(targetDate.getTime() - nowMs);
 
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor(
@@ -38,21 +41,12 @@
         return { days, hours, minutes, seconds, countingUp, dateString };
     }
 
-    let timers = $state([]);
-
-    function updateTimers() {
-        timers = normalized.map(({ date, label }) => {
-            const t = getTimeParts(date);
-            return { ...t, label };
-        });
-    }
-
-    let intervalId;
-    $effect(() => {
-        updateTimers();
-        intervalId = setInterval(updateTimers, 1000);
-        return () => clearInterval(intervalId);
-    });
+    let timers = $derived.by(() =>
+        normalized.map(({ date, label }) => ({
+            ...getTimeParts(date, now()),
+            label,
+        })),
+    );
 
     function pad(num) {
         return num.toString().padStart(2, "0");

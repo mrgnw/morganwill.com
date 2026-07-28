@@ -1,31 +1,19 @@
 <script>
+  import { useNow } from "@ariefsn/svelte-use";
+
   let { targetDate, label = "" } = $props();
 
-  let days = $state(0);
-  let hours = $state(0);
-  let minutes = $state(0);
-  let seconds = $state(0);
-  let countingUp = $state(false); // <-- make this reactive state
+  const now = useNow();
 
-  function updateCountdown() {
-    const now = new Date().getTime();
-    countingUp = now > targetDate; // <-- update per tick
-    const distance = Math.abs(targetDate - now);
+  let countingUp = $derived(now() > targetDate);
+  let distance = $derived(Math.abs(targetDate - now()));
 
-    days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  }
-
-  let intervalId;
-
-  $effect(() => {
-    updateCountdown();
-    intervalId = setInterval(updateCountdown, 1000);
-
-    return () => clearInterval(intervalId);
-  });
+  let days = $derived(Math.floor(distance / (1000 * 60 * 60 * 24)));
+  let hours = $derived(
+    Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+  );
+  let minutes = $derived(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
+  let seconds = $derived(Math.floor((distance % (1000 * 60)) / 1000));
 
   function padNumber(num) {
     return num.toString().padStart(2, "0");
