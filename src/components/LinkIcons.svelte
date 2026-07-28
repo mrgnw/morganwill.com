@@ -80,22 +80,6 @@
 			url.searchParams.set("qr", "");
 			preloadData(url.toString());
 		}
-
-		/**
-		 * @param {TouchEvent} e
-		 */
-		function handleBodyTouch(e) {
-			const target = /** @type {Element} */ (e.target);
-			if (!target?.closest?.(".links a") && !qrMode) {
-				selected = null;
-			}
-		}
-
-		document.body.addEventListener("touchstart", handleBodyTouch);
-
-		return () => {
-			document.body.removeEventListener("touchstart", handleBodyTouch);
-		};
 	});
 </script>
 

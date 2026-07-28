@@ -1,5 +1,5 @@
 <script>
-	import { fade } from "svelte/transition";
+	import { useClickOutside } from "@ariefsn/svelte-use";
 	import Icon from "$lib/icons/Icon.svelte";
 	import { iconData } from "$lib/icons/data.js";
 
@@ -41,6 +41,16 @@
 		onselect?.(title);
 	}
 
+	/** @type {HTMLDivElement | null} */
+	let linksEl = $state(null);
+
+	useClickOutside(
+		() => linksEl,
+		() => {
+			if (!qrMode) handleSelect(null);
+		},
+	);
+
 	/**
 	 * Handle icon click - navigate or toggle QR selection
 	 * @param {string} title
@@ -80,6 +90,7 @@
 <div
 	class="links"
 	class:qr-mode={qrMode}
+	bind:this={linksEl}
 	ontouchmove={(e) => {
 		e.preventDefault();
 		const touch = e.touches[0];
