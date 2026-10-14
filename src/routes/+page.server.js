@@ -11,7 +11,7 @@ import { presetAliases } from "$lib/presets.js";
  */
 /** @type {Record<string, string[]>} */
 const hostDefaults = {
-	"morganwill.com": ["linkedin", "github", "bluesky", "telegram", "cv"],
+	"morganwill.com": ["linkedin", "github", "bluesky", "telegram"],
 	"zenfo.co": ["instagram", "bluesky", "telegram"],
 };
 
