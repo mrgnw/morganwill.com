@@ -25,7 +25,16 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 		<meta name="viewport" content="width=device-width" />
 		%sveltekit.head%
-		<script>window.traks=window.traks||function(){(window.traks.q=window.traks.q||[]).push(arguments)}</script><script defer data-site="pb_live_kgqp6jrgub9gyon8ylf1phr9" src="https://traks-collect.xces.workers.dev/t.js"></script>
+		<script>
+			window.traks=window.traks||function(){(window.traks.q=window.traks.q||[]).push(arguments)};
+			if (['morganwill.com', 'xcc.es', 'morg.info', 'mrgnw.dev'].includes(location.hostname)) {
+				const tracker = document.createElement('script');
+				tracker.defer = true;
+				tracker.dataset.site = 'pb_live_kgqp6jrgub9gyon8ylf1phr9';
+				tracker.src = 'https://traks-collect.xces.workers.dev/t.js';
+				document.head.appendChild(tracker);
+			}
+		</script>
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">%sveltekit.body%</div>
