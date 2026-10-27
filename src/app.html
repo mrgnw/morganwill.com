@@ -27,7 +27,7 @@
 		%sveltekit.head%
 		<script>
 			window.traks=window.traks||function(){(window.traks.q=window.traks.q||[]).push(arguments)};
-			if (['morganwill.com', 'xcc.es', 'morg.info', 'mrgnw.dev'].includes(location.hostname)) {
+			if (location.hostname === 'morganwill.com') {
 				const tracker = document.createElement('script');
 				tracker.defer = true;
 				tracker.dataset.site = 'pb_live_kgqp6jrgub9gyon8ylf1phr9';

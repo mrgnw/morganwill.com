@@ -5,8 +5,8 @@
 	/**
 	 * @typedef {Object} Props
 	 * @property {any} [class]
-	 * @property {string} [variant]
-	 * @property {string} [size]
+	 * @property {import("tailwind-variants").VariantProps<typeof buttonVariants>["variant"]} [variant]
+	 * @property {import("tailwind-variants").VariantProps<typeof buttonVariants>["size"]} [size]
 	 * @property {any} [builders]
 	 * @property {import('svelte').Snippet} [children]
 	 */

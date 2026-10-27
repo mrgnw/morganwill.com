@@ -3,6 +3,7 @@
  * Each icon contains its viewBox and SVG path content
  */
 
+/** @type {Record<string, {viewBox: string, content: string}>} */
 export const iconData = {
   instagram: {
     viewBox: '0 0 24 24',

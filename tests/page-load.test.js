@@ -24,7 +24,7 @@ describe("Page Load Performance", () => {
       start = performance.now();
       const allLinks = linkTemplates
         .map((template) => buildLink(template, null, null))
-        .filter(Boolean);
+        .filter((link) => link !== null && link !== undefined);
       timings.linkBuilding = performance.now() - start;
 
       // Step 4: Filter to requested titles
@@ -35,11 +35,12 @@ describe("Page Load Performance", () => {
         .map((title) =>
           allLinks.find((link) => link.title === title || link.alias === title),
         )
-        .filter(Boolean);
+        .filter((link) => link !== null && link !== undefined);
       timings.filtering = performance.now() - start;
 
       // Step 5: Skip QR import if not in QR mode (optimization!)
       start = performance.now();
+      /** @type {Record<string, string>} */
       let preGeneratedQRCodes = {};
       if (hasQrMode) {
         const qrModule = await import("../src/lib/generated-qr-codes.js");
@@ -94,11 +95,12 @@ describe("Page Load Performance", () => {
       start = performance.now();
       const allLinks = linkTemplates
         .map((template) => buildLink(template, null, null))
-        .filter(Boolean);
+        .filter((link) => link !== null && link !== undefined);
       timings.linkBuilding = performance.now() - start;
 
       // Step 4: Now import QR codes ONLY because in QR mode
       start = performance.now();
+      /** @type {Record<string, string>} */
       let preGeneratedQRCodes = {};
       if (hasQrMode) {
         const qrModule = await import("../src/lib/generated-qr-codes.js");
@@ -231,6 +233,7 @@ describe("Page Load Performance", () => {
     it("should batch DOM reads and writes to minimize layout thrashing", () => {
       // Create test DOM
       const container = document.createElement("div");
+      /** @type {HTMLDivElement[]} */
       const rects = [];
       for (let i = 0; i < 100; i++) {
         const rect = document.createElement("div");
@@ -319,9 +322,10 @@ describe("Page Load Performance", () => {
       // Simulate proper animation setup with RAF
       let rafCallCount = 0;
 
+      /** @param {FrameRequestCallback} cb */
       const mockRAF = (cb) => {
         rafCallCount++;
-        return cb();
+        return cb(performance.now());
       };
 
       // Create test elements
@@ -374,7 +378,7 @@ describe("Page Load Performance", () => {
       start = performance.now();
       const allLinks = linkTemplates
         .map((t) => buildLink(t, null, null))
-        .filter(Boolean);
+        .filter((link) => link !== null && link !== undefined);
       timings.linkBuild = performance.now() - start;
 
       // QR import decision (lazy!)

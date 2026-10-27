@@ -197,6 +197,6 @@ describe("Bundle Analysis", () => {
 
     // QR code import should NOT be blocking initial render
     const qrResource = criticalResources.find((r) => r.name.includes("QR"));
-    expect(qrResource.isBlocking).toBe(false);
+    expect(qrResource?.isBlocking).toBe(false);
   });
 });

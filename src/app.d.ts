@@ -20,3 +20,7 @@ declare module 'virtual:icons/*' {
 	const component: typeof SvelteComponent;
 	export default component;
 }
+
+interface CacheStorage {
+	readonly default: Cache;
+}

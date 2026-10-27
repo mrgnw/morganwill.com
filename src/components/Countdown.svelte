@@ -15,6 +15,7 @@
   let minutes = $derived(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
   let seconds = $derived(Math.floor((distance % (1000 * 60)) / 1000));
 
+	/** @param {number} num */
   function padNumber(num) {
     return num.toString().padStart(2, "0");
   }

@@ -3,6 +3,7 @@
 	import { cn } from "$lib/utils.js.js";
 	let className = undefined;
 	export let href = undefined;
+	/** @type {import("tailwind-variants").VariantProps<typeof badgeVariants>["variant"]} */
 	export let variant = "default";
 	export { className as class };
 </script>

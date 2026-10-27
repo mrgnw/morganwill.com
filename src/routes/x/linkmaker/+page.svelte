@@ -5,6 +5,8 @@
 	import Icon from "$lib/icons/Icon.svelte";
 	import { iconData } from "$lib/icons/data.js";
 
+	/** @typedef {{type: string, title: string, alias: string, value: string, url: string, qr: string | null, colors: string[], blurb: string}} GeneratedLink */
+	/** @type {GeneratedLink[]} */
 	let links = $state([]);
 	let selectedType = $state("");
 	let inputValue = $state("");
@@ -108,6 +110,7 @@
 	/**
 	 * Remove a link from the list
 	 */
+	/** @param {number} index */
 	function removeLink(index) {
 		links = links.filter((_, i) => i !== index);
 	}
@@ -115,6 +118,7 @@
 	/**
 	 * Download QR code as SVG
 	 */
+	/** @param {GeneratedLink} link @param {number} index */
 	function downloadQR(link, index) {
 		if (!link.qr) return;
 
