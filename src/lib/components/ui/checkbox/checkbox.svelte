@@ -25,15 +25,13 @@
 >
 	<CheckboxPrimitive.Indicator
 		class={cn("flex h-4 w-4 items-center justify-center text-current")}
-		
-		
+		let:isChecked
+		let:isIndeterminate
 	>
-		{#snippet children({ isChecked, isIndeterminate })}
-				{#if isChecked}
-				<Check class="h-3.5 w-3.5" />
-			{:else if isIndeterminate}
-				<Minus class="h-3.5 w-3.5" />
-			{/if}
-					{/snippet}
-		</CheckboxPrimitive.Indicator>
+		{#if isChecked}
+			<Check class="h-3.5 w-3.5" />
+		{:else if isIndeterminate}
+			<Minus class="h-3.5 w-3.5" />
+		{/if}
+	</CheckboxPrimitive.Indicator>
 </CheckboxPrimitive.Root>

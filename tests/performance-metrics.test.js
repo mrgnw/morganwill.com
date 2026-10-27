@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
 describe("Performance Metrics", () => {
+  /** @type {number[]} */
   let measurements = [];
 
   beforeEach(() => {
@@ -144,7 +145,7 @@ describe("Performance Metrics", () => {
         .map((template) => {
           return buildLink(template, null, null);
         })
-        .filter(Boolean);
+        .filter((link) => link !== null && link !== undefined);
 
       const duration = performance.now() - start;
 
@@ -159,7 +160,7 @@ describe("Performance Metrics", () => {
 
       const allLinks = linkTemplates
         .map((template) => buildLink(template, null, null))
-        .filter(Boolean);
+        .filter((link) => link !== null && link !== undefined);
 
       const titlesToShow = ["instagram", "linkedin", "github"];
 
@@ -169,7 +170,7 @@ describe("Performance Metrics", () => {
         .map((title) =>
           allLinks.find((link) => link.title === title || link.alias === title),
         )
-        .filter(Boolean);
+        .filter((link) => link !== null && link !== undefined);
 
       const duration = performance.now() - start;
 
@@ -183,6 +184,7 @@ describe("Performance Metrics", () => {
   describe("Build-time Generation", () => {
     it("should detect unchanged URLs and skip regeneration", async () => {
       // Simulate what the build script does with incremental generation
+      /** @type {Record<string, string>} */
       const mockExisting = {
         instagram: "<svg>...</svg>",
         linkedin: "<svg>...</svg>",

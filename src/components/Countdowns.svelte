@@ -6,6 +6,7 @@
     const now = useNow();
 
     // Normalize input to [{ date: Date, label?: string }]
+	/** @param {string | Date | {date: string | Date, label?: string} | null} item */
     function normalizeDate(item) {
         if (typeof item === "string" || item instanceof Date) {
             return { date: new Date(item) };
@@ -17,9 +18,10 @@
     }
 
     let normalized = $derived.by(() =>
-        Array.isArray(dates) ? dates.map(normalizeDate).filter(Boolean) : [],
+        Array.isArray(dates) ? dates.map(normalizeDate).filter((item) => item !== null) : [],
     );
 
+	/** @param {Date} targetDate @param {number} nowMs */
     function getTimeParts(targetDate, nowMs) {
         const countingUp = nowMs > targetDate.getTime();
         const distance = Math.abs(targetDate.getTime() - nowMs);
@@ -48,6 +50,7 @@
         })),
     );
 
+	/** @param {number} num */
     function pad(num) {
         return num.toString().padStart(2, "0");
     }

@@ -19,6 +19,7 @@
  * @property {string[]} colors - Brand colors
  * @property {boolean} [strokeIcon] - Icon uses stroke instead of fill
  * @property {string} [envVar] - Environment variable name for the value
+ * @property {string} [__customValue]
  */
 
 /** @type {LinkTemplate[]} */
@@ -132,17 +133,6 @@ export const linkTemplates = [
 		strokeIcon: true,
 	},
 ];
-
-/**
- * @typedef {Object} Link
- * @property {string} title
- * @property {string} alias
- * @property {string} url
- * @property {string} blurb
- * @property {string[]} colors
- * @property {string} [qr]
- * @property {boolean} [strokeIcon]
- */
 
 /**
  * Build a link from a template, with value from env var or param
@@ -268,7 +258,7 @@ export function parseCustomLinks(customLinksJson, existingCounts) {
 					__customValue: custom.value, // Store the value directly
 				};
 			})
-			.filter(Boolean);
+			.filter((template) => template !== null);
 	} catch (error) {
 		console.warn("Failed to parse CUSTOM_LINKS:", error);
 		return [];
